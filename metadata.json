@@ -1,0 +1,6 @@
+{
+  "name": "Meraki Homes — Premium Home Services Platform",
+  "description": "Technology-enabled luxury home services platform in Ethiopia with Marketing Site, Customer Portal, Admin Dashboard, and Worker Mobile App.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
