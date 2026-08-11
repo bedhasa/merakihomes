@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { MOCK_SERVICES, MOCK_WORKERS, ADDIS_NEIGHBORHOODS, MOCK_REVIEWS, ETB_EXCHANGE_RATE } from '../../data/mockServices';
-import { ServiceCategory, Booking, Currency, PaymentMethodType } from '../../types';
+import { ServiceCategory, Booking, Currency, PaymentMethodType, CustomerSubPage } from '../../types';
 import { formatCurrency } from '../../utils/formatters';
 import { 
   Sparkles, Star, Clock, MapPin, Calendar, Check, ShieldCheck, 
@@ -15,6 +15,7 @@ interface CustomerViewProps {
   onCreateBooking: (newBooking: Booking) => void;
   onUpdateBookingStatus: (id: string, status: Booking['status']) => void;
   presetServiceId?: string | null;
+  initialTab?: CustomerSubPage;
 }
 
 export const CustomerView: React.FC<CustomerViewProps> = ({
@@ -22,105 +23,68 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
   currency,
   onCreateBooking,
   onUpdateBookingStatus,
-  presetServiceId
+  presetServiceId,
+  initialTab
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(
     presetServiceId ? MOCK_SERVICES.find(s => s.id === presetServiceId) || null : null
   );
   const [activeTab, setActiveTab] = useState<'dashboard' | 'book' | 'history' | 'payments' | 'reviews' | 'tracker'>(
-    presetServiceId ? 'book' : 'dashboard'
+    initialTab || (presetServiceId ? 'book' : 'dashboard')
   );
   const [trackedBookingId, setTrackedBookingId] = useState<string | null>(bookings[0]?.id || null);
 
-  // Booking Flow State
-  const [bookingStep, setBookingStep] = useState<1 | 2 | 3 | 4>(1);
-  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
-  const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('Bole Atlas');
-  const [address, setAddress] = useState<string>('House #402, near Edna Mall, Bole Atlas');
-  const [selectedDate, setSelectedDate] = useState<string>('Today, 2:30 PM');
-  const [selectedSlot, setSelectedSlot] = useState<string>('02:30 PM - 04:30 PM');
-  const [durationHours, setDurationHours] = useState<number>(2);
-  const [cleanersCount, setCleanersCount] = useState<number>(1);
-  const [notes, setNotes] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('telebirr');
-  const [promoCode, setPromoCode] = useState<string>('');
-  const [promoDiscountUSD, setPromoDiscountUSD] = useState<number>(0);
-  const [promoError, setPromoError] = useState<string>('');
+  // Simple booking form state
+  const [formName, setFormName] = useState('');
+  const [formPhone, setFormPhone] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formAddress, setFormAddress] = useState('bole');
+  const [formService, setFormService] = useState<ServiceCategory | null>(null);
+  const [formDateTime, setFormDateTime] = useState('');
+  const [formPayment, setFormPayment] = useState<PaymentMethodType>('telebirr');
+  const [formDescription, setFormDescription] = useState('');
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   // Review submission state
   const [newReviewComment, setNewReviewComment] = useState('');
   const [newReviewRating, setNewReviewRating] = useState(5);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
 
-  // Calculate pricing
-  const calculateTotalUSD = () => {
-    if (!selectedCategory) return 0;
-    const base = selectedCategory.basePrice * durationHours * cleanersCount;
-    const addonsTotal = selectedAddons.reduce((sum, addonId) => {
-      const found = selectedCategory.addons.find(a => a.id === addonId);
-      return sum + (found ? found.price : 0);
-    }, 0);
-    const subtotal = base + addonsTotal;
-    return Math.max(0, subtotal - promoDiscountUSD);
-  };
-
-  const handleApplyPromo = () => {
-    if (promoCode.toUpperCase() === 'MERAKI10') {
-      setPromoDiscountUSD(10);
-      setPromoError('');
-    } else if (promoCode.toUpperCase() === 'TELEBIRR15') {
-      setPromoDiscountUSD(15);
-      setPromoError('');
-    } else {
-      setPromoError('Invalid code. Try "MERAKI10" or "TELEBIRR15"');
-    }
-  };
-
-  const toggleAddon = (addonId: string) => {
-    if (selectedAddons.includes(addonId)) {
-      setSelectedAddons(prev => prev.filter(id => id !== addonId));
-    } else {
-      setSelectedAddons(prev => [...prev, addonId]);
-    }
-  };
-
   const handleFinalizeBooking = () => {
-    if (!selectedCategory) return;
-    const assignedWorker = MOCK_WORKERS[0]; // Bethlehem
-    const totalUSD = calculateTotalUSD();
+    if (!formService) return;
+    const assignedWorker = MOCK_WORKERS[0];
+    const totalUSD = formService.basePrice;
     const totalETB = Math.round(totalUSD * ETB_EXCHANGE_RATE);
 
     const newBooking: Booking = {
       id: `MRK-${Math.floor(100000 + Math.random() * 900000)}`,
-      serviceId: selectedCategory.id,
-      serviceName: `${selectedCategory.name} (${durationHours} Hrs)`,
-      customerName: 'Dr. Kebede Tadesse',
-      customerPhone: '+251 91 123 4567',
-      address,
-      neighborhood: selectedNeighborhood,
-      date: selectedDate,
-      timeSlot: selectedSlot,
-      durationHours,
-      cleanersCount,
-      addonsSelected: selectedAddons,
+      serviceId: formService.id,
+      serviceName: formService.name,
+      customerName: formName || 'Guest Customer',
+      customerPhone: formPhone || '+251 000 000 000',
+      address: formAddress,
+      neighborhood: formAddress,
+      date: formDateTime || 'ASAP',
+      timeSlot: formDateTime || 'Flexible',
+      durationHours: 2,
+      cleanersCount: 1,
+      addonsSelected: [],
       totalPrice: totalUSD,
       totalPriceETB: totalETB,
       status: 'in_progress',
-      paymentMethod,
+      paymentMethod: formPayment,
       paymentStatus: 'paid',
       workerId: assignedWorker.id,
       workerName: assignedWorker.name,
       workerAvatar: assignedWorker.avatar,
       workerRating: assignedWorker.rating,
       etaMinutes: 10,
-      notes,
+      notes: formDescription,
       createdAt: new Date().toLocaleString()
     };
 
     onCreateBooking(newBooking);
-    setTrackedBookingId(newBooking.id);
-    setSelectedCategory(null);
-    setActiveTab('tracker');
+    setBookingSuccess(true);
   };
 
   const activeTrackedBooking = bookings.find(b => b.id === trackedBookingId) || bookings[0];
@@ -149,8 +113,6 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
             <button
               onClick={() => {
                 setActiveTab('book');
-                if (!selectedCategory) setSelectedCategory(MOCK_SERVICES[0]);
-                setBookingStep(1);
               }}
               className={`px-3 py-1.5 rounded-lg font-bold transition-colors ${
                 activeTab === 'book' ? 'bg-slate-900 dark:bg-slate-700 text-white dark:text-slate-100' : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -290,7 +252,6 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                     onClick={() => {
                       setSelectedCategory(s);
                       setActiveTab('book');
-                      setBookingStep(1);
                     }}
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-golden-400 dark:hover:border-golden-500 rounded-2xl p-5 cursor-pointer transition-all space-y-4 shadow-xs group"
                   >
@@ -319,409 +280,156 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
         {/* ==================== BOOK SERVICE TAB ==================== */}
         {activeTab === 'book' && (
           <div className="max-w-4xl mx-auto space-y-6">
-            
-            {!selectedCategory ? (
-              <div className="space-y-6">
-                <div className="text-center space-y-1">
-                  <h1 className="text-2xl font-black text-slate-900 dark:text-white">Select a Service to Book</h1>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">Choose from our background-checked professional offerings in Addis Ababa.</p>
+            {bookingSuccess ? (
+              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-8 text-center space-y-4 shadow-xs">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 flex items-center justify-center mx-auto">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                  {MOCK_SERVICES.map(s => (
-                    <div
-                      key={s.id}
-                      onClick={() => {
-                        setSelectedCategory(s);
-                        setBookingStep(1);
-                      }}
-                      className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-golden-400 dark:hover:border-golden-500 rounded-2xl p-5 cursor-pointer transition-all space-y-3 shadow-xs"
-                    >
-                      <img src={s.image} alt={s.name} className="w-full h-32 object-cover rounded-xl" />
-                      <h3 className="font-bold text-slate-900 dark:text-white text-base">{s.name}</h3>
-                      <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-100 dark:border-slate-700">
-                        <span className="text-golden-700 dark:text-golden-400 font-bold">{formatCurrency(s.basePrice, currency)}</span>
-                        <span className="text-slate-500 dark:text-slate-400">★ {s.rating}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Booking Confirmed!</h2>
+                <p className="text-xs text-slate-600 dark:text-slate-300">Your service has been booked successfully. We will contact you shortly to confirm the details.</p>
+                <button
+                  onClick={() => {
+                    setBookingSuccess(false);
+                    setFormName('');
+                    setFormPhone('');
+                    setFormEmail('');
+                    setFormAddress('bole');
+                    setFormService(null);
+                    setFormDateTime('');
+                    setFormPayment('telebirr');
+                    setFormDescription('');
+                  }}
+                  className="px-6 py-3 bg-golden-500 hover:bg-golden-400 text-slate-950 font-bold text-xs rounded-xl shadow-xs"
+                >
+                  Book Another Service
+                </button>
               </div>
             ) : (
               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 lg:p-8 space-y-6 shadow-xs">
-                
-                {/* Wizard Step Progress Indicator */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 pb-5 gap-4">
-                  <div className="flex items-center space-x-3">
-                    <img src={selectedCategory.image} alt={selectedCategory.name} className="w-12 h-12 rounded-xl object-cover border border-golden-400" />
-                    <div>
-                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">{selectedCategory.name}</h2>
-                    <span className="text-xs text-golden-700 dark:text-golden-400 font-bold">Base: {formatCurrency(selectedCategory.basePrice, currency)} / {selectedCategory.unit}</span>
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Book a Service</h2>
+                <p className="text-xs text-slate-600 dark:text-slate-300">Fill in your details and select a service to get started.</p>
+
+                {/* Section 1: Personal Details */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-golden-700 dark:text-golden-400 uppercase tracking-widest">Personal Details</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Full Name *</label>
+                      <input
+                        type="text"
+                        value={formName}
+                        onChange={(e) => setFormName(e.target.value)}
+                        placeholder="Your full name"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Phone Number *</label>
+                      <input
+                        type="tel"
+                        value={formPhone}
+                        onChange={(e) => setFormPhone(e.target.value)}
+                        placeholder="+251 91 123 4567"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
+                      />
                     </div>
                   </div>
-
-                  <div className="flex items-center space-x-3 text-xs font-bold">
-                    <span className={`px-3 py-1 rounded-full ${bookingStep === 1 ? 'bg-slate-900 dark:bg-slate-700 text-white dark:text-slate-100' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>1. Details</span>
-                    <span className={`px-3 py-1 rounded-full ${bookingStep === 2 ? 'bg-slate-900 dark:bg-slate-700 text-white dark:text-slate-100' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>2. Schedule</span>
-                    <span className={`px-3 py-1 rounded-full ${bookingStep === 3 ? 'bg-slate-900 dark:bg-slate-700 text-white dark:text-slate-100' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>3. Address</span>
-                    <span className={`px-3 py-1 rounded-full ${bookingStep === 4 ? 'bg-slate-900 dark:bg-slate-700 text-white dark:text-slate-100' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300'}`}>4. Payment</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Email (Optional)</label>
+                      <input
+                        type="email"
+                        value={formEmail}
+                        onChange={(e) => setFormEmail(e.target.value)}
+                        placeholder="you@example.com"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Address / Area *</label>
+                      <select
+                        value={formAddress}
+                        onChange={(e) => setFormAddress(e.target.value)}
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
+                      >
+                        <option value="bole">Bole</option>
+                        <option value="jemo">Jemo</option>
+                        <option value="furi">Furi</option>
+                        <option value="mexico">Mexico</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                {/* STEP 1: Addons & Duration */}
-                {bookingStep === 1 && (
-                  <div className="space-y-6 text-xs">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
-                      {/* Duration counter */}
-                      <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-                        <label className="block text-slate-700 dark:text-slate-200 font-bold">Service Duration (Hours)</label>
-                        <div className="flex items-center space-x-4">
-                          <button
-                            onClick={() => setDurationHours(Math.max(1, durationHours - 1))}
-                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 flex items-center justify-center text-slate-900 dark:text-white font-bold text-lg hover:bg-slate-100 dark:hover:bg-slate-500"
-                          >
-                            -
-                          </button>
-                          <span className="text-2xl font-black text-slate-900 dark:text-white">{durationHours} Hours</span>
-                          <button
-                            onClick={() => setDurationHours(durationHours + 1)}
-                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 flex items-center justify-center text-slate-900 dark:text-white font-bold text-lg hover:bg-slate-100 dark:hover:bg-slate-500"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Cleaners count */}
-                      <div className="bg-slate-50 dark:bg-slate-700 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
-                        <label className="block text-slate-700 dark:text-slate-200 font-bold">Number of Professionals</label>
-                        <div className="flex items-center space-x-4">
-                          <button
-                            onClick={() => setCleanersCount(Math.max(1, cleanersCount - 1))}
-                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 flex items-center justify-center text-slate-900 dark:text-white font-bold text-lg hover:bg-slate-100 dark:hover:bg-slate-500"
-                          >
-                            -
-                          </button>
-                          <span className="text-2xl font-black text-slate-900 dark:text-white">{cleanersCount} Pro</span>
-                          <button
-                            onClick={() => setCleanersCount(cleanersCount + 1)}
-                            className="w-10 h-10 rounded-xl bg-white dark:bg-slate-600 border border-slate-300 dark:border-slate-500 flex items-center justify-center text-slate-900 dark:text-white font-bold text-lg hover:bg-slate-100 dark:hover:bg-slate-500"
-                          >
-                            +
-                          </button>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {/* Addons List */}
-                    <div className="space-y-3">
-                      <label className="block text-slate-700 dark:text-slate-200 font-bold">Select Specialized Add-ons:</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {selectedCategory.addons.map(addon => {
-                          const isSelected = selectedAddons.includes(addon.id);
-                          return (
-                            <div
-                              key={addon.id}
-                              onClick={() => toggleAddon(addon.id)}
-                              className={`p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                                isSelected
-                                  ? 'bg-golden-50 dark:bg-golden-950/30 border-golden-400 dark:border-golden-500 text-slate-900 dark:text-slate-100 font-bold'
-                                  : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
-                              }`}
-                            >
-                              <div>
-                                <div className="font-bold text-slate-900 dark:text-white">{addon.name}</div>
-                              </div>
-                              <span className="font-bold text-golden-700 dark:text-golden-400">+{formatCurrency(addon.price, currency)}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-700">
-                      <button
-                        onClick={() => setSelectedCategory(null)}
-                        className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-bold"
-                      >
-                        Cancel Selection
-                      </button>
-                      <button
-                        onClick={() => setBookingStep(2)}
-                        className="px-6 py-3 bg-golden-500 hover:bg-golden-400 text-slate-950 font-bold rounded-xl shadow-xs"
-                      >
-                        Next: Schedule Visit →
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* STEP 2: Schedule & Time slot */}
-                {bookingStep === 2 && (
-                  <div className="space-y-6 text-xs">
-                    <div className="space-y-3">
-                      <label className="block text-slate-700 dark:text-slate-200 font-bold">Select Date:</label>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {['Today, 2:30 PM', 'Tomorrow, 9:00 AM', 'Thursday, Oct 24', 'Friday, Oct 25'].map(d => (
-                          <button
-                            key={d}
-                            onClick={() => setSelectedDate(d)}
-                            className={`p-3 rounded-xl border text-center font-bold transition-all ${
-                              selectedDate === d
-                                ? 'bg-golden-50 dark:bg-golden-950/30 border-golden-400 dark:border-golden-500 text-slate-900 dark:text-slate-100'
-                                : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
-                            }`}
-                          >
-                            {d}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <label className="block text-slate-700 dark:text-slate-200 font-bold">Select Arrival Window Slot:</label>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        {['08:00 AM - 10:00 AM', '11:00 AM - 01:00 PM', '02:30 PM - 04:30 PM'].map(s => (
-                          <button
-                            key={s}
-                            onClick={() => setSelectedSlot(s)}
-                            className={`p-3 rounded-xl border text-center font-bold transition-all ${
-                              selectedSlot === s
-                                ? 'bg-golden-50 dark:bg-golden-950/30 border-golden-400 dark:border-golden-500 text-slate-900 dark:text-slate-100'
-                                : 'bg-slate-50 dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600'
-                            }`}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-700">
-                      <button
-                        onClick={() => setBookingStep(1)}
-                        className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-bold"
-                      >
-                        ← Back to Details
-                      </button>
-                      <button
-                        onClick={() => setBookingStep(3)}
-                        className="px-6 py-3 bg-golden-500 hover:bg-golden-400 text-slate-950 font-bold rounded-xl shadow-xs"
-                      >
-                        Next: Address & Instructions →
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* STEP 3: Address & Location in Addis */}
-                {bookingStep === 3 && (
-                  <div className="space-y-6 text-xs">
-                    <div className="space-y-3">
-                      <label className="block text-slate-700 dark:text-slate-200 font-bold">Addis Ababa Neighborhood / Zone:</label>
+                {/* Section 2: Service Selection */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-bold text-golden-700 dark:text-golden-400 uppercase tracking-widest">Service Selection</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Select Service *</label>
                       <select
-                        value={selectedNeighborhood}
-                        onChange={(e) => setSelectedNeighborhood(e.target.value)}
-                        className="w-full p-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white font-bold focus:border-golden-500"
+                        value={formService?.id || ''}
+                        onChange={(e) => {
+                          const found = MOCK_SERVICES.find(s => s.id === e.target.value);
+                          setFormService(found || null);
+                        }}
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
                       >
-                        {ADDIS_NEIGHBORHOODS.map(n => (
-                          <option key={n} value={n}>{n}</option>
+                        <option value="">Choose a service...</option>
+                        {MOCK_SERVICES.map(s => (
+                          <option key={s.id} value={s.id}>{s.name} - {formatCurrency(s.basePrice, currency)}</option>
                         ))}
                       </select>
                     </div>
-
-                    <div className="space-y-3">
-                      <label className="block text-slate-700 dark:text-slate-200 font-bold">Specific Street & House / Apartment Address:</label>
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Preferred Date & Time *</label>
                       <input
                         type="text"
-                        value={address}
-                        onChange={(e) => setAddress(e.target.value)}
-                        placeholder="House #, Building name, landmark..."
-                        className="w-full p-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:border-golden-500"
+                        value={formDateTime}
+                        onChange={(e) => setFormDateTime(e.target.value)}
+                        placeholder="e.g. Tomorrow, 9:00 AM"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
                       />
                     </div>
-
-                    <div className="space-y-3">
-                      <label className="block text-slate-700 dark:text-slate-200 font-bold">Special Instructions for Worker:</label>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Payment Method *</label>
+                      <select
+                        value={formPayment}
+                        onChange={(e) => setFormPayment(e.target.value as PaymentMethodType)}
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
+                      >
+                        <option value="telebirr">Telebirr Instant Express</option>
+                        <option value="cbe_birr">CBE Birr App</option>
+                        <option value="chapa">Chapa Gateway (Visa / Mastercard)</option>
+                        <option value="cash">Cash on Delivery</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="block text-slate-700 dark:text-slate-200 font-bold text-xs">Additional Description (Optional)</label>
                       <textarea
+                        value={formDescription}
+                        onChange={(e) => setFormDescription(e.target.value)}
+                        placeholder="Any special instructions..."
                         rows={3}
-                        value={notes}
-                        onChange={(e) => setNotes(e.target.value)}
-                        placeholder="Gate code, key location, pets in house..."
-                        className="w-full p-3 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white focus:border-golden-500"
+                        className="w-full p-3 bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-xl text-slate-900 dark:text-white text-xs focus:border-golden-500"
                       ></textarea>
                     </div>
-
-                    <div className="flex justify-between items-center pt-4 border-t border-slate-100 dark:border-slate-700">
-                      <button
-                        onClick={() => setBookingStep(2)}
-                        className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-bold"
-                      >
-                        ← Back to Schedule
-                      </button>
-                      <button
-                        onClick={() => setBookingStep(4)}
-                        className="px-6 py-3 bg-golden-500 hover:bg-golden-400 text-slate-950 font-bold rounded-xl shadow-xs"
-                      >
-                        Next: Checkout & Pay →
-                      </button>
-                    </div>
                   </div>
-                )}
+                </div>
 
-                {/* STEP 4: Checkout & Payment Selection */}
-                {bookingStep === 4 && (
-                  <div className="space-y-6 text-xs">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      
-                      {/* Payment Method Selector */}
-                      <div className="space-y-3">
-                        <label className="block text-slate-700 dark:text-slate-200 font-bold">Select Payment Gateway:</label>
-                        
-                        <div
-                          onClick={() => setPaymentMethod('telebirr')}
-                          className={`p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                            paymentMethod === 'telebirr'
-                              ? 'bg-golden-50 dark:bg-golden-950/30 border-golden-400 dark:border-golden-500 text-slate-950 dark:text-slate-100 font-bold'
-                              : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-bold text-slate-900">Telebirr Instant Express</div>
-                            <div className="text-[10px] text-slate-500">Auto-debit from Telebirr Wallet (4,250 ETB)</div>
-                          </div>
-                          <span className="px-2 py-0.5 bg-golden-500 text-slate-950 font-black text-[10px] rounded">FAST</span>
-                        </div>
-
-                        <div
-                          onClick={() => setPaymentMethod('cbe_birr')}
-                          className={`p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                            paymentMethod === 'cbe_birr'
-                              ? 'bg-golden-50 dark:bg-golden-950/30 border-golden-400 dark:border-golden-500 text-slate-950 dark:text-slate-100 font-bold'
-                              : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-bold text-slate-900">CBE Birr App</div>
-                            <div className="text-[10px] text-slate-500">Commercial Bank of Ethiopia Direct</div>
-                          </div>
-                        </div>
-
-                        <div
-                          onClick={() => setPaymentMethod('chapa')}
-                          className={`p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                            paymentMethod === 'chapa'
-                              ? 'bg-golden-50 dark:bg-golden-950/30 border-golden-400 dark:border-golden-500 text-slate-950 dark:text-slate-100 font-bold'
-                              : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-bold text-slate-900">Chapa Gateway (Visa / Mastercard)</div>
-                            <div className="text-[10px] text-slate-500">International cards accepted</div>
-                          </div>
-                        </div>
-
-                        <div
-                          onClick={() => setPaymentMethod('cash')}
-                          className={`p-3.5 rounded-xl border cursor-pointer flex items-center justify-between transition-all ${
-                            paymentMethod === 'cash'
-                              ? 'bg-golden-50 dark:bg-golden-950/30 border-golden-400 dark:border-golden-500 text-slate-950 dark:text-slate-100 font-bold'
-                              : 'bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200'
-                          }`}
-                        >
-                          <div>
-                            <div className="font-bold text-slate-900">Cash on Delivery</div>
-                            <div className="text-[10px] text-slate-500">Pay worker upon completion</div>
-                          </div>
-                        </div>
-
-                        {/* Promo code box */}
-                        <div className="pt-2">
-                          <label className="block text-slate-700 dark:text-slate-200 font-bold mb-1">Promo Code:</label>
-                          <div className="flex space-x-2">
-                            <input
-                              type="text"
-                              value={promoCode}
-                              onChange={(e) => setPromoCode(e.target.value)}
-                              placeholder="e.g. MERAKI10"
-                              className="p-2.5 bg-white dark:bg-slate-600 border border-slate-200 dark:border-slate-500 rounded-xl text-slate-900 dark:text-white focus:border-golden-500 flex-1"
-                            />
-                            <button
-                              onClick={handleApplyPromo}
-                              className="px-4 py-2 bg-slate-900 dark:bg-slate-700 hover:bg-slate-800 dark:hover:bg-slate-600 text-white dark:text-slate-100 font-bold rounded-xl"
-                            >
-                              Apply
-                            </button>
-                          </div>
-                          {promoError && <p className="text-red-500 dark:text-red-400 text-[10px] mt-1">{promoError}</p>}
-                          {promoDiscountUSD > 0 && <p className="text-emerald-600 dark:text-emerald-400 font-bold text-[10px] mt-1">✓ Promo applied! -$10 USD discount</p>}
-                        </div>
-
-                      </div>
-
-                      {/* Order Summary Box */}
-                      <div className="bg-slate-50 dark:bg-slate-700 p-5 rounded-2xl border border-slate-200 dark:border-slate-600 space-y-4">
-                        <h3 className="font-bold text-slate-900 text-sm border-b border-slate-200 pb-2">Final Order Summary</h3>
-                        
-                        <div className="space-y-2 text-slate-700 dark:text-slate-200">
-                          <div className="flex justify-between">
-                            <span>Service:</span>
-                            <strong className="text-slate-900 dark:text-white">{selectedCategory.name}</strong>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Duration & Workers:</span>
-                            <span className="text-slate-900 dark:text-white">{durationHours} hrs x {cleanersCount} pro</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Neighborhood:</span>
-                            <span className="text-slate-900 dark:text-white">{selectedNeighborhood}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Date & Slot:</span>
-                            <span className="text-slate-900 dark:text-white">{selectedDate}</span>
-                          </div>
-                          {selectedAddons.length > 0 && (
-                            <div className="flex justify-between text-golden-800 dark:text-golden-300 font-bold">
-                              <span>Add-ons ({selectedAddons.length}):</span>
-                              <span>+{selectedAddons.length} item(s)</span>
-                            </div>
-                          )}
-                          {promoDiscountUSD > 0 && (
-                            <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-bold">
-                              <span>Discount:</span>
-                              <span>-$10 USD</span>
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="pt-3 border-t border-slate-200 dark:border-slate-600 space-y-1">
-                          <div className="flex justify-between items-end">
-                            <span className="text-slate-600 dark:text-slate-300 font-bold">Total Amount:</span>
-                            <div className="text-right">
-                              <div className="text-2xl font-black text-slate-900 dark:text-white">
-                                {formatCurrency(calculateTotalUSD(), currency)}
-                              </div>
-                              <span className="text-[10px] text-slate-500 dark:text-slate-400 block">
-                                (~{Math.round(calculateTotalUSD() * ETB_EXCHANGE_RATE).toLocaleString()} ETB)
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={handleFinalizeBooking}
-                          className="w-full py-3.5 bg-golden-500 hover:bg-golden-400 text-slate-950 font-black text-sm rounded-xl shadow-xs transition-all"
-                        >
-                          Confirm & Pay via {paymentMethod.toUpperCase()}
-                        </button>
-                      </div>
-
-                    </div>
-                  </div>
-                )}
-
+                {/* Submit */}
+                <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+                  <button
+                    onClick={handleFinalizeBooking}
+                    disabled={!formName || !formPhone || !formService || !formDateTime}
+                    className="w-full py-3.5 bg-golden-500 hover:bg-golden-400 disabled:bg-slate-300 dark:disabled:bg-slate-600 text-slate-950 dark:text-slate-950 font-black text-sm rounded-xl shadow-xs transition-all"
+                  >
+                    Confirm Booking
+                  </button>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 text-center mt-2">By confirming, you agree to our terms and conditions.</p>
+                </div>
               </div>
             )}
           </div>

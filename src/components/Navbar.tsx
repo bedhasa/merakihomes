@@ -10,6 +10,7 @@ interface NavbarProps {
   setCurrency: (c: Currency) => void;
   activeBookingCount: number;
   onNavLinkClick?: (page: string) => void;
+  onBookServiceClick?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -19,6 +20,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   setCurrency,
   activeBookingCount,
   onNavLinkClick,
+  onBookServiceClick,
 }) => {
   const { isDarkMode, toggleTheme } = useTheme();
   const navLinks = [
@@ -77,7 +79,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center space-x-2.5">
             {/* Quick CTA */}
             <button
-              onClick={() => setCurrentView('customer')}
+              onClick={onBookServiceClick}
               className="hidden sm:flex items-center space-x-1.5 bg-golden-500 hover:bg-golden-400 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-xl shadow-xs transition-all"
             >
               <span>Book Service</span>
@@ -107,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           ))}
           <button
-            onClick={() => setCurrentView('customer')}
+            onClick={onBookServiceClick}
             className="px-3 py-1 rounded-lg text-xs font-bold shrink-0 bg-golden-500 text-slate-950"
           >
             Book Service

@@ -33,13 +33,8 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
   useEffect(() => {
     setSubPage(initialSubPage as MarketingSubPage);
   }, [initialSubPage]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [contactFormSubmitted, setContactFormSubmitted] = useState(false);
-
-  const filteredServices = selectedCategory === 'all' 
-    ? MOCK_SERVICES 
-    : MOCK_SERVICES.filter(s => s.id === selectedCategory);
 
   const faqs = [
     {
@@ -334,36 +329,74 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
       {subPage === 'about' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
           <div className="max-w-3xl mx-auto text-center space-y-3">
-            <span className="text-xs font-bold text-golden-700 dark:text-golden-400 uppercase tracking-widest">Our Mission & Purpose</span>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white">Empowering Ethiopian Homes & Professionals</h1>
+            <span className="text-xs font-bold text-golden-700 dark:text-golden-400 uppercase tracking-widest">About Meraki</span>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white">More Than a Cleaning Company</h1>
             <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-              Meraki Homes was founded in Addis Ababa with a single mission: to provide world-class, technology-enabled home services for urban households while creating dignified, high-paying jobs for cleaning and technical professionals.
+              "Meraki" is a Greek word meaning to do something with soul, creativity, and love. We are Ethiopia's first full-stack residential services platform, bridging the gap between skilled domestic workers and the growing urban middle class.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-3 shadow-xs">
-              <ShieldCheck className="w-9 h-9 text-golden-600 dark:text-golden-400" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">100% Federal Vetted</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 text-center shadow-xs">
+              <div className="text-2xl font-black text-slate-900 dark:text-white">600K+</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Target Households</div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 text-center shadow-xs">
+              <div className="text-2xl font-black text-slate-900 dark:text-white">3-5B</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">ETB Market Size</div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 text-center shadow-xs">
+              <div className="text-2xl font-black text-slate-900 dark:text-white">5-Day</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Worker Training</div>
+            </div>
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 text-center shadow-xs">
+              <div className="text-2xl font-black text-slate-900 dark:text-white">24hr</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Quality Guarantee</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Our Vision</h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                All personnel carry verified Ethiopian National IDs and clear police records from the Ethiopian Federal Police.
+                To become the most trusted household brand in East Africa, expanding across Ethiopia and beyond by 2030.
               </p>
             </div>
-
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-3 shadow-xs">
-              <Award className="w-9 h-9 text-golden-600 dark:text-golden-400" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">50-Point Quality Standard</h3>
+            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">Our Mission</h3>
               <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                Our services follow strict sanitization guidelines with modern steam equipment and non-toxic materials.
+                Deliver peace of mind to every household we serve, while creating dignified, well-paid employment for domestic workers.
               </p>
             </div>
+          </div>
 
-            <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-3 shadow-xs">
-              <HeartHandshake className="w-9 h-9 text-golden-600 dark:text-golden-400" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Fair Wages & Dignity</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                We guarantee worker payout rates 2.5x higher than market average, health insurance coverage, and career pathways.
-              </p>
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-xs">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">The Meraki Worker Programme</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-golden-600 dark:text-golden-400 mt-0.5 shrink-0" />
+                <span className="text-xs text-slate-700 dark:text-slate-200">Guaranteed minimum 5,000 ETB/month</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-golden-600 dark:text-golden-400 mt-0.5 shrink-0" />
+                <span className="text-xs text-slate-700 dark:text-slate-200">5-day paid training with certification</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-golden-600 dark:text-golden-400 mt-0.5 shrink-0" />
+                <span className="text-xs text-slate-700 dark:text-slate-200">Branded uniforms and all supplies</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-golden-600 dark:text-golden-400 mt-0.5 shrink-0" />
+                <span className="text-xs text-slate-700 dark:text-slate-200">Health insurance and accident coverage</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-golden-600 dark:text-golden-400 mt-0.5 shrink-0" />
+                <span className="text-xs text-slate-700 dark:text-slate-200">Performance bonuses monthly</span>
+              </div>
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-4 h-4 text-golden-600 dark:text-golden-400 mt-0.5 shrink-0" />
+                <span className="text-xs text-slate-700 dark:text-slate-200">Career path to Team Leader</span>
+              </div>
             </div>
           </div>
         </div>
@@ -373,71 +406,34 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
       {subPage === 'services' && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-10">
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-xs font-bold text-golden-700 dark:text-golden-400 uppercase tracking-widest">Full Directory</span>
-            <h1 className="text-3xl font-black text-slate-900 dark:text-white">Services Offered in Addis Ababa</h1>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">Select any category to view specialized add-ons and pricing in {currency}.</p>
+            <span className="text-xs font-bold text-golden-700 dark:text-golden-400 uppercase tracking-widest">Our Services</span>
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white">Everything Your Home Needs</h1>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">From deep cleaning to childcare, every service comes with our Meraki Quality Guarantee.</p>
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                selectedCategory === 'all' ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 border border-slate-200'
-              }`}
-            >
-              All Categories
-            </button>
-            {MOCK_SERVICES.map(s => (
-              <button
-                key={s.id}
-                onClick={() => setSelectedCategory(s.id)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  selectedCategory === s.id ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 border border-slate-200'
-                }`}
-              >
-                {s.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Services Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredServices.map(s => (
-                <div key={s.id} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 space-y-5 flex flex-col justify-between shadow-xs">
-                  <div className="space-y-3">
-                    <img src={s.image} alt={s.name} className="w-full h-40 object-cover rounded-xl" />
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-white">{s.name}</h3>
-                      <span className="text-xs text-golden-700 dark:text-golden-400 font-bold">★ {s.rating}</span>
-                    </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">{s.description}</p>
-                  
-                  {/* Add-ons List */}
-                    <div className="space-y-1.5 pt-2">
-                      <div className="text-[11px] uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">Available Add-ons:</div>
-                      <div className="space-y-1">
-                        {s.addons.map(addon => (
-                          <div key={addon.id} className="text-xs text-slate-700 dark:text-slate-200 flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600">
-                            <span>{addon.name}</span>
-                            <span className="font-bold text-golden-700 dark:text-golden-400">+{formatCurrency(addon.price, currency)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { name: 'Personal Cooking', desc: 'Meal prep with daily or weekly plans tailored to your family.', price: '500 ETB / day', icon: '👩‍🍳' },
+              { name: 'Gardening & Outdoor', desc: 'Compound, garden, and terrace upkeep and maintenance.', price: '400 ETB / visit', icon: '🌿' },
+              { name: 'Laundry & Ironing', desc: 'Pick-up, wash, iron, and delivery within 24 hours.', price: '80 ETB / kg', icon: '🧺' },
+              { name: 'Childcare & Babysitting', desc: 'Certified caregivers with flexible hours for your peace of mind.', price: '150 ETB / hr', icon: '👶' },
+              { name: 'Elder Companion Care', desc: 'Companionship, hygiene assistance, and medication reminders.', price: '200 ETB / hr', icon: '🤝' },
+              { name: 'Minor Home Repairs', desc: 'Plumbing, electrical fixes, and painting touch-ups.', price: '350 ETB / job', icon: '🔧' },
+              { name: 'Premium Home Cleaning', desc: 'Full-room deep clean, 4 hours. All supplies and equipment provided.', price: '600 ETB / session', icon: '✨' },
+              { name: 'Office & Commercial Clean', desc: 'Corporate contracts with nightly and weekend options.', price: 'Custom quote', icon: '🏢' },
+            ].map((service, idx) => (
+              <div key={idx} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 flex items-center justify-between shadow-xs hover:border-golden-400 transition-all">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 rounded-xl bg-golden-50 dark:bg-golden-950/30 border border-golden-200 dark:border-golden-700 flex items-center justify-center text-2xl">
+                    {service.icon}
                   </div>
-
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block uppercase">Base Price</span>
-                      <span className="text-lg font-black text-slate-900 dark:text-white">{formatCurrency(s.basePrice, currency)}</span>
-                    </div>
-                  <button
-                    onClick={() => onBookService(s.id)}
-                    className="px-4 py-2 bg-golden-500 hover:bg-golden-400 text-slate-950 text-xs font-bold rounded-xl shadow-xs"
-                  >
-                    Configure & Book
-                  </button>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{service.name}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 max-w-xs">{service.desc}</p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0 ml-4">
+                  <div className="text-sm font-black text-golden-700 dark:text-golden-400">{service.price}</div>
                 </div>
               </div>
             ))}
