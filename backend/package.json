@@ -1,0 +1,11 @@
+{
+  "name": "meraki-homes-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node index.mjs",
+    "start": "node index.mjs",
+    "db:migrate": "node migrate.mjs",
+    "db:verify": "node verify-db.mjs"
+  }
+}

@@ -17,10 +17,22 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": [
-        "./*"
-      ]
+        "./frontend/src/*"
+      ],
+      "@shared/*": ["./shared/*"]
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "include": [
+    "frontend/src/**/*.ts",
+    "frontend/src/**/*.tsx",
+    "management/src/**/*.ts",
+    "management/src/**/*.tsx",
+    "management/app/**/*.ts",
+    "management/app/**/*.tsx",
+    "shared/**/*.ts",
+    "shared/**/*.tsx"
+  ],
+  "exclude": ["node_modules", "dist", "dist-management"]
 }

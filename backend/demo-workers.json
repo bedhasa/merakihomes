@@ -1,0 +1,12 @@
+[
+  {"code":"DEMO-W001","name":"Demo Worker 01","area":"Bole","lat":8.995,"lon":38.787,"rate":650,"skills":[["handyman_plumbing","Minor plumbing and fixture repairs"],["gardening_outdoor","Home garden upkeep"]],"days":[1,2,3,4,5]},
+  {"code":"DEMO-W002","name":"Demo Worker 02","area":"Kazanchis","lat":9.018,"lon":38.766,"rate":550,"skills":[["premium_home_cleaning","Home cleaning"],["maid_laundry","Laundry and garment care"]],"days":[0,1,2,3,4,5]},
+  {"code":"DEMO-W003","name":"Demo Worker 03","area":"CMC","lat":9.025,"lon":38.828,"rate":900,"skills":[["childcare_nanny","Childcare qualification - demo record"],["elder_companion","Non-medical companion care"]],"days":[1,2,3,4,5]},
+  {"code":"DEMO-W004","name":"Demo Worker 04","area":"Sarbet","lat":8.990,"lon":38.752,"rate":700,"skills":[["cooking_service","Home meal preparation"],["premium_home_cleaning","Home cleaning"]],"days":[0,1,2,3,4]},
+  {"code":"DEMO-W005","name":"Demo Worker 05","area":"Old Airport","lat":8.995,"lon":38.773,"rate":500,"skills":[["gardening_outdoor","Garden maintenance"],["handyman_plumbing","Minor repairs - qualification review needed"]],"days":[1,2,3,4,5],"reviewSkill":"handyman_plumbing"},
+  {"code":"DEMO-W006","name":"Demo Worker 06","area":"Megenagna","lat":9.035,"lon":38.790,"rate":800,"skills":[["office_cleaning","Commercial cleaning"],["premium_home_cleaning","Home cleaning"]],"days":[0,1,2,3,4,5]},
+  {"code":"DEMO-W007","name":"Demo Worker 07","area":"Lideta","lat":9.010,"lon":38.738,"rate":600,"skills":[["elder_companion","Non-medical companion care"],["maid_laundry","Laundry and garment care"]],"days":[1,2,3,4,5]},
+  {"code":"DEMO-W008","name":"Demo Worker 08","area":"Piyassa","lat":9.035,"lon":38.746,"rate":1000,"skills":[["childcare_nanny","Childcare qualification - demo record"],["cooking_service","Home meal preparation"]],"days":[0,1,2,3,4]},
+  {"code":"DEMO-W009","name":"Demo Worker 09","area":"Bole","lat":8.990,"lon":38.795,"rate":750,"skills":[["handyman_plumbing","Minor plumbing and fixture repairs"],["office_cleaning","Commercial cleaning"]],"days":[1,2,3,4,5]},
+  {"code":"DEMO-W010","name":"Demo Worker 10","area":"Addis Ketema","lat":9.045,"lon":38.731,"rate":0,"skills":[["premium_home_cleaning","Qualification details pending review"]],"days":[],"pending":true}
+]
