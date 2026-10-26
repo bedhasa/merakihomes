@@ -1,9 +1,10 @@
 import { spawn } from 'node:child_process';
 
 const vite='node_modules/vite/bin/vite.js';
+const next='node_modules/next/dist/bin/next';
 const root=process.cwd();
 const children=[
-  spawn(process.execPath,[vite,'--config','frontend/vite.config.ts','--configLoader','runner','--port=3000','--host=0.0.0.0'],{cwd:root,stdio:'inherit',env:process.env,windowsHide:true}),
+  spawn(process.execPath,[next,'dev','frontend','--hostname','0.0.0.0','--port','3000'],{cwd:root,stdio:'inherit',env:process.env,windowsHide:true}),
   spawn(process.execPath,[vite,'--config','management/vite.config.ts','--configLoader','runner','--host=0.0.0.0','--strictPort'],{cwd:root,stdio:'inherit',env:process.env,windowsHide:true}),
   spawn(process.execPath,['backend/index.mjs'],{cwd:root,stdio:'inherit',env:process.env,windowsHide:true}),
 ];

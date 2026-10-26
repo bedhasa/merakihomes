@@ -1,21 +1,29 @@
+'use client';
+
 import React,{useEffect,useState} from 'react';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, LogIn, Moon, Sun } from 'lucide-react';
 import { Currency, Booking } from '@shared/types';
-import { MOCK_SERVICES } from '@shared/data/mockServices';
 import { getServices, postBooking, BookingRequestPayload } from '@shared/api';
 import { MarketingView } from './website/MarketingView';
 import { CustomerAuthPage, CustomerAccountPage } from './booking/CustomerAccountPage';
-import { CustomerView } from './booking/CustomerView';
 import { RequestStatusLookup } from './booking/RequestStatusLookup';
 import { useTheme } from './contexts/ThemeContext';
+
+const CustomerView = dynamic(() => import('./booking/CustomerView').then(module => module.CustomerView), {
+  ssr: false,
+  loading: () => <div role="status" className="mx-auto max-w-5xl px-5 py-12 text-sm text-slate-600">Loading booking experience…</div>,
+});
 
 const pageByPath:Record<string,string>={'/':'home','/about':'about','/services':'services','/team':'team','/trust':'trust','/contact':'contact','/faq':'faq','/blog':'blog'};
 const pathByPage:Record<string,string>={home:'/',about:'/about',services:'/services',team:'/team',trust:'/trust',contact:'/contact',faq:'/faq',blog:'/blog'};
 
-export default function App(){
- const[currency]=useState<Currency>('ETB');const[services,setServices]=useState(MOCK_SERVICES);const[servicesState,setServicesState]=useState<'loading'|'ready'|'error'>('loading');const[bookings,setBookings]=useState<Booking[]>([]);const[bookingSelection,setBookingSelection]=useState(()=>({serviceId:new URLSearchParams(location.search).get('service'),packageId:new URLSearchParams(location.search).get('package')}));const[path,setPath]=useState(location.pathname);const{isDarkMode,toggleTheme}=useTheme();
- useEffect(()=>{let live=true;getServices().then(s=>{if(live){setServices(s);setServicesState('ready')}}).catch(()=>{if(live)setServicesState('error')});const pop=()=>{setPath(location.pathname);const q=new URLSearchParams(location.search);setBookingSelection({serviceId:q.get('service'),packageId:q.get('package')});};addEventListener('popstate',pop);return()=>{live=false;removeEventListener('popstate',pop)};},[]);
- const navigate=(next:string)=>{history.pushState({},'',next);setPath(location.pathname);const q=new URLSearchParams(location.search);setBookingSelection({serviceId:q.get('service'),packageId:q.get('package')});window.scrollTo({top:0,behavior:'smooth'});};
+export default function App({initialPath='/',initialQuery=''}:{initialPath?:string;initialQuery?:string}){
+ const router=useRouter();const[currency]=useState<Currency>('ETB');const[services,setServices]=useState<Awaited<ReturnType<typeof getServices>>>([]);const[servicesState,setServicesState]=useState<'loading'|'ready'|'error'>('loading');const[bookings,setBookings]=useState<Booking[]>([]);const[bookingSelection,setBookingSelection]=useState(()=>{const query=new URLSearchParams(initialQuery);return{serviceId:query.get('service'),packageId:query.get('package')}});const[path,setPath]=useState(initialPath);const{isDarkMode,toggleTheme}=useTheme();
+ useEffect(()=>{let live=true;getServices().then(s=>{if(live){setServices(s);setServicesState('ready')}}).catch(()=>{if(live)setServicesState('error')});return()=>{live=false}},[]);
+ useEffect(()=>{setPath(initialPath);const query=new URLSearchParams(initialQuery);setBookingSelection({serviceId:query.get('service'),packageId:query.get('package')});},[initialPath,initialQuery]);
+ const navigate=(next:string)=>{const target=new URL(next,window.location.origin);const route=`${target.pathname}${target.search}${target.hash}`;router.push(route);setPath(target.pathname);setBookingSelection({serviceId:target.searchParams.get('service'),packageId:target.searchParams.get('package')});window.scrollTo({top:0,behavior:'smooth'});};
  const submitBooking=async(payload:BookingRequestPayload,key:string)=>{const created=await postBooking(payload,key);setBookings(prev=>[created,...prev.filter(x=>x.id!==created.id)]);return created;};
  const serviceRoute=path.match(/^\/services\/([^/]+)$/);const bookingRoute=path.match(/^\/booking\/([^/]+)$/);const marketingPage=serviceRoute?'service-detail':pageByPath[path];
  const nonMarketing=Boolean(marketingPage===undefined);

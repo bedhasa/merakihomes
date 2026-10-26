@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents, ZoomControl } from 'react-leaflet';
 import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
 import { ApiError, searchLocations } from '@shared/api';
 import { LocateFixed, MapPin, Search } from 'lucide-react';
 
 export type LocationValue = { latitude: number | null; longitude: number | null; method: 'manual' | 'search' | 'map'; confirmed: boolean };
 type Props = { value: LocationValue; address: string; landmark: string; onChange: (value: LocationValue) => void; onAddress: (address: string) => void; onLandmark: (landmark: string) => void };
 const ADDIS: [number, number] = [9.03, 38.74];
-const MAP_TILE_URL = import.meta.env.VITE_MAP_TILE_URL || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
-const MAP_TILE_ATTRIBUTION = import.meta.env.VITE_MAP_TILE_ATTRIBUTION || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+const MAP_TILE_URL = process.env.NEXT_PUBLIC_MAP_TILE_URL || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const MAP_TILE_ATTRIBUTION = process.env.NEXT_PUBLIC_MAP_TILE_ATTRIBUTION || '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 const USES_OSM_TILES = MAP_TILE_URL.includes('tile.openstreetmap.org');
 const pinIcon = L.divIcon({ className: 'meraki-map-pin', html: '<span></span>', iconSize: [24, 24], iconAnchor: [12, 12] });
 

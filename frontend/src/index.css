@@ -1,5 +1,6 @@
 @import "tailwindcss" source(none);
 @source ".";
+@source "../app";
 @source "../../management/src";
 @source "../../management/app";
 @source "../../shared";
