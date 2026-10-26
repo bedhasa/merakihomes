@@ -1,3 +1,5 @@
+'use client';
+
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 
 interface ThemeContextType {
@@ -8,15 +10,15 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
     try {
-      const saved = window.localStorage.getItem('theme');
-      return saved === 'dark';
+      setIsDarkMode(window.localStorage.getItem('theme') === 'dark');
     } catch {
-      // Keep the app usable when browser storage is disabled or unavailable.
-      return false;
+      // The default light theme still works when storage is blocked.
     }
-  });
+  }, []);
 
   useEffect(() => {
     const root = document.documentElement;

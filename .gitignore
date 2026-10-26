@@ -2,6 +2,7 @@ node_modules/
 build/
 dist/
 dist-management/
+frontend/.next/
 coverage/
 data/
 .DS_Store

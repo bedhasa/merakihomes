@@ -13,6 +13,8 @@
     "moduleResolution": "bundler",
     "isolatedModules": true,
     "moduleDetection": "force",
+    "plugins": [{ "name": "next" }],
+    "resolveJsonModule": true,
     "allowJs": true,
     "jsx": "react-jsx",
     "paths": {
@@ -25,6 +27,11 @@
     "noEmit": true
   },
   "include": [
+    "frontend/next-env.d.ts",
+    "frontend/.next/types/**/*.ts",
+    "frontend/.next/dev/types/**/*.ts",
+    "frontend/app/**/*.ts",
+    "frontend/app/**/*.tsx",
     "frontend/src/**/*.ts",
     "frontend/src/**/*.tsx",
     "management/src/**/*.ts",
