@@ -1,0 +1,56 @@
+import React from 'react';
+import { Send } from 'lucide-react';
+
+interface ChatFooterProps {
+  inputRef: React.RefObject<HTMLTextAreaElement | null>;
+  draft: string;
+  onDraftChange: (value: string) => void;
+  onSend: () => void;
+  isTyping: boolean;
+}
+
+export const ChatFooter: React.FC<ChatFooterProps> = ({ inputRef, draft, onDraftChange, onSend, isTyping }) => {
+  const isSendDisabled = isTyping || !draft.trim();
+
+  return (
+    <footer className="rounded-b-2xl border-t border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+      <form
+        onSubmit={event => {
+          event.preventDefault();
+          onSend();
+        }}
+        className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1.5 shadow-sm transition duration-200 focus-within:border-[#D4A853] focus-within:ring-2 focus-within:ring-[#D4A853]/20 dark:border-slate-700 dark:bg-slate-800"
+      >
+        <label className="sr-only" htmlFor="meraki-assistant-input">Message Meraki Assistant</label>
+        <textarea
+          ref={inputRef}
+          id="meraki-assistant-input"
+          rows={2}
+          value={draft}
+          onChange={event => onDraftChange(event.target.value)}
+          onKeyDown={event => {
+            if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              onSend();
+            }
+          }}
+          placeholder="Ask me anything about Meraki Homes..."
+          aria-describedby="meraki-assistant-input-help"
+          className="max-h-28 min-h-11 min-w-0 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm leading-5 text-[#102A43] outline-none placeholder:text-[13px] placeholder:font-normal placeholder:text-slate-400 focus-visible:outline-none dark:text-white"
+        />
+        <button
+          type="submit"
+          disabled={isSendDisabled}
+          aria-label="Send message"
+          title={isSendDisabled ? (isTyping ? 'Please wait for the reply' : 'Enter a message to send') : 'Send message'}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#102A43] text-[#D4A853] shadow-sm transition duration-200 enabled:hover:-translate-y-0.5 enabled:hover:bg-[#183b5b] enabled:hover:shadow-md enabled:active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Send size={17} aria-hidden="true" />
+        </button>
+      </form>
+      <p id="meraki-assistant-input-help" className="mt-2.5 text-center text-[10px] tracking-wide text-slate-400 dark:text-slate-500">
+        Powered by Meraki Assistant
+      </p>
+    </footer>
+  );
+};
