@@ -6,7 +6,7 @@ import { formatCurrency } from '@shared/utils/formatters';
 import { RequestFlow } from './RequestFlow';
 import { RequestStatusLookup } from './RequestStatusLookup';
 import { 
-  Sparkles, Star, Clock, MapPin, Calendar, Check, ShieldCheck, 
+  Star, Clock, MapPin, Calendar, Check, ShieldCheck, 
   ChevronRight, Phone, MessageSquare, ArrowLeft, CreditCard, 
   Plus, Minus, X, AlertCircle, ShoppingBag, Truck, UserCheck, Flame, Refrigerator, Sun, Leaf, Shirt,
   Wallet, ThumbsUp, Download, CheckCircle2, Navigation

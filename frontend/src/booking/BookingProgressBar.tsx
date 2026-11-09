@@ -2,67 +2,40 @@ import React from 'react';
 import { Check } from 'lucide-react';
 
 interface BookingProgressBarProps {
-  currentStep: number; // 1-5 (step 6 is confirmation, shown as step 5 completed)
+  currentStep: number;
 }
 
 const STEPS = [
   { num: 1, label: 'Service' },
   { num: 2, label: 'Details' },
   { num: 3, label: 'Location' },
-  { num: 4, label: 'Schedule' },
-  { num: 5, label: 'Confirm' },
+  { num: 4, label: 'Worker' },
+  { num: 5, label: 'Review' },
 ];
 
 export const BookingProgressBar: React.FC<BookingProgressBarProps> = ({ currentStep }) => {
-  const displayStep = Math.min(currentStep, 5);
+  const displayStep = Math.max(1, Math.min(currentStep, STEPS.length));
 
   return (
-    <div className="px-4 py-4 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-      <div className="flex items-center max-w-lg mx-auto">
-        {STEPS.map((step, idx) => {
-          const isCompleted = displayStep > step.num;
-          const isActive = displayStep === step.num;
-          const isLast = idx === STEPS.length - 1;
-
+    <nav aria-label="Booking progress" className="rounded-2xl border border-slate-200/80 bg-white px-3 py-5 shadow-sm sm:px-8 sm:py-6">
+      <ol className="mx-auto flex max-w-4xl items-start">
+        {STEPS.map((step, index) => {
+          const completed = displayStep > step.num;
+          const active = displayStep === step.num;
+          const last = index === STEPS.length - 1;
           return (
-            <React.Fragment key={step.num}>
-              <div className="flex flex-col items-center gap-1">
-                <div
-                  className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all duration-200 ${
-                    isCompleted
-                      ? 'bg-golden-500 text-slate-950'
-                      : isActive
-                      ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 ring-2 ring-golden-500 ring-offset-1'
-                      : 'bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500'
-                  }`}
-                >
-                  {isCompleted ? <Check className="w-4 h-4" /> : step.num}
-                </div>
-                <span
-                  className={`text-[9px] font-bold hidden sm:block tracking-wide ${
-                    isActive
-                      ? 'text-slate-900 dark:text-white'
-                      : isCompleted
-                      ? 'text-golden-600 dark:text-golden-400'
-                      : 'text-slate-300 dark:text-slate-600'
-                  }`}
-                >
-                  {step.label}
+            <li key={step.num} aria-current={active ? 'step' : undefined} className={`flex min-w-0 items-start ${last ? '' : 'flex-1'}`}>
+              <div className="flex min-w-0 flex-col items-center text-center">
+                <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-full border text-sm font-bold transition-all duration-[250ms] ease-out sm:h-14 sm:w-14 ${completed ? 'border-[#102A43] bg-[#102A43] text-white' : active ? 'scale-105 border-[#102A43] bg-[#102A43] text-white shadow-[0_0_0_4px_rgba(212,168,83,.2)]' : 'border-slate-300 bg-white text-slate-500'}`}>
+                  {completed ? <Check size={19} aria-label="Completed" /> : step.num}
                 </span>
+                <span className={`mt-3 max-w-16 text-[10px] font-semibold leading-tight sm:max-w-none sm:text-xs ${active ? 'text-[#102A43]' : completed ? 'text-slate-700' : 'text-slate-400'}`}>{step.label}</span>
               </div>
-              {!isLast && (
-                <div
-                  className={`flex-1 h-0.5 mx-1.5 rounded-full transition-all duration-300 ${
-                    displayStep > step.num
-                      ? 'bg-golden-500'
-                      : 'bg-slate-200 dark:bg-slate-700'
-                  }`}
-                />
-              )}
-            </React.Fragment>
+              {!last && <span aria-hidden="true" className={`mx-1 mt-[21px] h-0.5 min-w-1 flex-1 rounded-full transition-colors duration-[250ms] ease-out sm:mx-6 sm:mt-7 ${completed ? 'bg-[#102A43]' : 'bg-slate-200'}`} />}
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ol>
+    </nav>
   );
 };

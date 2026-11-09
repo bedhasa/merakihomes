@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarClock, CircleDollarSign, ShieldCheck, Sparkles } from 'lucide-react';
+import { CalendarClock, CircleDollarSign, ShieldCheck } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 const features = [
@@ -39,7 +39,6 @@ export const WhyChooseUs: React.FC = () => {
           className="mx-auto mb-12 max-w-3xl text-center sm:mb-14"
         >
           <div className="inline-flex items-center gap-2 rounded-full bg-[#102A43]/5 px-3.5 py-1 text-xs font-bold uppercase tracking-[.2em] text-[#102A43] dark:bg-white/10 dark:text-white">
-            <Sparkles size={14} className="text-[#D4A853]" aria-hidden="true" />
             <span>The Meraki Standard</span>
           </div>
           <h2 id="why-choose-title" className="mt-4 text-3xl font-bold tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-5xl">

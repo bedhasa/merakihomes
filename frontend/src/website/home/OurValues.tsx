@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, HeartHandshake, ShieldCheck, Sparkles } from 'lucide-react';
+import { Award, Heart, HeartHandshake, ShieldCheck, BriefcaseBusiness } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 const values = [
@@ -21,12 +21,12 @@ const values = [
   {
     title: 'Care',
     description: 'Deliver peace of mind to every household we serve, while creating dignified, well-paid employment for domestic workers.',
-    icon: Sparkles,
+    icon: Heart,
   },
   {
     title: 'Professionalism',
     description: 'Every specialist undergoes strict Kebele ID verification, identity auditing, and structured 5-day professional hospitality and service training.',
-    icon: Sparkles,
+    icon: BriefcaseBusiness,
   },
 ];
 
@@ -44,7 +44,6 @@ export const OurValues: React.FC = () => {
           className="mx-auto mb-12 max-w-3xl text-center"
         >
           <div className="inline-flex items-center gap-2 rounded-full bg-[#D4A853]/15 px-3.5 py-1 text-xs font-bold uppercase tracking-[.2em] text-[#102A43] dark:text-white">
-            <Sparkles size={14} className="text-[#8C6A2F] dark:text-[#D4A853]" aria-hidden="true" />
             <span>What Guides Us</span>
           </div>
           <h2 id="our-values-title" className="mt-4 text-3xl font-bold tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-5xl">Our Values</h2>

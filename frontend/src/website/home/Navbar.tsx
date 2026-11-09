@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Menu, Moon, Sparkles, Sun, X } from 'lucide-react';
+import { ArrowRight, Menu, Moon, Sun, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTheme } from '../../contexts/ThemeContext';
 
@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onPageChange, onBoo
             {isDarkMode ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
           </button>
           <button onClick={onBookNow} className="group inline-flex min-h-11 items-center gap-2 rounded-lg bg-[#D4A853] px-5 py-2.5 text-sm font-bold text-[#102A43] shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#102A43] focus-visible:ring-offset-2">
-            <Sparkles size={15} aria-hidden="true" />Book Now<ArrowRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
+            Book Now<ArrowRight size={15} aria-hidden="true" className="transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
 
@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onPageChange, onBoo
           <nav className="mx-auto max-w-7xl space-y-1 px-5 py-4" aria-label="Mobile navigation">
             {navLinks.map(({ id, label }) => <button key={id} onClick={() => goToPage(id)} aria-current={currentPage === id ? 'page' : undefined} className={`flex min-h-11 w-full items-center rounded-lg px-3 text-left text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853] ${currentPage === id ? 'bg-[#FBF8F0] font-semibold text-[#102A43] dark:bg-white/10 dark:text-white' : 'text-slate-700 hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-white/10'}`}>{label}</button>)}
             <a href="/login" className="flex min-h-11 items-center rounded-lg px-3 text-base font-medium text-[#102A43] hover:bg-slate-50 dark:text-slate-100 dark:hover:bg-white/10">Sign In</a>
-            <button onClick={() => { setMobileMenuOpen(false); onBookNow(); }} className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#D4A853] px-4 py-3 text-base font-bold text-[#102A43] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#102A43] focus-visible:ring-offset-2"><Sparkles size={16} aria-hidden="true" />Book Now<ArrowRight size={17} aria-hidden="true" /></button>
+            <button onClick={() => { setMobileMenuOpen(false); onBookNow(); }} className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-[#D4A853] px-4 py-3 text-base font-bold text-[#102A43] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#102A43] focus-visible:ring-offset-2">Book Now<ArrowRight size={17} aria-hidden="true" /></button>
           </nav>
         </motion.div>}
       </AnimatePresence>

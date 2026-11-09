@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Star, Quote, Sparkles } from 'lucide-react';
+import { Star, Quote } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 interface Testimonial {
@@ -87,7 +87,6 @@ export const Testimonials: React.FC = () => {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 rounded-full bg-[#102A43]/5 dark:bg-white/10 px-3.5 py-1 text-xs font-bold uppercase tracking-[.2em] text-[#102A43] dark:text-white">
-            <Sparkles size={14} className="text-[#D4A853]" />
             <span>Customer Experiences</span>
           </div>
           <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#102A43] dark:text-white tracking-tight">

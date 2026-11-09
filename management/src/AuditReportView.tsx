@@ -3,7 +3,7 @@ import { PAGE_AUDITS, COMPETITIVE_MATRIX, ROADMAP_PHASES } from '@shared/data/au
 import { 
   CheckCircle, AlertTriangle, XCircle, Star, Search, ShieldCheck, 
   Layers, Zap, Users, Layout, Smartphone, ArrowRight, ExternalLink, ChevronDown, ChevronUp,
-  Award, Sparkles, TrendingUp, AlertCircle, RefreshCw
+  Award, TrendingUp, AlertCircle, RefreshCw, CheckCircle2, Blocks
 } from 'lucide-react';
 
 interface AuditReportViewProps {
@@ -42,7 +42,6 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ onOpenPrototyp
             
             <div className="space-y-3 max-w-3xl">
               <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs font-semibold uppercase tracking-wider">
-                <Sparkles className="w-3.5 h-3.5" />
                 <span>Senior UX & Technical Audit</span>
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
@@ -111,7 +110,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ onOpenPrototyp
               { id: 'pages', label: '1. Per-Page Audit (15-Points)', icon: Layout },
               { id: 'journeys', label: '2. System Journeys & Flows', icon: Zap },
               { id: 'inventory', label: '3. Feature Inventory', icon: Layers },
-              { id: 'components', label: '4. Reusable Components', icon: Sparkles },
+              { id: 'components', label: '4. Reusable Components', icon: Blocks },
               { id: 'startup', label: '5. Startup Evaluation', icon: TrendingUp },
               { id: 'competitive', label: '6. Competitive Benchmark', icon: Award },
               { id: 'roadmap', label: '7. Production Roadmap', icon: RefreshCw },
@@ -330,7 +329,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ onOpenPrototyp
                 {/* 10. UI Improvements */}
                 <div className="bg-emerald-950/20 p-4 rounded-xl border border-emerald-900/40 space-y-2">
                   <h4 className="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center space-x-1.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                    <CheckCircle2 className="w-3.5 h-3.5" />
                     <span>10. UI Enhancements</span>
                   </h4>
                   <ul className="text-xs text-slate-300 space-y-1">
@@ -500,7 +499,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ onOpenPrototyp
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <h3 className="font-bold text-indigo-400 flex items-center space-x-2">
-                    <Sparkles className="w-4 h-4" />
+                    <Layout className="w-4 h-4" />
                     <span>Marketing Website & Landing</span>
                   </h3>
                   <span className="text-xs bg-indigo-950 text-indigo-300 border border-indigo-800 px-2 py-0.5 rounded-full font-mono">14 Features</span>
@@ -671,7 +670,7 @@ export const AuditReportView: React.FC<AuditReportViewProps> = ({ onOpenPrototyp
               {/* Missing Important Features */}
               <div className="bg-indigo-950/20 border border-indigo-900/40 rounded-2xl p-5 space-y-3">
                 <h3 className="text-lg font-bold text-indigo-400 flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5" />
+                  <AlertCircle className="w-5 h-5" />
                   <span>What Important Features Are Missing?</span>
                 </h3>
                 <ul className="text-xs text-slate-300 space-y-2">

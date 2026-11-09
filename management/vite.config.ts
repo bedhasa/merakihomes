@@ -10,6 +10,7 @@ export default defineConfig(({mode})=>{
 const env=loadEnv(mode,workspaceRoot,'');
 return {
   root:path.resolve(managementRoot,'app'),
+  publicDir:path.resolve(workspaceRoot,'frontend/public'),
   plugins:[react(),tailwindcss()],
   resolve:{alias:{'@':path.resolve(managementRoot,'src'),'@shared':path.resolve(workspaceRoot,'shared')}},
   cacheDir:path.resolve(workspaceRoot,'node_modules/.vite-management'),
