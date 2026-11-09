@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, Clock3, Star, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Clock3, Star, CheckCircle2 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ServiceCategory } from '@shared/types';
 import { formatDemoEstimate, getDemoEstimate } from '@shared/demoPricing';
@@ -72,7 +72,6 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
         >
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#102A43]/5 px-3.5 py-1 text-xs font-bold uppercase tracking-[.2em] text-[#102A43] dark:bg-white/10 dark:text-white">
-              <Sparkles size={14} className="text-[#D4A853]" aria-hidden="true" />
               <span>Tailored Household Care</span>
             </div>
             <h2 id="featured-services-title" className="mt-4 text-3xl font-bold tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-5xl">

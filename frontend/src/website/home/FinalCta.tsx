@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowRight, Sparkles, CheckCircle2, Phone } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Phone } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 interface FinalCtaProps {
@@ -33,7 +33,6 @@ export const FinalCta: React.FC<FinalCtaProps> = ({ onBookNow, onContactUs }) =>
           <div className="relative z-10 max-w-3xl mx-auto">
             {/* Pill */}
             <div className="inline-flex items-center gap-2 rounded-full border border-[#D4A853]/40 bg-[#D4A853]/15 px-4 py-1.5 backdrop-blur-md mb-6">
-              <Sparkles size={14} className="text-[#D4A853]" />
               <span className="text-xs sm:text-sm font-semibold tracking-wide text-[#D4A853]">
                 Start In Under 2 Minutes
               </span>

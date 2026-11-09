@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, CalendarCheck, UserCheck, Sparkles, ArrowRight } from 'lucide-react';
+import { Search, CalendarCheck, UserCheck, Home, ArrowRight } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
 interface HowItWorksProps {
@@ -29,7 +29,7 @@ const steps = [
     number: '04',
     title: 'Enjoy Your Home',
     description: 'Sit back and enjoy your spotless, refreshed home with complete peace of mind, backed by our 24-hour guarantee.',
-    icon: Sparkles,
+    icon: Home,
   },
 ];
 
