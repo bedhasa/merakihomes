@@ -1,0 +1,6 @@
+{
+  "name": "Bete - Warm Highland Hospitality",
+  "description": "Premium Ethiopian home and hospitality services marketplace connecting Addis Ababa households with vetted local professionals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

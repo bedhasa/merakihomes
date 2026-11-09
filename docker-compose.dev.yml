@@ -1,0 +1,40 @@
+services:
+  postgres-dev:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: meraki_homes_dev
+      POSTGRES_USER: meraki_dev
+      POSTGRES_PASSWORD: ${MERAKI_DEV_DB_PASSWORD:?Run npm run db:dev:setup to generate local dev credentials}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - meraki_homes_dev_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  pgadmin-dev:
+    image: dpage/pgadmin4:9.18.0
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:?Run npm run db:dev:setup to generate local pgAdmin credentials}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:?Run npm run db:dev:setup to generate local pgAdmin credentials}
+      PGADMIN_CONFIG_SERVER_MODE: "True"
+      PGADMIN_REPLACE_SERVERS_ON_STARTUP: "True"
+    ports:
+      - "127.0.0.1:5050:80"
+    volumes:
+      - meraki_pgadmin_dev_data_v3:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      postgres-dev:
+        condition: service_healthy
+
+volumes:
+  meraki_homes_dev_pgdata:
+    name: meraki_homes_dev_pgdata
+  meraki_pgadmin_dev_data_v3:
+    name: meraki_pgadmin_dev_data_v3

@@ -9,3 +9,14 @@ data/
 *.log
 .env*
 !.env.example
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Expo and React Native
+meraki-homes-mobile/.expo/
+meraki-homes-mobile/node_modules/
+meraki-homes-mobile/dist/
+meraki-homes-mobile/.env.local
+
+# pgAdmin local data
+pgadmin/pgadmin-data/
