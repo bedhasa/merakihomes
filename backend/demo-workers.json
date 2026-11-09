@@ -1,12 +1,276 @@
 [
-  {"code":"DEMO-W001","name":"Demo Worker 01","area":"Bole","lat":8.995,"lon":38.787,"rate":650,"skills":[["handyman_plumbing","Minor plumbing and fixture repairs"],["gardening_outdoor","Home garden upkeep"]],"days":[1,2,3,4,5]},
-  {"code":"DEMO-W002","name":"Demo Worker 02","area":"Kazanchis","lat":9.018,"lon":38.766,"rate":550,"skills":[["premium_home_cleaning","Home cleaning"],["maid_laundry","Laundry and garment care"]],"days":[0,1,2,3,4,5]},
-  {"code":"DEMO-W003","name":"Demo Worker 03","area":"CMC","lat":9.025,"lon":38.828,"rate":900,"skills":[["childcare_nanny","Childcare qualification - demo record"],["elder_companion","Non-medical companion care"]],"days":[1,2,3,4,5]},
-  {"code":"DEMO-W004","name":"Demo Worker 04","area":"Sarbet","lat":8.990,"lon":38.752,"rate":700,"skills":[["cooking_service","Home meal preparation"],["premium_home_cleaning","Home cleaning"]],"days":[0,1,2,3,4]},
-  {"code":"DEMO-W005","name":"Demo Worker 05","area":"Old Airport","lat":8.995,"lon":38.773,"rate":500,"skills":[["gardening_outdoor","Garden maintenance"],["handyman_plumbing","Minor repairs - qualification review needed"]],"days":[1,2,3,4,5],"reviewSkill":"handyman_plumbing"},
-  {"code":"DEMO-W006","name":"Demo Worker 06","area":"Megenagna","lat":9.035,"lon":38.790,"rate":800,"skills":[["office_cleaning","Commercial cleaning"],["premium_home_cleaning","Home cleaning"]],"days":[0,1,2,3,4,5]},
-  {"code":"DEMO-W007","name":"Demo Worker 07","area":"Lideta","lat":9.010,"lon":38.738,"rate":600,"skills":[["elder_companion","Non-medical companion care"],["maid_laundry","Laundry and garment care"]],"days":[1,2,3,4,5]},
-  {"code":"DEMO-W008","name":"Demo Worker 08","area":"Piyassa","lat":9.035,"lon":38.746,"rate":1000,"skills":[["childcare_nanny","Childcare qualification - demo record"],["cooking_service","Home meal preparation"]],"days":[0,1,2,3,4]},
-  {"code":"DEMO-W009","name":"Demo Worker 09","area":"Bole","lat":8.990,"lon":38.795,"rate":750,"skills":[["handyman_plumbing","Minor plumbing and fixture repairs"],["office_cleaning","Commercial cleaning"]],"days":[1,2,3,4,5]},
-  {"code":"DEMO-W010","name":"Demo Worker 10","area":"Addis Ketema","lat":9.045,"lon":38.731,"rate":0,"skills":[["premium_home_cleaning","Qualification details pending review"]],"days":[],"pending":true}
+  {
+    "code": "DEMO-W001",
+    "name": "Abebe Bekele",
+    "photoUrl": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+    "area": "Bole",
+    "lat": 8.995,
+    "lon": 38.787,
+    "rate": 650,
+    "skills": [
+      [
+        "handyman_plumbing",
+        "Minor plumbing and fixture repairs"
+      ],
+      [
+        "gardening_outdoor",
+        "Home garden upkeep"
+      ]
+    ],
+    "days": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "rating": 4.9,
+    "reviewCount": 184
+  },
+  {
+    "code": "DEMO-W002",
+    "name": "Hana Tesfaye",
+    "photoUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+    "area": "Kazanchis",
+    "lat": 9.018,
+    "lon": 38.766,
+    "rate": 550,
+    "skills": [
+      [
+        "premium_home_cleaning",
+        "Home cleaning"
+      ],
+      [
+        "maid_laundry",
+        "Laundry and garment care"
+      ]
+    ],
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "rating": 4.8,
+    "reviewCount": 126
+  },
+  {
+    "code": "DEMO-W003",
+    "name": "Dawit Alemu",
+    "photoUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=256&q=80",
+    "area": "CMC",
+    "lat": 9.025,
+    "lon": 38.828,
+    "rate": 900,
+    "skills": [
+      [
+        "childcare_nanny",
+        "Childcare qualification - demo record"
+      ],
+      [
+        "elder_companion",
+        "Non-medical companion care"
+      ]
+    ],
+    "days": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "rating": 4.9,
+    "reviewCount": 93
+  },
+  {
+    "code": "DEMO-W004",
+    "name": "Selamawit Girma",
+    "photoUrl": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80",
+    "area": "Sarbet",
+    "lat": 8.99,
+    "lon": 38.752,
+    "rate": 700,
+    "skills": [
+      [
+        "cooking_service",
+        "Home meal preparation"
+      ],
+      [
+        "premium_home_cleaning",
+        "Home cleaning"
+      ]
+    ],
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "rating": 4.7,
+    "reviewCount": 211
+  },
+  {
+    "code": "DEMO-W005",
+    "name": "Mekdes Worku",
+    "photoUrl": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=256&q=80",
+    "area": "Old Airport",
+    "lat": 8.995,
+    "lon": 38.773,
+    "rate": 500,
+    "skills": [
+      [
+        "gardening_outdoor",
+        "Garden maintenance"
+      ],
+      [
+        "handyman_plumbing",
+        "Minor repairs - qualification review needed"
+      ]
+    ],
+    "days": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "reviewSkill": "handyman_plumbing",
+    "rating": 4.8,
+    "reviewCount": 142
+  },
+  {
+    "code": "DEMO-W006",
+    "name": "Yohannes Tadesse",
+    "photoUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+    "area": "Megenagna",
+    "lat": 9.035,
+    "lon": 38.79,
+    "rate": 800,
+    "skills": [
+      [
+        "office_cleaning",
+        "Commercial cleaning"
+      ],
+      [
+        "premium_home_cleaning",
+        "Home cleaning"
+      ]
+    ],
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "rating": 4.9,
+    "reviewCount": 167
+  },
+  {
+    "code": "DEMO-W007",
+    "name": "Rahel Bekele",
+    "photoUrl": "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=256&q=80",
+    "area": "Lideta",
+    "lat": 9.01,
+    "lon": 38.738,
+    "rate": 600,
+    "skills": [
+      [
+        "elder_companion",
+        "Non-medical companion care"
+      ],
+      [
+        "maid_laundry",
+        "Laundry and garment care"
+      ]
+    ],
+    "days": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "rating": 4.8,
+    "reviewCount": 88
+  },
+  {
+    "code": "DEMO-W008",
+    "name": "Elias Getachew",
+    "photoUrl": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80",
+    "area": "Piyassa",
+    "lat": 9.035,
+    "lon": 38.746,
+    "rate": 1000,
+    "skills": [
+      [
+        "childcare_nanny",
+        "Childcare qualification - demo record"
+      ],
+      [
+        "cooking_service",
+        "Home meal preparation"
+      ]
+    ],
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "rating": 4.9,
+    "reviewCount": 204
+  },
+  {
+    "code": "DEMO-W009",
+    "name": "Mimi Haile",
+    "photoUrl": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
+    "area": "Bole",
+    "lat": 8.99,
+    "lon": 38.795,
+    "rate": 750,
+    "skills": [
+      [
+        "handyman_plumbing",
+        "Minor plumbing and fixture repairs"
+      ],
+      [
+        "office_cleaning",
+        "Commercial cleaning"
+      ]
+    ],
+    "days": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "rating": 4.7,
+    "reviewCount": 115
+  },
+  {
+    "code": "DEMO-W010",
+    "name": "Kebede Fikru",
+    "photoUrl": "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=256&q=80",
+    "area": "Addis Ketema",
+    "lat": 9.045,
+    "lon": 38.731,
+    "rate": 0,
+    "skills": [
+      [
+        "premium_home_cleaning",
+        "Qualification details pending review"
+      ]
+    ],
+    "days": [],
+    "pending": true,
+    "rating": null,
+    "reviewCount": 0
+  }
 ]
