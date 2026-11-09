@@ -46,7 +46,7 @@ function splitSqlStatements(sql){
   return statements;
 }
 
-export async function migrate(pool,{skipBtreeGist=false}={}){
+export async function migrate(pool,{skipBtreeGist=false,seedServicesIfEmpty=true}={}){
   await pool.query('CREATE TABLE IF NOT EXISTS schema_migrations (version TEXT PRIMARY KEY, applied_at TIMESTAMPTZ NOT NULL DEFAULT now())');
   const files=readdirSync(resolve(here,'migrations')).filter(f=>/^\d+_[\w-]+\.sql$/.test(f)).sort();
   for(const filename of files){
@@ -57,7 +57,7 @@ export async function migrate(pool,{skipBtreeGist=false}={}){
     catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
   }
   const exists=await pool.query('SELECT 1 FROM services LIMIT 1');
-  if(!exists.rowCount){
+  if(seedServicesIfEmpty&&!exists.rowCount){
     const client=await pool.connect();
     try{await client.query('BEGIN');for(const s of seeds)await client.query(`INSERT INTO services(id,name,description,pricing_type,base_price,currency,unit,estimated_duration_minutes,image) VALUES($1,$2,$3,$4,$5,'USD',$6,$7,$8) ON CONFLICT(id) DO NOTHING`,[s.id,s.name,s.description,s.pricing_type,s.base_price,s.unit,s.duration,s.image]);await client.query('COMMIT');}
     catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}
@@ -107,10 +107,12 @@ async function eligibleWorkers(pool,{serviceId,requestedStart,durationMinutes,la
 
 export function createApp({pool=createPool()}={}){
   const app=express();app.disable('x-powered-by');
-  const allowedOrigins=new Set((process.env.API_CORS_ORIGINS||'http://localhost:8081,http://127.0.0.1:8081,http://localhost:19006,http://127.0.0.1:19006,http://localhost:19000,http://127.0.0.1:19000').split(',').map(origin=>origin.trim()).filter(Boolean));
+  const developmentOrigins=process.env.NODE_ENV==='production'?[]:['http://localhost:8081','http://127.0.0.1:8081','http://localhost:19006','http://127.0.0.1:19006','http://localhost:19000','http://127.0.0.1:19000'];
+  const configuredOrigins=(process.env.API_CORS_ORIGINS||'').split(',').map(origin=>origin.trim()).filter(Boolean);
+  const allowedOrigins=new Set([...developmentOrigins,...configuredOrigins]);
   app.use((req,res,next)=>{const origin=req.get('Origin');if(origin&&allowedOrigins.has(origin)){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Access-Control-Allow-Credentials','true');res.setHeader('Vary','Origin');res.setHeader('Access-Control-Allow-Methods','GET,POST,PATCH,DELETE,OPTIONS');res.setHeader('Access-Control-Allow-Headers','Accept,Authorization,Content-Type,Idempotency-Key,X-Filename');if(req.method==='OPTIONS')return res.sendStatus(204);}next();});
   app.use((req,res,next)=>{res.set('X-Content-Type-Options','nosniff');res.set('Referrer-Policy','strict-origin-when-cross-origin');res.set('X-Frame-Options','DENY');res.set('Permissions-Policy','camera=(), microphone=(), geolocation=(self)');next();});
-  const uploadDir=resolve(here,'uploads');
+  const uploadDir=resolve(process.env.UPLOAD_DIR||resolve(here,'uploads'));
   mkdirSync(uploadDir,{recursive:true});
   app.use((req,res,next)=>{
     const path=String(req.originalUrl||req.url||'').split('?')[0];
@@ -878,6 +880,14 @@ export function createApp({pool=createPool()}={}){
 }
 
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-  const pool=createPool();try{await migrate(pool);}catch(e){console.error('Database migration failed:',e.message);process.exit(1);}
-  const app=createApp({pool}),port=Number(process.env.API_PORT||5000);app.listen(port,'0.0.0.0',()=>console.log(`Meraki API listening on port ${port}`));
+  const pool=createPool();
+  try{
+    if(process.env.NODE_ENV==='production'){
+      await pool.query('SELECT 1');
+      console.log('Production migrations are not run automatically. Review and back up the database, then run npm run db:migrate:production separately.');
+    }else{
+      await migrate(pool);
+    }
+  }catch(e){console.error(process.env.NODE_ENV==='production'?'Database connection failed:':'Database migration failed:',e.message);await pool.end();process.exit(1);}
+  const app=createApp({pool}),port=Number(process.env.PORT||process.env.API_PORT||5000);app.listen(port,'0.0.0.0',()=>console.log(`Meraki API listening on port ${port}`));
 }

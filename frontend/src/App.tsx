@@ -17,6 +17,7 @@ const CustomerView = dynamic(() => import('./booking/CustomerView').then(module 
   loading: () => <div role="status" className="mx-auto max-w-5xl px-5 py-12 text-sm text-slate-600">Loading booking experience…</div>,
 });
 
+const staffPortalUrl=process.env.NEXT_PUBLIC_MANAGEMENT_URL||(process.env.NODE_ENV==='development'?'http://localhost:3004/login':'');
 const pageByPath:Record<string,string>={'/':'home','/about':'about','/services':'services','/team':'team','/trust':'trust','/contact':'contact','/faq':'faq','/blog':'blog'};
 const pathByPage:Record<string,string>={home:'/',about:'/about',services:'/services',team:'/team',trust:'/trust',contact:'/contact',faq:'/faq',blog:'/blog'};
 
@@ -36,5 +37,5 @@ export default function App({initialPath='/',initialQuery=''}:{initialPath?:stri
  else if(path==='/login'||path==='/register')content=<CustomerAuthPage mode={path==='/register'?'register':'login'} onSignedIn={()=>navigate('/my-account')}/>;
  else if(path==='/my-account'||path==='/my-account/bookings')content=<CustomerAccountPage bookings={path.endsWith('/bookings')} onSignOut={()=>navigate('/login')}/>;
  else content=<main className="mx-auto max-w-2xl px-5 py-16"><h1 className="text-2xl font-semibold text-[#102A43]">Page not found</h1><a className="mt-4 inline-block underline" href="/">Return home</a></main>;
- return <><div id="customer-portal" className="min-h-screen bg-[#F7F8FA] text-[#334155]">{Header}<main>{content}</main><footer className="mt-10 border-t border-slate-200 bg-white px-5 py-5 text-center text-xs text-slate-500"><a href="http://localhost:3004/login" className="text-[#102A43] underline">Staff sign in</a><span className="mx-3" aria-hidden="true">·</span><a href="/" className="text-[#102A43] underline">Meraki Homes</a></footer></div><ChatWidget/></>;
+ return <><div id="customer-portal" className="min-h-screen bg-[#F7F8FA] text-[#334155]">{Header}<main>{content}</main><footer className="mt-10 border-t border-slate-200 bg-white px-5 py-5 text-center text-xs text-slate-500">{staffPortalUrl?<><a href={staffPortalUrl} className="text-[#102A43] underline">Staff sign in</a><span className="mx-3" aria-hidden="true">&middot;</span></>:null}<a href="/" className="text-[#102A43] underline">Meraki Homes</a></footer></div><ChatWidget/></>;
 }

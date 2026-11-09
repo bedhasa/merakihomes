@@ -12,6 +12,9 @@ const config: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
   agentRules: false,
+  experimental: {
+    agentUpgrade: 'security',
+  },
 };
 
 export default config;
