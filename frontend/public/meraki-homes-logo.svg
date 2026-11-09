@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 640" role="img" aria-labelledby="title">
+  <title id="title">Meraki Homes</title>
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd84a"/>
+      <stop offset=".52" stop-color="#e7a900"/>
+      <stop offset="1" stop-color="#ffcc21"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2=".9" y2="1">
+      <stop offset="0" stop-color="#06285d"/>
+      <stop offset="1" stop-color="#00143b"/>
+    </linearGradient>
+  </defs>
+  <!-- A compact architectural skyline with an open doorway at its centre. -->
+  <g transform="translate(170 -20) scale(.9)">
+  <path fill="url(#blue)" d="M282 318V98L374 42v276l-26 16V122l-43 26v154z"/>
+  <path fill="url(#gold)" d="M382 48l96 68v178l-22-15V135l-50-35v195l-24 16z"/>
+  <path fill="url(#blue)" d="M270 156l-73 50v99l73 33v-37l-42-20v-54l42-28zM490 139l73 54v106l-73 37v-34l43-23v-62l-43-31z"/>
+  <path fill="url(#gold)" d="M172 226l-40 29v96l40 16zM591 231l42 31v96l-42 20z"/>
+  <path fill="url(#gold)" d="M190 339c66 44 150 56 244 51 115-6 214-34 302-82-63 60-165 103-293 113-113 9-207-12-266-57-31-24-43-50-36-78 7-30 38-63 89-91-36 31-55 56-58 79-4 25 2 46 18 65z"/>
+  <path fill="url(#blue)" d="M304 339l116-72 126 73-44 18-82-49-77 48z"/>
+  <g fill="url(#gold)" stroke="#9d6900" stroke-width="2">
+    <path d="M390 345h31v29h-31zM427 345h31v29h-31zM390 380h31v29h-31zM427 380h31v29h-31z"/>
+  </g>
+  </g>
+  <text x="512" y="535" text-anchor="middle" fill="url(#blue)" font-family="Arial Black,Arial,sans-serif" font-size="152" font-weight="900" letter-spacing="-5">MERAKI</text>
+  <path d="M124 579h178M722 579h178" stroke="url(#gold)" stroke-width="9" stroke-linecap="round"/>
+  <text x="512" y="604" text-anchor="middle" fill="url(#gold)" font-family="Arial, sans-serif" font-size="67" font-weight="700" letter-spacing="24">HOMES</text>
+</svg>

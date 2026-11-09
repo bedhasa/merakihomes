@@ -21,6 +21,15 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+.testimonials-scroll-track {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.testimonials-scroll-track::-webkit-scrollbar {
+  display: none;
+}
+
 @layer components {
   .meraki-button {
     @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-[#102A43] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#173A58] focus:outline-none focus:ring-2 focus:ring-[#D4A853] focus:ring-offset-2;
@@ -38,7 +47,7 @@
     color-scheme: light;
     --meraki-navy: #102a43;
     --meraki-gold: #d4a853;
-    --meraki-paper: #f7f8fa;
+    --meraki-paper: #ffffff;
     --meraki-body: #334155;
     --meraki-surface: #ffffff;
   }
@@ -49,35 +58,112 @@
     color: var(--meraki-body);
     @apply font-sans antialiased;
   }
-  .dark body { background: #0b1724; color: #e8eef5; }
+  .dark body { background: #102a43; color: #f3f7fb; }
 }
 
-/* Dark theme surfaces stay in the same navy, gold, and white family. */
-html.dark #public-site { background: #0b1724; color: #e8eef5; }
-html.dark #public-site header { background: #102a43; }
-html.dark #public-site header .text-\[\#102A43\] { color: #102a43 !important; }
-html.dark #public-site .bg-white { background-color: #14283b !important; }
-html.dark #public-site .bg-\[\#F7F8FA\] { background-color: #0b1724 !important; }
-html.dark #public-site .text-\[\#102A43\] { color: #e8eef5 !important; }
-html.dark #public-site .text-slate-600,
-html.dark #public-site .text-slate-500 { color: #bdc9d5 !important; }
-html.dark #public-site .border-slate-200,
-html.dark #public-site .border-slate-300 { border-color: #31465a !important; }
+/* Shared dark surfaces for the public site, customer portal and staff application. */
+html.dark body { background: #102a43; color: #f3f7fb; }
+html.dark #public-site,
+html.dark #customer-portal,
+html.dark #customer-request,
+html.dark #root { background-color: #102a43 !important; color: #f3f7fb; }
+
+html.dark #public-site [class*="bg-white"],
+html.dark #customer-portal [class*="bg-white"],
+html.dark #customer-request [class*="bg-white"],
+html.dark #root [class*="bg-white"] { background-color: #173a58 !important; }
+html.dark #public-site [class*="bg-[#F7F8FA]"],
+html.dark #public-site [class*="bg-[#F8FAFC]"],
+html.dark #customer-portal [class*="bg-[#F7F8FA]"],
+html.dark #customer-portal [class*="bg-[#F8FAFC]"],
+html.dark #customer-request [class*="bg-[#F7F8FA]"],
+html.dark #customer-request [class*="bg-[#F8FAFC]"],
+html.dark #root [class*="bg-[#F7F8FA]"],
+html.dark #root [class*="bg-[#F8FAFC]"] { background-color: #102a43 !important; }
+html.dark #public-site [class*="bg-[#FBF8F0]"],
+html.dark #customer-portal [class*="bg-[#FBF8F0]"],
+html.dark #customer-request [class*="bg-[#FBF8F0]"],
+html.dark #root [class*="bg-[#FBF8F0]"],
+html.dark #public-site [class*="bg-golden-50"],
+html.dark #customer-portal [class*="bg-golden-50"],
+html.dark #customer-request [class*="bg-golden-50"],
+html.dark #root [class*="bg-golden-50"] { background-color: #1d4565 !important; }
+html.dark #public-site [class*="bg-slate-50"],
+html.dark #customer-portal [class*="bg-slate-50"],
+html.dark #customer-request [class*="bg-slate-50"],
+html.dark #root [class*="bg-slate-50"] { background-color: #173a58 !important; }
+html.dark #public-site [class*="bg-slate-100"],
+html.dark #customer-portal [class*="bg-slate-100"],
+html.dark #customer-request [class*="bg-slate-100"],
+html.dark #root [class*="bg-slate-100"] { background-color: #1d4565 !important; }
+
+html.dark #public-site header { background-color: #102a43 !important; border-color: #456078 !important; }
+html.dark #public-site [class*="text-[#102A43]"],
+html.dark #customer-portal [class*="text-[#102A43]"],
+html.dark #customer-request [class*="text-[#102A43]"],
+html.dark #root [class*="text-[#102A43]"],
+html.dark #public-site [class*="text-slate-900"],
+html.dark #customer-portal [class*="text-slate-900"],
+html.dark #customer-request [class*="text-slate-900"],
+html.dark #root [class*="text-slate-900"],
+html.dark #public-site [class*="text-slate-800"],
+html.dark #customer-portal [class*="text-slate-800"],
+html.dark #customer-request [class*="text-slate-800"],
+html.dark #root [class*="text-slate-800"],
+html.dark #public-site [class*="text-slate-700"],
+html.dark #customer-portal [class*="text-slate-700"],
+html.dark #customer-request [class*="text-slate-700"],
+html.dark #root [class*="text-slate-700"] { color: #f3f7fb !important; }
+html.dark #public-site [class*="text-slate-600"],
+html.dark #customer-portal [class*="text-slate-600"],
+html.dark #customer-request [class*="text-slate-600"],
+html.dark #root [class*="text-slate-600"],
+html.dark #public-site [class*="text-slate-500"],
+html.dark #customer-portal [class*="text-slate-500"],
+html.dark #customer-request [class*="text-slate-500"],
+html.dark #root [class*="text-slate-500"] { color: #c5d1dd !important; }
+html.dark #public-site [class*="text-[#8C6A2F]"],
+html.dark #customer-portal [class*="text-[#8C6A2F]"],
+html.dark #customer-request [class*="text-[#8C6A2F]"],
+html.dark #root [class*="text-[#8C6A2F]"],
+html.dark #public-site [class*="text-golden-700"],
+html.dark #customer-portal [class*="text-golden-700"],
+html.dark #customer-request [class*="text-golden-700"],
+html.dark #root [class*="text-golden-700"] { color: #e5c883 !important; }
+
+html.dark #public-site [class*="border-slate-100"],
+html.dark #customer-portal [class*="border-slate-100"],
+html.dark #customer-request [class*="border-slate-100"],
+html.dark #root [class*="border-slate-100"],
+html.dark #public-site [class*="border-slate-200"],
+html.dark #customer-portal [class*="border-slate-200"],
+html.dark #customer-request [class*="border-slate-200"],
+html.dark #root [class*="border-slate-200"],
+html.dark #public-site [class*="border-slate-300"],
+html.dark #customer-portal [class*="border-slate-300"],
+html.dark #customer-request [class*="border-slate-300"],
+html.dark #root [class*="border-slate-300"] { border-color: #456078 !important; }
+
 html.dark #public-site input,
-html.dark #public-site textarea { color: #e8eef5; }
-html.dark #customer-request { background: #0b1724; color: #e8eef5; }
-html.dark #customer-request .bg-white { background-color: #14283b !important; }
-html.dark #customer-request .text-\[\#102A43\] { color: #e8eef5 !important; }
-html.dark #customer-request .text-slate-600,
-html.dark #customer-request .text-slate-500 { color: #bdc9d5 !important; }
-html.dark #customer-request .border-slate-200,
-html.dark #customer-request .border-slate-300 { border-color: #31465a !important; }
+html.dark #public-site textarea,
+html.dark #public-site select,
+html.dark #customer-portal input,
+html.dark #customer-portal textarea,
+html.dark #customer-portal select,
 html.dark #customer-request input,
 html.dark #customer-request textarea,
-html.dark #customer-request select { background-color: #0f2031; color: #e8eef5; border-color: #31465a; }
-html.dark #app-nav { background: #102a43; border-color: #31465a; }
-html.dark #app-nav .text-\[\#102A43\],
-html.dark #app-nav .text-slate-600 { color: #fff; }
+html.dark #customer-request select,
+html.dark #root input,
+html.dark #root textarea,
+html.dark #root select { background-color: #173a58; color: #f3f7fb; border-color: #456078; }
+
+html.dark #public-site .meraki-button { background-color: #D4A853; color: #102a43; }
+html.dark #public-site button[class*="bg-[#D4A853]"],
+html.dark #customer-portal button[class*="bg-[#D4A853]"],
+html.dark #root button[class*="bg-[#D4A853]"] { color: #102a43 !important; }
+html.dark #customer-portal footer,
+html.dark #root footer { background-color: #102a43 !important; border-color: #456078 !important; }
+html.dark #app-nav { background: #102a43; border-color: #456078; }
 .meraki-map-pin { background:transparent; border:0; }
 .meraki-map-pin span { display:block; width:20px; height:20px; border:3px solid #102A43; border-radius:50% 50% 50% 0; background:#D4A853; transform:rotate(-45deg); box-shadow:0 2px 5px #102a4355; }
 .meraki-location-map .leaflet-control-zoom { overflow:hidden; border:1px solid #dbe2e8; border-radius:8px; box-shadow:0 2px 8px #102a431f; }
@@ -89,3 +175,20 @@ html.dark #app-nav .text-slate-600 { color: #fff; }
 .meraki-logo-background { background-color: #fff !important; }
 html.dark #public-site .meraki-logo-background { background-color: #fff !important; }
 
+/* Keep the light theme bright and make secondary copy readable across pages. */
+html:not(.dark) body { background: #fff; color: #102a43; }
+html:not(.dark) #public-site,
+html:not(.dark) #customer-portal,
+html:not(.dark) #customer-request,
+html:not(.dark) #root { background-color: #fff; }
+html:not(.dark) #public-site [class*="text-slate-400"],
+html:not(.dark) #customer-portal [class*="text-slate-400"],
+html:not(.dark) #customer-request [class*="text-slate-400"],
+html:not(.dark) #root [class*="text-slate-400"] { color: #526579; }
+
+/* Boost muted labels and primary controls in dark mode. */
+html.dark #public-site [class*="text-slate-400"],
+html.dark #customer-portal [class*="text-slate-400"],
+html.dark #customer-request [class*="text-slate-400"],
+html.dark #root [class*="text-slate-400"] { color: #c5d1dd !important; }
+html.dark #public-site .meraki-button { background-color: #D4A853 !important; color: #102a43 !important; }

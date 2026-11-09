@@ -11,28 +11,40 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [preferenceLoaded, setPreferenceLoaded] = useState(false);
 
   useEffect(() => {
     try {
-      setIsDarkMode(window.localStorage.getItem('theme') === 'dark');
+      const cookieTheme = document.cookie
+        .split('; ')
+        .find(value => value.startsWith('meraki-theme='))
+        ?.split('=')[1];
+      const savedTheme = cookieTheme || window.localStorage.getItem('theme');
+      setIsDarkMode(savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
     } catch {
-      // The default light theme still works when storage is blocked.
+      setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
+    } finally {
+      setPreferenceLoaded(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!preferenceLoaded) return;
     const root = document.documentElement;
     if (isDarkMode) {
       root.classList.add('dark');
     } else {
       root.classList.remove('dark');
     }
+    root.style.colorScheme = isDarkMode ? 'dark' : 'light';
     try {
-      window.localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+      const preference = isDarkMode ? 'dark' : 'light';
+      window.localStorage.setItem('theme', preference);
+      document.cookie = `meraki-theme=${preference}; Path=/; Max-Age=31536000; SameSite=Lax`;
     } catch {
       // Theme still works for this session even if the preference cannot persist.
     }
-  }, [isDarkMode]);
+  }, [isDarkMode, preferenceLoaded]);
 
   const toggleTheme = () => {
     setIsDarkMode(prev => !prev);
