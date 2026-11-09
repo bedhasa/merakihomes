@@ -1,0 +1,25 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/*"]
+    }
+  },
+  "include": [
+    "app/**/*.ts",
+    "app/**/*.tsx",
+    "src/lib/**/*.ts",
+    "src/context/**/*.tsx",
+    "src/components/ui.tsx",
+    "src/components/BrandHeader.tsx",
+    "src/components/DateTimeField.tsx",
+    "src/components/CustomerLocationPicker.tsx",
+    "src/components/CustomerLocationPicker.native.tsx",
+    "src/components/ErrorBoundary.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": ["node_modules", "**/*.test.ts"]
+}

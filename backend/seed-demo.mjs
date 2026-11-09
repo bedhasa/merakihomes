@@ -24,14 +24,20 @@ try {
       ON CONFLICT(demo_seed_key) DO NOTHING`,[item.serviceId,item.name,item.description,item.price,item.duration,seedKey]);
   }
   for(const item of workers){
-    const worker=(await pool.query(`INSERT INTO workers(worker_code,full_name,operational_status,eligibility_status,service_area,latitude,longitude,base_rate,rate_currency,is_demo)
-      VALUES($1,$2,$3,$4,$5,$6,$7,$8,'ETB',TRUE)
-      ON CONFLICT(worker_code) DO UPDATE SET worker_code=EXCLUDED.worker_code
-      RETURNING id`,[item.code,item.name,item.pending?'unavailable':'active',item.pending?'pending_review':'eligible',item.area,item.lat,item.lon,item.rate||null])).rows[0];
+    const worker=(await pool.query(`INSERT INTO workers(worker_code,full_name,photo_url,operational_status,eligibility_status,service_area,latitude,longitude,base_rate,rate_currency,is_demo,rating,review_count)
+      VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,'ETB',TRUE,$10,$11)
+      ON CONFLICT(worker_code) DO UPDATE SET full_name=EXCLUDED.full_name,photo_url=EXCLUDED.photo_url,service_area=EXCLUDED.service_area,base_rate=EXCLUDED.base_rate,rating=EXCLUDED.rating,review_count=EXCLUDED.review_count
+      RETURNING id`,[item.code,item.name,item.photoUrl||'',item.pending?'unavailable':'active',item.pending?'pending_review':'eligible',item.area,item.lat,item.lon,item.rate||null,item.rating??null,item.reviewCount||0])).rows[0];
     for(const [serviceId,qualification] of item.skills){
       const pending=item.reviewSkill===serviceId||item.pending;
       await pool.query(`INSERT INTO worker_services(worker_id,service_id,qualification_status,qualification_name,demo_qualification)
         VALUES($1,$2,$3,$4,TRUE) ON CONFLICT(worker_id,service_id) DO NOTHING`,[worker.id,serviceId,pending?'pending_review':'verified',qualification]);
+      const requiredSkills=(await pool.query(`SELECT skill_id FROM service_skill_requirements WHERE service_id=$1 AND is_mandatory`,[serviceId])).rows;
+      for(const skill of requiredSkills){
+        await pool.query(`INSERT INTO worker_skills(worker_id,skill_id,verification_status,verified_at)
+          VALUES($1,$2,$3,CASE WHEN $3='verified' THEN now() END)
+          ON CONFLICT(worker_id,skill_id) DO UPDATE SET verification_status=EXCLUDED.verification_status,verified_at=EXCLUDED.verified_at`,[worker.id,skill.skill_id,pending?'pending':'verified']);
+      }
     }
     for(const weekday of item.days){
       await pool.query(`INSERT INTO worker_availability(worker_id,weekday,start_time,end_time,timezone)
