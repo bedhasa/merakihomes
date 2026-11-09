@@ -7,6 +7,8 @@ interface FooterProps {
   onServiceSelect?: (serviceId: string) => void;
 }
 
+const staffPortalUrl=process.env.NEXT_PUBLIC_MANAGEMENT_URL||(process.env.NODE_ENV==='development'?'http://localhost:3004/login':'');
+
 const serviceLinks = [
   { id: 'premium_home_cleaning', label: 'Premium Home Cleaning' },
   { id: 'cooking_service', label: 'Personal Cooking & Prep' },
@@ -169,16 +171,16 @@ export const Footer: React.FC<FooterProps> = ({
               </a>
             </div>
 
-            <div className="pt-4 border-t border-white/10">
+            {staffPortalUrl ? <div className="pt-4 border-t border-white/10">
               <a
-                href="http://localhost:3004/login"
+                href={staffPortalUrl}
                 className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors"
               >
                 <ShieldCheck size={14} className="text-[#D4A853]" />
                 <span>Staff Operations Portal</span>
                 <ArrowUpRight size={12} />
               </a>
-            </div>
+            </div> : null}
           </div>
         </div>
 

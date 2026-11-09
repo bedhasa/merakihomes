@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function() {
+        // Ensure window.fetch has a setter so extensions and sandboxes can wrap/intercept it without throwing
+        try {
+          var originalFetch = window.fetch ? window.fetch.bind(window) : null;
+          var customFetch = originalFetch;
+          Object.defineProperty(window, 'fetch', {
+            get: function() {
+              return customFetch;
+            },
+            set: function(fn) {
+              customFetch = fn;
+            },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (err) {
+          try {
+            var protoFetch = Window.prototype.fetch;
+            Object.defineProperty(Window.prototype, 'fetch', {
+              get: function() {
+                return protoFetch;
+              },
+              set: function(fn) {
+                protoFetch = fn;
+              },
+              configurable: true,
+              enumerable: true
+            });
+          } catch (e) {}
+        }
+
+        // Suppress unhandled extension errors from breaking application runner
+        window.addEventListener('error', function(event) {
+          if (event && event.filename && event.filename.indexOf('chrome-extension://') !== -1) {
+            event.preventDefault();
+            return true;
+          }
+        }, true);
+      })();
+    </script>
+    <title>Bete - Warm Highland Hospitality</title>
+    <meta name="description" content="Premium Ethiopian home and hospitality services marketplace connecting Addis Ababa households with vetted local professionals." />
+    <meta property="og:title" content="Bete - Warm Highland Hospitality" />
+    <meta property="og:description" content="Premium Ethiopian home and hospitality services marketplace connecting Addis Ababa households with vetted local professionals." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Ethiopic:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-[#F7F8FA] text-[#191c1e] antialiased selection:bg-[#D4A853]/30 selection:text-[#102A43]">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,12 +1,14 @@
 import { spawn } from 'node:child_process';
+import { loadDevDatabaseConfig } from './dev-config.mjs';
 
 const vite='node_modules/vite/bin/vite.js';
 const next='node_modules/next/dist/bin/next';
 const root=process.cwd();
+const devConfig=loadDevDatabaseConfig();
 const children=[
   spawn(process.execPath,[next,'dev','frontend','--hostname','0.0.0.0','--port','3000'],{cwd:root,stdio:'inherit',env:process.env,windowsHide:true}),
   spawn(process.execPath,[vite,'--config','management/vite.config.ts','--configLoader','runner','--host=0.0.0.0','--strictPort'],{cwd:root,stdio:'inherit',env:process.env,windowsHide:true}),
-  spawn(process.execPath,['backend/index.mjs'],{cwd:root,stdio:'inherit',env:process.env,windowsHide:true}),
+  spawn(process.execPath,['backend/index.mjs'],{cwd:root,stdio:'inherit',env:{...process.env,...devConfig},windowsHide:true}),
 ];
 let stopping=false;
 function terminate(child){

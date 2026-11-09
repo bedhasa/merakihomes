@@ -14,7 +14,7 @@ return {
   plugins:[react(),tailwindcss()],
   resolve:{alias:{'@':path.resolve(managementRoot,'src'),'@shared':path.resolve(workspaceRoot,'shared')}},
   cacheDir:path.resolve(workspaceRoot,'node_modules/.vite-management'),
-  server:{port:3004,strictPort:true,proxy:{'/api':`http://127.0.0.1:${env.API_PORT||5000}`},fs:{allow:[workspaceRoot]}},
+  server:{port:3004,strictPort:true,proxy:{'/api':{target:`http://127.0.0.1:${env.API_PORT||5000}`,changeOrigin:true,timeout:120000}},fs:{allow:[workspaceRoot]}},
   build:{outDir:path.resolve(workspaceRoot,'dist-management'),emptyOutDir:true},
 };
 });
