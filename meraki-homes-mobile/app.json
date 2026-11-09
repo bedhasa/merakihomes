@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Meraki Homes",
+    "slug": "meraki-homes-mobile",
+    "scheme": "merakihomes",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.merakihomes.mobile"
+    },
+    "android": {
+      "package": "com.merakihomes.mobile",
+      "softwareKeyboardLayoutMode": "resize",
+      "usesCleartextTraffic": true
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

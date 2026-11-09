@@ -1,0 +1,51 @@
+{
+  "name": "meraki-homes-mobile",
+  "version": "1.0.0",
+  "private": true,
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "phone": "expo start --go --lan",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "lint": "npm run typecheck",
+    "test": "npx --yes tsx --test src/lib/serviceLocation.test.ts"
+  },
+  "dependencies": {
+    "@expo/vector-icons": "^15.0.0",
+    "@hookform/resolvers": "^5.2.2",
+    "@react-native-community/datetimepicker": "9.2.1",
+    "@tanstack/react-query": "^5.90.0",
+    "expo": "~58.0.0",
+    "expo-constants": "~58.0.0",
+    "expo-font": "~58.0.11",
+    "expo-linking": "~58.0.0",
+    "expo-location": "~58.0.20",
+    "expo-router": "~58.0.26",
+    "expo-secure-store": "~58.0.2",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-hook-form": "^7.71.0",
+    "react-native": "0.88.1",
+    "react-native-maps": "1.29.11",
+    "react-native-reanimated": "4.7.1",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.1",
+    "react-native-web": "^0.21.4",
+    "react-native-worklets": "0.13.0",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "babel-preset-expo": "~58.0.23",
+    "@types/react": "~19.3.0",
+    "typescript": "~6.0.3"
+  },
+  "overrides": {
+    "metro": "0.87.1",
+    "metro-config": "0.87.1",
+    "metro-transform-worker": "0.87.1"
+  }
+}
