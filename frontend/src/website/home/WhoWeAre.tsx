@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
-import { ArrowRight, Award, Headphones, HeartHandshake, Home, ShieldCheck, Sparkles, Star } from 'lucide-react';
+import { ArrowRight, Award, Headphones, HeartHandshake, Home, ShieldCheck, Star } from 'lucide-react';
 
 interface WhoWeAreProps {
   image?: string;
@@ -54,7 +54,6 @@ export const WhoWeAre: React.FC<WhoWeAreProps> = ({ image, onAboutClick }) => {
 
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-[#102A43]/5 px-3.5 py-1 text-xs font-bold uppercase tracking-[.2em] text-[#102A43] dark:bg-white/10 dark:text-white">
-            <Sparkles size={14} className="text-[#D4A853]" aria-hidden="true" />
             <span>Who We Are</span>
           </div>
           <h2 id="who-we-are-title" className="mt-4 text-3xl font-bold leading-tight tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-[2.75rem]">
