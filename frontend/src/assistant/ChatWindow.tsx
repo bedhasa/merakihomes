@@ -15,7 +15,9 @@ interface ChatWindowProps {
   onSend: () => void;
   isTyping: boolean;
   error: string | null;
-  onRetry: () => void;`r`n  language: AssistantLanguage;`r`n  onLanguageChange: (language: AssistantLanguage) => void;
+  onRetry: () => void;
+  language: AssistantLanguage;
+  onLanguageChange: (language: AssistantLanguage) => void;
 }
 
 export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef, inputRef, messages, draft, onDraftChange, onSend, isTyping, error, onRetry, language, onLanguageChange }) => (

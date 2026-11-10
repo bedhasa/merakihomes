@@ -9,7 +9,9 @@ interface ChatFooterProps {
   onSend: () => void;
   isTyping: boolean;
   error: string | null;
-  onRetry: () => void;`r`n  language: AssistantLanguage;`r`n  onLanguageChange: (language: AssistantLanguage) => void;
+  onRetry: () => void;
+  language: AssistantLanguage;
+  onLanguageChange: (language: AssistantLanguage) => void;
 }
 
 const languages: Array<{ value: AssistantLanguage; label: string }> = [
