@@ -92,10 +92,12 @@ export async function generateWithResilience({
   models,
   generate,
   maxRetries = 2,
+  budgetMs = 60_000,
   sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms)),
 }) {
   let lastError;
   let retries = 0;
+  const begun = Date.now();
   for (const model of models) {
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       const started = Date.now();
@@ -114,7 +116,8 @@ export async function generateWithResilience({
           retries,
           ok: false,
         });
-        const tryNextModel = classified.category === 'model_not_found' || classified.category === 'busy';
+        const tryNextModel = classified.category === 'model_not_found' || classified.category === 'busy' || classified.category === 'timeout';
+        if (Date.now() - begun >= budgetMs) throw lastError;
         if (!classified.retryable) {
           if (tryNextModel) break;
           throw lastError;
