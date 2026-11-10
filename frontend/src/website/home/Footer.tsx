@@ -46,7 +46,7 @@ export const Footer: React.FC<FooterProps> = ({
               aria-label="Meraki Homes Logo"
             >
               <img
-                src="/meraki-homes-logo.svg"
+                src="/Meraki_Homes_Logo.png"
                 alt="Meraki Homes"
                 className="h-[130px] w-auto max-w-[210px] object-contain"
               />
