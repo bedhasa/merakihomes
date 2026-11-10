@@ -253,7 +253,7 @@ ${JSON.stringify(serviceContext)}`;    const lockKey=conversation?.id||actor.cus
     if(agazInFlight.has(lockKey))return apiError(res,429,'Please wait for Merk to finish the previous reply.',null,'busy');
     agazInFlight.add(lockKey);
     try{
-      const {GoogleGenAI}=await import('@google/genai');const ai=new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY,httpOptions:{timeout:12000,retryOptions:{attempts:0}}});
+      const {GoogleGenAI}=await import('@google/genai');const ai=new GoogleGenAI({apiKey:process.env.GEMINI_API_KEY,httpOptions:{timeout:Number(process.env.GEMINI_TIMEOUT_MS)||25000,retryOptions:{attempts:0}}});
       const contents=[...history,{role:'user',text:message.trim()}].map(m=>({role:m.role==='model'?'model':'user',parts:[{text:m.text}]}));
       const modelCandidates=geminiModelsFromEnv();
       const generated=(await generateWithResilience({
