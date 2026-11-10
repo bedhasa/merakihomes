@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { ChatBody } from './ChatBody';
 import { ChatFooter } from './ChatFooter';
 import { ChatHeader } from './ChatHeader';
-import type { ChatMessage } from './types';
+import type { AssistantLanguage, ChatMessage } from './types';
 
 interface ChatWindowProps {
   onClose: () => void;
@@ -15,10 +15,10 @@ interface ChatWindowProps {
   onSend: () => void;
   isTyping: boolean;
   error: string | null;
-  onRetry: () => void;
+  onRetry: () => void;`r`n  language: AssistantLanguage;`r`n  onLanguageChange: (language: AssistantLanguage) => void;
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef, inputRef, messages, draft, onDraftChange, onSend, isTyping, error, onRetry }) => (
+export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef, inputRef, messages, draft, onDraftChange, onSend, isTyping, error, onRetry, language, onLanguageChange }) => (
   <motion.section
     id="meraki-assistant-window"
     role="dialog"
@@ -32,6 +32,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef,
   >
     <ChatHeader onClose={onClose} closeButtonRef={closeButtonRef} />
     <ChatBody messages={messages} isTyping={isTyping} />
-    <ChatFooter inputRef={inputRef} draft={draft} onDraftChange={onDraftChange} onSend={onSend} isTyping={isTyping} error={error} onRetry={onRetry} />
+    <ChatFooter inputRef={inputRef} draft={draft} onDraftChange={onDraftChange} onSend={onSend} isTyping={isTyping} error={error} onRetry={onRetry} language={language} onLanguageChange={onLanguageChange} />
   </motion.section>
 );

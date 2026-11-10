@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import { createTextMessage } from './conversationUtils';
 import { createStarterMessages } from './types';
-import type { ChatMessage } from './types';
+import type { AssistantLanguage, ChatMessage } from './types';
 
 const VISITOR_KEY = 'meraki-assistant-visitor-v1';
 
@@ -30,6 +30,7 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
   const [error, setError] = useState<string | null>(null);
   const [retryText, setRetryText] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
+  const [language, setLanguage] = useState<AssistantLanguage>('auto');
   const sending = useRef(false);
   const visitorIdRef = useRef<string | null>(null);
 
@@ -57,7 +58,7 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
       const response = await fetch('/api/agaz/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ message: text, language: 'auto', conversationId, visitorId }),
+        body: JSON.stringify({ message: text, language, conversationId, visitorId }),
         signal: controller.signal,
         cache: 'no-store',
       });
@@ -89,7 +90,7 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
       sending.current = false;
       setIsTyping(false);
     }
-  }, [conversationId, draft, inputRef]);
+  }, [conversationId, draft, inputRef, language]);
 
-  return { messages, draft, setDraft, isTyping, error, retryText, initializeConversation, sendMessage };
+  return { messages, draft, setDraft, isTyping, error, retryText, language, setLanguage, initializeConversation, sendMessage };
 };
