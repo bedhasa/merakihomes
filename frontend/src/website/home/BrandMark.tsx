@@ -2,7 +2,7 @@ import React from 'react';
 
 export const BrandMark: React.FC<{ onNavy?: boolean }> = ({ onNavy = false }) => (
   <span className="flex min-w-0 items-center gap-2">
-    <img src="/Meraki_Homes_Logo.png" alt="" aria-hidden="true" className="h-[49px] w-[52px] shrink-0 object-contain" />
+    <img src="/meraki-skyline-logo.png" alt="" aria-hidden="true" className="h-[60px] w-[64px] shrink-0 object-contain" />
     <span className="min-w-0">
       <span className="flex items-center gap-1.5 whitespace-nowrap">
         <span className={`text-[14px] font-black tracking-[0.1px] ${onNavy ? 'text-white' : 'text-[#142B4A]'}`}>MERAKI</span>
