@@ -1,4 +1,5 @@
-﻿export type ChatMessageRole = 'assistant' | 'user';
+export type ChatMessageRole = 'assistant' | 'user';
+export type AssistantLanguage = 'auto' | 'en' | 'am' | 'om';
 
 export interface TextMessageContent {
   type: 'text';
@@ -55,7 +56,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: "\u{1F44B} Hello and welcome to Meraki Homes! I'm Merk, your AI assistant. I can explain our services and help you find the right option.",
+        text: "\u{1F44B} Hello and welcome to Meraki Homes! I'm Agaz AI, Meraki Homes' assistant. I can help with services, pricing, and booking requests.",
       },
       timestamp,
     },
@@ -64,7 +65,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: 'I can explain services and pricing, answer common questions, and guide you through a booking request. Meraki Homes confirms availability, final scope, and price after review. Choose a suggestion below to get started.',
+        text: 'Choose a service question to start. Operations confirms availability, final scope, and price after reviewing a booking request.',
       },
       timestamp,
     },
