@@ -11,7 +11,7 @@
     "app/**/*.ts",
     "app/**/*.tsx",
     "src/lib/**/*.ts",
-    "src/context/**/*.tsx",
+    "src/context/AuthContext.tsx",
     "src/components/ui.tsx",
     "src/components/BrandHeader.tsx",
     "src/components/DateTimeField.tsx",

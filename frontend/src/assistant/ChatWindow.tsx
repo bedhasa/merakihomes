@@ -14,9 +14,11 @@ interface ChatWindowProps {
   onDraftChange: (value: string) => void;
   onSend: () => void;
   isTyping: boolean;
+  error: string | null;
+  onRetry: () => void;
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef, inputRef, messages, draft, onDraftChange, onSend, isTyping }) => (
+export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef, inputRef, messages, draft, onDraftChange, onSend, isTyping, error, onRetry }) => (
   <motion.section
     id="meraki-assistant-window"
     role="dialog"
@@ -30,6 +32,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef,
   >
     <ChatHeader onClose={onClose} closeButtonRef={closeButtonRef} />
     <ChatBody messages={messages} isTyping={isTyping} />
-    <ChatFooter inputRef={inputRef} draft={draft} onDraftChange={onDraftChange} onSend={onSend} isTyping={isTyping} />
+    <ChatFooter inputRef={inputRef} draft={draft} onDraftChange={onDraftChange} onSend={onSend} isTyping={isTyping} error={error} onRetry={onRetry} />
   </motion.section>
 );

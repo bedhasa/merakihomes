@@ -135,10 +135,10 @@ export default function HomeScreen() {
       </View>}
     </View>
 
-    <Pressable accessibilityRole="button" accessibilityLabel="Chat with Agaz, your Meraki Homes assistant" onPress={() => router.push('/assistant')}>
+    <Pressable accessibilityRole="button" accessibilityLabel="Chat with Merk, your Meraki Homes assistant" onPress={() => router.push('/assistant')}>
       <Card style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, backgroundColor: C.navy, borderColor: C.gold }}>
         <View style={{ width: 42, height: 42, borderRadius: 21, backgroundColor: '#F7D37E', alignItems: 'center', justifyContent: 'center' }}><Feather name="star" size={20} color={C.navy} /></View>
-        <View style={{ flex: 1, gap: 3 }}><Text style={{ color: '#F7D37E', fontSize: 14, fontWeight: '900' }}>Ask Agaz</Text><Text style={{ color: C.white, fontSize: 11 }}>Your Meraki Homes Assistant</Text></View>
+        <View style={{ flex: 1, gap: 3 }}><Text style={{ color: '#F7D37E', fontSize: 14, fontWeight: '900' }}>Ask Merk</Text><Text style={{ color: C.white, fontSize: 11 }}>Your Meraki Homes Assistant</Text></View>
         <Feather name="arrow-right" size={18} color="#F7D37E" />
       </Card>
     </Pressable>
@@ -161,5 +161,5 @@ export default function HomeScreen() {
       </View>
     </View>
 
-  </Page><Pressable accessibilityRole="button" accessibilityLabel="Open Agaz assistant" onPress={() => router.push('/assistant')} style={{ position: 'absolute', right: 16, bottom: 14, minWidth: 118, height: 50, paddingHorizontal: 14, borderRadius: 25, borderWidth: 1, borderColor: '#253B4D', backgroundColor: C.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, elevation: 7, shadowColor: '#00152A', shadowOpacity: 0.22, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }}><Feather name="star" size={19} color="#FFE0A0" /><Text style={{ color: C.white, fontSize: 12, fontWeight: '800' }}>Agaz AI</Text></Pressable></View>;
+  </Page><Pressable accessibilityRole="button" accessibilityLabel="Open Merk assistant" onPress={() => router.push('/assistant')} style={{ position: 'absolute', right: 16, bottom: 14, minWidth: 118, height: 50, paddingHorizontal: 14, borderRadius: 25, borderWidth: 1, borderColor: '#253B4D', backgroundColor: C.navy, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, elevation: 7, shadowColor: '#00152A', shadowOpacity: 0.22, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }}><Feather name="star" size={19} color="#FFE0A0" /><Text style={{ color: C.white, fontSize: 12, fontWeight: '800' }}>Merk AI</Text></Pressable></View>;
 }

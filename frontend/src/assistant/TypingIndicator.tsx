@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { AssistantAvatar } from './AssistantAvatar';
 
 export const TypingIndicator: React.FC = () => (
-  <div role="status" aria-label="Meraki Assistant is typing" className="flex items-end gap-2.5">
+  <div role="status" aria-label="Merk is replying" className="flex items-end gap-2.5">
     <AssistantAvatar />
     <div className="flex h-10 items-center gap-1.5 rounded-2xl rounded-bl-sm border border-slate-100 bg-[#F7F8FA] px-4 dark:border-slate-700 dark:bg-slate-800">
       {[0, 1, 2].map(index => (

@@ -43,7 +43,7 @@ function AppStack() {
     <Stack.Screen name="professional" options={{ title: 'Professional workspace' }} />
     <Stack.Screen name="approvals" options={{ title: 'Your approvals' }} />
     <Stack.Screen name="guest-booking" options={{ title: 'Guest booking lookup' }} />
-    <Stack.Screen name="assistant" options={{ title: 'Agaz Assistant' }} />
+    <Stack.Screen name="assistant" options={{ title: 'Merk Assistant' }} />
     <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
     <Stack.Screen name="contact" options={{ title: 'Contact & support' }} />
     <Stack.Screen name="about" options={{ title: 'About Meraki Homes' }} />

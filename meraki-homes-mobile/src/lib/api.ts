@@ -79,7 +79,7 @@ export async function api<T>(path: string, options: RequestInit = {}, auth = tru
   const abortFromCaller = () => controller.abort(callerSignal?.reason);
   if (callerSignal?.aborted) controller.abort(callerSignal.reason);
   else callerSignal?.addEventListener('abort', abortFromCaller, { once: true });
-  const timer = setTimeout(() => controller.abort(), path.startsWith('/agaz/chat') ? 32_000 : 15_000);
+  const timer = setTimeout(() => controller.abort(), path.startsWith('/agaz/chat') ? 90_000 : 15_000);
   const startedAt = Date.now();
   try {
     const token = auth ? await tokenStore.get() : null;
