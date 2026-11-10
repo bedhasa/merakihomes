@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight, Menu, Moon, Sun, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useTheme } from '../../contexts/ThemeContext';
+import { BrandMark } from './BrandMark';
 
 export interface NavbarProps {
   currentPage: string;
@@ -44,9 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onPageChange, onBoo
     >
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-5 sm:px-6 lg:px-8">
         <button onClick={() => goToPage('home')} className="group flex items-center rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]" aria-label="Meraki Homes Home">
-          <span className="meraki-logo-background flex items-center rounded-md px-1 py-0.5">
-            <img src="/Meraki_Homes_Logo.png" alt="Meraki Homes" className="h-[84px] w-auto max-w-[145px] object-contain" />
-          </span>
+          <BrandMark onNavy={isDarkMode} />
         </button>
 
         <nav className="hidden items-center gap-5 lg:flex xl:gap-7" aria-label="Main navigation">

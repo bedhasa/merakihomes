@@ -1,5 +1,6 @@
 import React from 'react';
 import { Mail, Send, Phone, MapPin, ArrowUpRight, ShieldCheck, Heart } from 'lucide-react';
+import { BrandMark } from './BrandMark';
 
 interface FooterProps {
   onPageChange: (pageId: string) => void;
@@ -42,14 +43,10 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="lg:col-span-2 space-y-4">
             <button
               onClick={() => onPageChange('home')}
-              className="meraki-logo-background inline-flex rounded-xl p-2 shadow-md"
+              className="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]"
               aria-label="Meraki Homes Logo"
             >
-              <img
-                src="/Meraki_Homes_Logo.png"
-                alt="Meraki Homes"
-                className="h-[130px] w-auto max-w-[210px] object-contain"
-              />
+              <BrandMark onNavy />
             </button>
 
             <p className="text-sm leading-relaxed text-white/75 max-w-sm">

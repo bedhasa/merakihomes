@@ -171,10 +171,6 @@ html.dark #app-nav { background: #102a43; border-color: #456078; }
 .meraki-location-map .leaflet-control-zoom a:hover { background:#fbf6e9; color:#102A43; }
 .meraki-location-map .leaflet-control-attribution { font-size:10px; }
 
-/* Keep the supplied logo's white canvas in both color themes. */
-.meraki-logo-background { background-color: #fff !important; }
-html.dark #public-site .meraki-logo-background { background-color: #fff !important; }
-
 /* Keep the light theme bright and make secondary copy readable across pages. */
 html:not(.dark) body { background: #fff; color: #102a43; }
 html:not(.dark) #public-site,

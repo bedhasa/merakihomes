@@ -2,9 +2,9 @@ import React from 'react';
 import { HeartHandshake, Compass } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 
-const heroImage = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1800&q=88';
+const heroImage = '/meraki-home-services-team.png';
 const storyImage = 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85';
-const missionImage = 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1400&q=85';
+const missionImage = '/elder-companion-care.jpg';
 const visionImage = 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=85';
 
 export const AboutPage: React.FC = () => {
