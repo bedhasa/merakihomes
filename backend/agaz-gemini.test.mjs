@@ -91,6 +91,6 @@ test('truncates history and keeps recent context', () => {
 
 test('uses configurable models and customer-safe messages', () => {
   assert.deepEqual(geminiModelsFromEnv({}), ['gemini-3.8-flash', 'gemini-3-flash-preview']);
-  assert.equal(agazPublicMessage({ publicCode: 'busy' }), 'Agaz is temporarily busy. Please try again shortly.');
+  assert.equal(agazPublicMessage({ publicCode: 'busy' }), 'Merk is temporarily busy. Please try again shortly.');
   assert.ok(backoffMs(0, 2) >= 2000);
 });

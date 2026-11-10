@@ -57,14 +57,14 @@ export function classifyGeminiError(error) {
 
 export function agazPublicMessage(classified) {
   switch (classified?.publicCode) {
-    case 'busy': return 'Agaz is temporarily busy. Please try again shortly.';
-    case 'rate_limit': return 'Agaz has reached a temporary request limit. Please try again later.';
-    case 'quota_daily': return 'Agaz has reached a daily request limit. Please try again after the quota resets.';
-    case 'timeout': return 'Agaz is taking longer than usual. Please try again.';
+    case 'busy': return 'Merk is temporarily busy. Please try again shortly.';
+    case 'rate_limit': return 'Merk has reached a temporary request limit. Please try again later.';
+    case 'quota_daily': return 'Merk has reached a daily request limit. Please try again after the quota resets.';
+    case 'timeout': return 'Merk is taking longer than usual. Please try again.';
     case 'network': return 'Please check your internet connection and try again.';
-    case 'config': return 'Agaz is unavailable right now. Please try again later.';
-    case 'invalid': return 'Agaz could not process that request. Please try a shorter message.';
-    default: return 'Agaz could not get a response from its AI service. Please try again.';
+    case 'config': return 'Merk is unavailable right now. Please try again later.';
+    case 'invalid': return 'Merk could not process that request. Please try a shorter message.';
+    default: return 'Merk could not get a response from its AI service. Please try again.';
   }
 }
 

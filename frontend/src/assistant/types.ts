@@ -44,6 +44,7 @@ export interface ChatMessage {
   role: ChatMessageRole;
   content: ChatMessageContent;
   timestamp: Date;
+  suggestedService?: { id: string; categoryId: string | null; packageId: string | null } | null;
 }
 
 export const createStarterMessages = (): ChatMessage[] => {
@@ -54,7 +55,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: "\u{1F44B} Hello and welcome to Meraki Homes!\n\nI'm your AI assistant and I'm here to help you find trusted home services quickly and easily.",
+        text: "\u{1F44B} Hello and welcome to Meraki Homes! I'm Merk, your AI assistant. I can explain our services and help you find the right option.",
       },
       timestamp,
     },
@@ -63,7 +64,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: 'I can help you:\n\u2022 Find the right service\n\u2022 Explain pricing\n\u2022 Answer common questions\n\u2022 Guide you through booking\n\nChoose one of the suggestions below to get started.',
+        text: 'I can explain services and pricing, answer common questions, and guide you through a booking request. Meraki Homes confirms availability, final scope, and price after review. Choose a suggestion below to get started.',
       },
       timestamp,
     },

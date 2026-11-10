@@ -19,14 +19,14 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({ onClose, closeButtonRef 
         <MessageCircle size={20} aria-hidden="true" />
       </span>
       <div className="min-w-0">
-        <h2 id="meraki-assistant-title" className="truncate text-base font-semibold">Meraki Assistant</h2>
-        <p className="mt-0.5 text-xs text-white/75">AI Customer Assistant</p>
+        <h2 id="meraki-assistant-title" className="truncate text-base font-semibold">Merk</h2>
+        <p className="mt-0.5 text-xs text-white/75">Meraki Homes AI Assistant</p>
         <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5">
           <p role="status" aria-live="polite" className="flex items-center gap-1.5 text-[11px] font-medium text-white/85">
             <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-emerald-400 ring-2 ring-emerald-400/20" />
             Online now
           </p>
-          <p className="text-[11px] text-white/60">Usually replies instantly</p>
+          <p className="text-[11px] text-white/60">Ask about services, pricing, or booking</p>
         </div>
       </div>
     </div>

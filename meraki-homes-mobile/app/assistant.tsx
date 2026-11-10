@@ -13,8 +13,7 @@ type Language = 'auto' | 'en' | 'am' | 'om';
 type Suggestion = { id: string; categoryId: string | null; packageId: string | null };
 type Message = { role: 'user' | 'model'; text: string; suggestedService?: Suggestion | null };
 type Conversation = { id: string; title: string; language: Language; createdAt: string; updatedAt: string };
-const greeting = "Hello! I'm Agaz (አጋዥ) — Your Meraki Homes Assistant. I can explain services and help you start a request. I cannot confirm bookings, assign professionals, or take payment.";
-
+const greeting = "Hello! I'm Merk, your Meraki Homes assistant. I can explain services and help you start a request. Availability, final scope, and price are confirmed by the Meraki Homes team.";
 function agazFailure(error: unknown): { message: string; retryable: boolean } {
   if (error instanceof ApiError) {
     if (error.status === 0 || error.code === 'network' || error.status === 408 || error.code === 'timeout') {
@@ -27,7 +26,7 @@ function agazFailure(error: unknown): { message: string; retryable: boolean } {
     }
     return { message: error.message, retryable: error.status >= 500 || error.status === 429 };
   }
-  return { message: 'Agaz could not get a response. Please try again.', retryable: true };
+  return { message: 'Merk could not get a response. Please try again.', retryable: true };
 }
 const starters = ['What services does Meraki Homes offer?', 'Help me find a service.'];
 const languageLabels: Record<Language, string> = { auto: 'Auto', en: 'English', am: 'Amharic', om: 'Afaan Oromoo' };
@@ -49,7 +48,7 @@ export default function AssistantScreen() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const sending = useRef(false);
 
-  useEffect(() => { void getAgazVisitorId().then(setVisitorId).catch(() => setError('Could not start a private visitor session. Please reopen Agaz.')); }, []);
+  useEffect(() => { void getAgazVisitorId().then(setVisitorId).catch(() => setError('Could not start a private visitor session. Please reopen Merk.')); }, []);
   const history = useQuery({ queryKey: ['agaz-conversations'], queryFn: () => api<{ conversations: Conversation[] }>('/agaz/conversations'), enabled: !!customer });
 
   const send = async (rawText: string, retry = false) => {
@@ -109,7 +108,7 @@ export default function AssistantScreen() {
       <View style={{ flex: 1, width: '100%', maxWidth: 640, alignSelf: 'center', paddingHorizontal: 12, paddingTop: 4, paddingBottom: 4, gap: 7 }}>
         <View style={{ minHeight: 38, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 2 }}>
           <View style={{ width: 28, height: 28, borderRadius: 14, backgroundColor: '#F7D37E', alignItems: 'center', justifyContent: 'center' }}><Feather name="star" size={16} color={C.navy} /></View>
-          <View style={{ flex: 1 }}><Text style={{ color: C.navy, fontWeight: '800', fontSize: 16 }}>አጋዥ — Agaz</Text><Text style={{ color: C.muted, fontSize: 10 }}>Your Meraki Homes Assistant</Text></View>
+          <View style={{ flex: 1 }}><Text style={{ color: C.navy, fontWeight: '800', fontSize: 16 }}>አጋዥ — Merk</Text><Text style={{ color: C.muted, fontSize: 10 }}>Your Meraki Homes Assistant</Text></View>
           <Pressable accessibilityRole="button" accessibilityLabel="Start a new conversation" onPress={startNew} style={{ padding: 7 }}><Feather name="plus-circle" size={20} color={C.navy} /></Pressable>
           {customer ? <Pressable accessibilityRole="button" accessibilityLabel="Conversation history" onPress={() => setHistoryOpen(value => !value)} style={{ padding: 7 }}><Feather name="clock" size={19} color={C.navy} /></Pressable> : null}
           {conversationId ? <Pressable accessibilityRole="button" accessibilityLabel="Delete this conversation" onPress={() => void deleteConversation()} style={{ padding: 7 }}><Feather name="trash-2" size={18} color={C.red} /></Pressable> : null}
@@ -133,7 +132,7 @@ export default function AssistantScreen() {
 
         {!conversationId && !historyOpen ? <ScrollView horizontal style={{ height: 46, flexGrow: 0, flexShrink: 0 }} showsHorizontalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={{ height: 46, alignItems: 'center', gap: 7 }}>{starters.map(question => <Pressable key={question} accessibilityRole="button" onPress={() => void send(question)} style={{ height: 40, flexShrink: 0, justifyContent: 'center', paddingHorizontal: 13, borderRadius: 20, borderWidth: 1, borderColor: C.border, backgroundColor: C.white }}><Text numberOfLines={1} style={{ color: C.slate, fontSize: 12, fontWeight: '700' }}>{question}</Text></Pressable>)}</ScrollView> : null}
         <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8, paddingBottom: 5 }}>
-          <TextInput accessibilityLabel="Message Agaz" value={input} onChangeText={setInput} multiline maxLength={2000} placeholder="Ask Agaz about home services..." placeholderTextColor={C.muted} returnKeyType="send" onSubmitEditing={() => void send(input)} style={{ flex: 1, maxHeight: 92, minHeight: 48, borderWidth: 1, borderColor: C.border, borderRadius: 16, paddingHorizontal: 13, paddingTop: 12, paddingBottom: 10, backgroundColor: C.white, color: C.ink, fontSize: 14 }} />
+          <TextInput accessibilityLabel="Message Merk" value={input} onChangeText={setInput} multiline maxLength={2000} placeholder="Ask Merk about home services..." placeholderTextColor={C.muted} returnKeyType="send" onSubmitEditing={() => void send(input)} style={{ flex: 1, maxHeight: 92, minHeight: 48, borderWidth: 1, borderColor: C.border, borderRadius: 16, paddingHorizontal: 13, paddingTop: 12, paddingBottom: 10, backgroundColor: C.white, color: C.ink, fontSize: 14 }} />
           <Pressable accessibilityRole="button" accessibilityLabel="Send message" disabled={!input.trim() || busy || (!customer && !visitorId)} onPress={() => void send(input)} style={{ width: 48, height: 48, borderRadius: 16, backgroundColor: C.navy, alignItems: 'center', justifyContent: 'center', opacity: !input.trim() || busy ? 0.5 : 1 }}><Feather name="send" size={18} color={C.white} /></Pressable>
         </View>
       </View>

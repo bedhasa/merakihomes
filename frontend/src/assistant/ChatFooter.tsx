@@ -7,13 +7,16 @@ interface ChatFooterProps {
   onDraftChange: (value: string) => void;
   onSend: () => void;
   isTyping: boolean;
+  error: string | null;
+  onRetry: () => void;
 }
 
-export const ChatFooter: React.FC<ChatFooterProps> = ({ inputRef, draft, onDraftChange, onSend, isTyping }) => {
+export const ChatFooter: React.FC<ChatFooterProps> = ({ inputRef, draft, onDraftChange, onSend, isTyping, error, onRetry }) => {
   const isSendDisabled = isTyping || !draft.trim();
 
   return (
     <footer className="rounded-b-2xl border-t border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-900">
+      {error && <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-800 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-200"><span>{error}</span><button type="button" onClick={onRetry} disabled={isTyping} className="shrink-0 font-semibold underline disabled:opacity-50">Retry</button></div>}
       <form
         onSubmit={event => {
           event.preventDefault();
@@ -21,7 +24,7 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({ inputRef, draft, onDraft
         }}
         className="flex items-end gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1.5 shadow-sm transition duration-200 focus-within:border-[#D4A853] focus-within:ring-2 focus-within:ring-[#D4A853]/20 dark:border-slate-700 dark:bg-slate-800"
       >
-        <label className="sr-only" htmlFor="meraki-assistant-input">Message Meraki Assistant</label>
+        <label className="sr-only" htmlFor="meraki-assistant-input">Message Merk, the Meraki Homes assistant</label>
         <textarea
           ref={inputRef}
           id="meraki-assistant-input"
@@ -34,7 +37,8 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({ inputRef, draft, onDraft
               onSend();
             }
           }}
-          placeholder="Ask me anything about Meraki Homes..."
+          maxLength={2000}
+          placeholder="Ask Merk about Meraki Homes..."
           aria-describedby="meraki-assistant-input-help"
           className="max-h-28 min-h-11 min-w-0 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm leading-5 text-[#102A43] outline-none placeholder:text-[13px] placeholder:font-normal placeholder:text-slate-400 focus-visible:outline-none dark:text-white"
         />
@@ -49,7 +53,7 @@ export const ChatFooter: React.FC<ChatFooterProps> = ({ inputRef, draft, onDraft
         </button>
       </form>
       <p id="meraki-assistant-input-help" className="mt-2.5 text-center text-[10px] tracking-wide text-slate-400 dark:text-slate-500">
-        Powered by Meraki Assistant
+        Powered by Merk, Meraki Homes AI
       </p>
     </footer>
   );
