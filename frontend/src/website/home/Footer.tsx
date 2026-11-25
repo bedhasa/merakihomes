@@ -1,5 +1,7 @@
 import React from 'react';
 import { Mail, Send, Phone, MapPin, ArrowUpRight, ShieldCheck, Heart } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Link } from '../../i18n/navigation';
 import { BrandMark } from './BrandMark';
 
 interface FooterProps {
@@ -22,12 +24,12 @@ const serviceLinks = [
 ];
 
 const companyLinks = [
-  { id: 'about', label: 'About Meraki' },
-  { id: 'trust', label: 'Trust & Safety' },
+  { id: 'about', labelKey: 'about' as const },
+  { id: 'trust', labelKey: 'trust' as const },
   { id: 'team', label: 'Our Team' },
   { id: 'blog', label: 'Journal & Guides' },
   { id: 'faq', label: 'FAQs' },
-  { id: 'contact', label: 'Contact Us' },
+  { id: 'contact', labelKey: 'contact' as const },
 ];
 
 export const Footer: React.FC<FooterProps> = ({
@@ -35,6 +37,8 @@ export const Footer: React.FC<FooterProps> = ({
   onBookNow,
   onServiceSelect,
 }) => {
+  const t = useTranslations('footer');
+  const tNav = useTranslations('nav');
   return (
     <footer className="bg-[#102A43] text-white border-t border-white/10 pt-16 pb-12">
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
@@ -44,13 +48,13 @@ export const Footer: React.FC<FooterProps> = ({
             <button
               onClick={() => onPageChange('home')}
               className="inline-flex rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]"
-              aria-label="Meraki Homes Logo"
+              aria-label={t('ariaLogo')}
             >
               <BrandMark onNavy />
             </button>
 
             <p className="text-sm leading-relaxed text-white/75 max-w-sm">
-              Ethiopia’s first full-stack household services platform. Connecting trusted domestic workers with Addis Ababa families with soul, professionalism, and care.
+              {t('mission')}
             </p>
 
             <div className="pt-2 flex items-center gap-3">
@@ -83,14 +87,14 @@ export const Footer: React.FC<FooterProps> = ({
 
             <div className="flex items-center gap-2 text-xs text-white/60 pt-2">
               <MapPin size={14} className="text-[#D4A853]" />
-              <span>Headquartered in Addis Ababa, Ethiopia</span>
+              <span>{t('headquarters')}</span>
             </div>
           </div>
 
-          {/* Services Column (Col 3) */}
+          {/* Services Column (Col 3) — catalogue labels stay English in v1 */}
           <div>
             <h3 className="text-xs font-bold tracking-[.18em] uppercase text-[#D4A853] mb-4">
-              Services
+              {t('services')}
             </h3>
             <ul className="space-y-2.5 text-sm text-white/75">
               {serviceLinks.map((s) => (
@@ -112,7 +116,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Company Column (Col 4) */}
           <div>
             <h3 className="text-xs font-bold tracking-[.18em] uppercase text-[#D4A853] mb-4">
-              Company
+              {t('company')}
             </h3>
             <ul className="space-y-2.5 text-sm text-white/75">
               {companyLinks.map((c) => (
@@ -121,17 +125,17 @@ export const Footer: React.FC<FooterProps> = ({
                     onClick={() => onPageChange(c.id)}
                     className="hover:text-[#D4A853] transition-colors text-left"
                   >
-                    {c.label}
+                    {'labelKey' in c ? tNav(c.labelKey) : c.label}
                   </button>
                 </li>
               ))}
               <li className="pt-2">
-                <a
+                <Link
                   href="/track-booking"
                   className="hover:text-[#D4A853] transition-colors text-white font-medium"
                 >
-                  Track Existing Request →
-                </a>
+                  {t('trackExisting')}
+                </Link>
               </li>
             </ul>
           </div>
@@ -139,7 +143,7 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Direct Contact & Staff Access (Col 5) */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold tracking-[.18em] uppercase text-[#D4A853] mb-4">
-              Contact & Support
+              {t('contactSupport')}
             </h3>
 
             <div className="space-y-2 text-sm text-white/80">
@@ -174,7 +178,7 @@ export const Footer: React.FC<FooterProps> = ({
                 className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors"
               >
                 <ShieldCheck size={14} className="text-[#D4A853]" />
-                <span>Staff Operations Portal</span>
+                <span>{t('staffPortal')}</span>
                 <ArrowUpRight size={12} />
               </a>
             </div> : null}
@@ -183,16 +187,16 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom Bar */}
         <div className="mt-14 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/60">
-          <p>© {new Date().getFullYear()} Meraki Homes. All rights reserved.</p>
+          <p>{t('copyright', { year: new Date().getFullYear() })}</p>
 
           <p className="text-center md:text-right text-white/50 max-w-md">
-            Booking requests remain distinct from confirmed appointments. Scope, availability, and pricing are reviewed with you before confirmation.
+            {t('disclaimer')}
           </p>
 
           <div className="flex items-center gap-1 text-white/70">
-            <span>Crafted with</span>
+            <span>{t('crafted')}</span>
             <Heart size={13} className="text-[#D4A853] fill-[#D4A853]" />
-            <span>for Addis Ababa</span>
+            <span>{t('forAddis')}</span>
           </div>
         </div>
       </div>

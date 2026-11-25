@@ -130,7 +130,8 @@ export function registerProfessionalRoutes(app, deps) {
     const { rows } = await pool.query(
       `SELECT w.id, w.full_name AS name, w.worker_code AS "workerCode", a.password_hash, w.operational_status, w.eligibility_status
          FROM worker_auth a JOIN workers w ON w.id = a.worker_id
-        WHERE regexp_replace(a.phone, '[^0-9]', '', 'g') = $1`,
+        WHERE regexp_replace(a.phone, '[^0-9]', '', 'g') = $1
+          AND a.is_active = TRUE`,
       [phone],
     );
     const account = rows[0];

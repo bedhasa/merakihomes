@@ -102,16 +102,24 @@ try {
   process.exitCode=1;
 } finally {
   try{await stopApi(api);}catch(error){console.error(error.message);process.exitCode=1;}
+  // Cleanup runs on one checked-out client so BEGIN/COMMIT cover every statement.
+  // Child rows are deleted before their parents because every booking FK is ON DELETE RESTRICT.
+  let client;
   try{
-    await pool.query('BEGIN');
+    client=await pool.connect();
+    await client.query('BEGIN');
     if(createdBookingId){
-      await pool.query('DELETE FROM payments WHERE booking_id=$1',[createdBookingId]);
-      await pool.query("DELETE FROM audit_logs WHERE entity_type='booking' AND entity_id=$1",[createdBookingId]);
-      await pool.query('DELETE FROM booking_status_history WHERE booking_id=$1',[createdBookingId]);
-      await pool.query('DELETE FROM bookings WHERE id=$1',[createdBookingId]);
+      await client.query('DELETE FROM payment_allocations WHERE booking_id=$1',[createdBookingId]);
+      await client.query('DELETE FROM payments WHERE booking_id=$1',[createdBookingId]);
+      await client.query("DELETE FROM audit_logs WHERE entity_type='booking' AND entity_id=$1",[createdBookingId]);
+      await client.query('DELETE FROM booking_item_status_history WHERE booking_item_id IN (SELECT id FROM booking_items WHERE booking_id=$1)',[createdBookingId]);
+      await client.query('DELETE FROM booking_items WHERE booking_id=$1',[createdBookingId]);
+      await client.query('DELETE FROM booking_status_history WHERE booking_id=$1',[createdBookingId]);
+      await client.query('DELETE FROM bookings WHERE id=$1',[createdBookingId]);
     }
-    await pool.query('DELETE FROM staff_users WHERE id=$1',[staffId]);
-    await pool.query('COMMIT');
-  }catch(error){await pool.query('ROLLBACK').catch(()=>{});console.error(`Smoke-test cleanup failed: ${error.message}`);process.exitCode=1;}
+    await client.query('DELETE FROM staff_users WHERE id=$1',[staffId]);
+    await client.query('COMMIT');
+  }catch(error){await client?.query('ROLLBACK').catch(()=>{});console.error(`Smoke-test cleanup failed: ${error.message}`);process.exitCode=1;}
+  finally{client?.release();}
   await pool.end();
 }

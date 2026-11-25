@@ -1,25 +1,55 @@
 import { Booking, ServiceCategory, ServicePackage } from './types';
+import { defaultLocale, isUiLocale, type UiLocale } from './locales/config';
+import { formatDate } from './utils/formatters';
+
+let apiLocale: UiLocale = defaultLocale;
+
+/** Prefer explicit locale for API Accept-Language (web sets this from next-intl). */
+export function setApiLocale(locale: string) {
+  apiLocale = isUiLocale(locale) ? locale : defaultLocale;
+}
+
+export function getApiLocale(): UiLocale {
+  if (typeof document !== 'undefined') {
+    const lang = document.documentElement.lang?.toLowerCase().split('-')[0];
+    if (isUiLocale(lang)) return lang;
+  }
+  return apiLocale;
+}
 
 export class ApiError extends Error {
   status: number;
   fields?: Record<string, string>;
-  constructor(message: string, status: number, fields?: Record<string, string>) { super(message); this.name = 'ApiError'; this.status = status; this.fields = fields; }
+  code?: string;
+  constructor(message: string, status: number, fields?: Record<string, string>, code?: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.fields = fields;
+    this.code = code;
+  }
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let response: Response;
   const headers = new Headers(init?.headers);
   if (typeof init?.body === 'string' && !headers.has('Content-Type')) headers.set('Content-Type', 'application/json');
+  if (!headers.has('Accept-Language')) headers.set('Accept-Language', getApiLocale());
+  if (!headers.has('X-Locale')) headers.set('X-Locale', getApiLocale());
   try { response = await fetch(path, { credentials:'include', ...init, headers }); }
-  catch { throw new ApiError('Could not reach Meraki Homes. Check that the API server is running and try again.', 0); }
+  catch { throw new ApiError('Could not reach Meraki Homes. Check that the API server is running and try again.', 0, undefined, 'NETWORK_UNREACHABLE'); }
   const text = await response.text();
   const data = text ? (() => { try { return JSON.parse(text); } catch { return {}; } })() : {};
   if (!response.ok) {
     const fallback = response.status === 413 ? 'The image or request is too large. Use a smaller photo.'
       : response.status === 404 ? 'This action is missing on the API. Restart the API server and try again.'
       : response.status === 401 ? 'Staff sign-in is required.'
+      : response.status === 429 ? 'Too many requests. Please wait and try again.'
       : `The request could not be completed (${response.status}).`;
-    throw new ApiError(data?.error?.message || fallback, response.status, data?.error?.fields);
+    const code = typeof data?.error?.code === 'string' ? data.error.code
+      : response.status === 429 ? 'RATE_LIMITED'
+      : undefined;
+    throw new ApiError(data?.error?.message || fallback, response.status, data?.error?.fields, code);
   }
   return data as T;
 }
@@ -48,8 +78,8 @@ export async function postBooking(payload: BookingRequestPayload, idempotencyKey
   return {
     id: booking.reference, serviceId:payload.serviceId, packageId:payload.packageId, packageName:booking.packageName||undefined, serviceName:booking.serviceName || itemNames?.join(', ') || service?.name || 'Home service',
     customerName:payload.name, customerPhone:payload.phone, customerEmail:payload.email,
-    address:payload.address, neighborhood:payload.neighborhood, date:at.toLocaleDateString(),
-    timeSlot:at.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}), durationHours:(booking.durationMinutes ?? booking.items?.reduce((sum,item)=>sum+item.durationMinutes,0) ?? service?.durationMinutes ?? 60)/60,
+    address:payload.address, neighborhood:payload.neighborhood, date:formatDate(at, defaultLocale),
+    timeSlot:formatDate(at, defaultLocale, {hour:'numeric',minute:'2-digit'}), durationHours:(booking.durationMinutes ?? booking.items?.reduce((sum,item)=>sum+item.durationMinutes,0) ?? service?.durationMinutes ?? 60)/60,
     cleanersCount:1, addonsSelected:[], totalPrice:estimate, totalPriceETB:estimate*120,
     status:'requested', paymentMethod:'not_selected', paymentStatus:'pending', workerPreference:payload.workerPreference,
     notes:payload.details, createdAt:booking.createdAt||booking.created_at||new Date().toISOString(),

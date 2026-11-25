@@ -39,7 +39,9 @@
     "management/app/**/*.ts",
     "management/app/**/*.tsx",
     "shared/**/*.ts",
-    "shared/**/*.tsx"
+    "shared/**/*.tsx",
+    "shared/**/*.json",
+    "frontend/src/types/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "dist-management"]
 }

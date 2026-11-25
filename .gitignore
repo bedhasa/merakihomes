@@ -16,6 +16,7 @@ backend/uploads/*
 meraki-homes-mobile/.expo/
 meraki-homes-mobile/node_modules/
 meraki-homes-mobile/dist/
+meraki-homes-mobile/dist-i18n-verify/
 meraki-homes-mobile/.env.local
 
 # pgAdmin local data

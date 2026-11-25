@@ -2,6 +2,8 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { RefObject } from 'react';
+import { useLocale } from 'next-intl';
+import { isUiLocale, resolveAgazLanguage, type AgazLanguage } from '../../../shared/locales/config';
 import { createTextMessage } from './conversationUtils';
 import { createStarterMessages } from './types';
 import type { AssistantLanguage, ChatMessage } from './types';
@@ -24,6 +26,8 @@ function sessionId(key: string): string {
 }
 
 export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
+  const uiLocaleRaw = useLocale();
+  const uiLocale = isUiLocale(uiLocaleRaw) ? uiLocaleRaw : 'en';
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -58,7 +62,12 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
       const response = await fetch('/api/agaz/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({ message: text, language, conversationId, visitorId }),
+        body: JSON.stringify({
+          message: text,
+          language: resolveAgazLanguage(language as AgazLanguage, uiLocale),
+          conversationId,
+          visitorId,
+        }),
         signal: controller.signal,
         cache: 'no-store',
       });
@@ -90,7 +99,7 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
       sending.current = false;
       setIsTyping(false);
     }
-  }, [conversationId, draft, inputRef, language]);
+  }, [conversationId, draft, inputRef, language, uiLocale]);
 
   return { messages, draft, setDraft, isTyping, error, retryText, language, setLanguage, initializeConversation, sendMessage };
 };

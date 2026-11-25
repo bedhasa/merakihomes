@@ -56,7 +56,8 @@
   body {
     background: var(--meraki-paper);
     color: var(--meraki-body);
-    @apply font-sans antialiased;
+    font-family: var(--font-noto-sans-ethiopic), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    @apply antialiased;
   }
   .dark body { background: #102a43; color: #f3f7fb; }
 }
@@ -188,3 +189,20 @@ html.dark #customer-portal [class*="text-slate-400"],
 html.dark #customer-request [class*="text-slate-400"],
 html.dark #root [class*="text-slate-400"] { color: #c5d1dd !important; }
 html.dark #public-site .meraki-button { background-color: #D4A853 !important; color: #102a43 !important; }
+
+/* Amharic / Ethiopic: clearer line rhythm and safer wrapping for Fidel glyphs. */
+html[lang="am"] body {
+  line-height: 1.65;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+html[lang="am"] h1,
+html[lang="am"] h2,
+html[lang="am"] h3,
+html[lang="am"] h4 {
+  line-height: 1.4;
+  letter-spacing: normal;
+}
+html[lang="am"] .uppercase {
+  letter-spacing: 0.06em;
+}

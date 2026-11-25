@@ -1,4 +1,6 @@
 import { Booking, ServiceCategory } from '@shared/types';
+import { defaultLocale } from '@shared/locales/config';
+import { formatDate, type FormatLocale } from '@shared/utils/formatters';
 
 export type BookingRequestInput = {
   service: ServiceCategory;
@@ -16,7 +18,7 @@ export function isValidContact(name: string, phone: string): boolean {
   return Boolean(name.trim()) && /^\+?[\d\s()-]{7,}$/.test(phone.trim());
 }
 
-export function createBookingRequest(input: BookingRequestInput, now = new Date()): Booking {
+export function createBookingRequest(input: BookingRequestInput, now = new Date(), locale: FormatLocale = defaultLocale): Booking {
   const requestedAt = new Date(input.visitAt);
   return {
     id: `MRK-${now.getTime().toString().slice(-8)}`,
@@ -27,8 +29,8 @@ export function createBookingRequest(input: BookingRequestInput, now = new Date(
     customerEmail: input.email?.trim() || undefined,
     address: [input.address.trim(), input.area].filter(Boolean).join(', '),
     neighborhood: input.area,
-    date: Number.isNaN(requestedAt.getTime()) ? input.visitAt : requestedAt.toLocaleDateString(),
-    timeSlot: Number.isNaN(requestedAt.getTime()) ? 'Time requested' : requestedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }),
+    date: Number.isNaN(requestedAt.getTime()) ? input.visitAt : formatDate(requestedAt, locale),
+    timeSlot: Number.isNaN(requestedAt.getTime()) ? 'Time requested' : formatDate(requestedAt, locale, { hour: 'numeric', minute: '2-digit' }),
     durationHours: input.service.durationMinutes / 60,
     cleanersCount: 1,
     addonsSelected: [],

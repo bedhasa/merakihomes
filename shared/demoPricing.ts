@@ -1,4 +1,7 @@
-﻿export type DemoEstimate = { amount: number; currency: 'ETB'; unit: string };
+﻿import { defaultLocale } from './locales/config';
+import { formatMoney, type FormatLocale } from './utils/formatters';
+
+export type DemoEstimate = { amount: number; currency: 'ETB'; unit: string };
 
 // Illustrative values for the prototype UI only; never used to authorize or charge a booking.
 const demoEstimates: Record<string, DemoEstimate> = {
@@ -16,7 +19,7 @@ export function getDemoEstimate(serviceId?: string): DemoEstimate | undefined {
   return serviceId ? demoEstimates[serviceId] : undefined;
 }
 
-export function formatDemoEstimate(serviceId?: string): string {
+export function formatDemoEstimate(serviceId?: string, locale: FormatLocale = defaultLocale): string {
   const estimate = getDemoEstimate(serviceId);
-  return estimate ? `${estimate.amount.toLocaleString('en-US')} ${estimate.currency}` : 'Estimate after scope review';
+  return estimate ? formatMoney(estimate.amount, estimate.currency, locale) : 'Estimate after scope review';
 }

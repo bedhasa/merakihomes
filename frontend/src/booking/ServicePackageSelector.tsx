@@ -1,5 +1,6 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import {
   Baby,
   Building2,
@@ -16,9 +17,10 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
-import { formatDemoEstimate, getDemoEstimate } from '@shared/demoPricing';
+import { getDemoEstimate } from '@shared/demoPricing';
 import { Currency, ServiceCategory, ServicePackage } from '@shared/types';
-import { formatCurrency } from '@shared/utils/formatters';
+import { translateDynamic } from './translateDynamic';
+import { useFormatters } from '../i18n/useFormatters';
 
 type Props = {
   services: ServiceCategory[];
@@ -47,16 +49,7 @@ const serviceIcons: Record<string, LucideIcon> = {
   Sparkles,
 };
 
-const serviceDescriptions: Record<string, string> = {
-  premium_home_cleaning: 'A fresh, cared-for home.',
-  handyman_plumbing: 'Repairs and upkeep around the home.',
-  gardening_outdoor: 'Garden care and outdoor upkeep.',
-  office_cleaning: 'A clean, welcoming workspace.',
-  elder_companion: 'Companionship and everyday support.',
-  childcare_nanny: 'Thoughtful care for your family.',
-  cooking_service: 'Fresh meals, prepared at home.',
-  maid_laundry: 'Laundry and garment care.',
-};
+
 
 export const ServicePackageSelector: React.FC<Props> = ({
   services,
@@ -72,17 +65,21 @@ export const ServicePackageSelector: React.FC<Props> = ({
   currency,
   details,
   onDetailsChange,
-}) => (
-  <div aria-label="Choose a service and package">
+}) => {
+  const t = useTranslations('booking');
+  const tCommon = useTranslations('common');
+  const { formatCurrency, formatDemoEstimate, formatMoney } = useFormatters();
+  return (
+  <div aria-label={t('package.ariaLabel')}>
     <fieldset>
-      <legend className="sr-only">Choose one service</legend>
-      <p className="sr-only" id="booking-service-hint">Choose one service. Required.</p>
+      <legend className="sr-only">{t('package.legend')}</legend>
+      <p className="sr-only" id="booking-service-hint">{t('package.hint')}</p>
 
       {servicesState === 'loading' ? (
-        <div role="status" className="flex items-center gap-2 rounded-2xl bg-slate-50 p-5 text-sm text-slate-600"><LoaderCircle size={16} className="animate-spin text-[#8C6A2F]" aria-hidden="true"/>Loading services…</div>
+        <div role="status" className="flex items-center gap-2 rounded-2xl bg-slate-50 p-5 text-sm text-slate-600"><LoaderCircle size={16} className="animate-spin text-[#8C6A2F]" aria-hidden="true"/>{t('package.loadingServices')}</div>
       ) : servicesState === 'error' ? (
         <p id="booking-service-hint" role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-          We couldn’t load the current service catalogue. Please refresh and try again.
+          {t('package.servicesError')}
         </p>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
@@ -111,15 +108,15 @@ export const ServicePackageSelector: React.FC<Props> = ({
                     </span>
                     <span className="min-w-0 flex-1 pr-7">
                       <span className="block text-sm font-semibold text-[#102A43]">{item.name}</span>
-                      <span className="mt-1 block truncate text-xs leading-5 text-slate-500">{serviceDescriptions[item.id] || item.description}</span>
+                      <span className="mt-1 block truncate text-xs leading-5 text-slate-500">{translateDynamic(t, `blurbs.${item.id}`, item.description)}</span>
                     </span>
                     <span className={`absolute right-4 top-4 grid h-6 w-6 place-items-center rounded-full transition-all duration-200 ${selected ? 'scale-100 bg-[#102A43] text-white' : 'scale-90 border border-slate-300 text-transparent group-hover:border-[#D4A853]'}`} aria-hidden="true">
                       <Check size={14} />
                     </span>
                   </span>
                   <span className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs">
-                    <span className="inline-flex items-center gap-1.5 text-slate-500"><Clock3 size={13} aria-hidden="true" />~{item.durationMinutes} min</span>
-                    <span className="font-semibold text-[#8C6A2F]">{item.pricingType === 'fixed' ? `From ${formatCurrency(item.basePrice, currency)}` : 'Custom Quote'}</span>
+                    <span className="inline-flex items-center gap-1.5 text-slate-500"><Clock3 size={13} aria-hidden="true" />{t('package.minutes', { count: item.durationMinutes })}</span>
+                    <span className="font-semibold text-[#8C6A2F]">{item.pricingType === 'fixed' ? t('package.from', { price: formatCurrency(item.basePrice, currency) }) : t('package.customQuote')}</span>
                   </span>
                 </button>
 
@@ -136,12 +133,12 @@ export const ServicePackageSelector: React.FC<Props> = ({
                     >
                       {hasPackages ? (
                         <div className="flex items-center justify-between gap-3">
-                          <h3 id={`${packagePanelId}-title`} className="text-sm font-semibold text-[#102A43]">Choose a package</h3>
-                          <span className="text-[11px] font-medium text-slate-500">Required</span>
+                          <h3 id={`${packagePanelId}-title`} className="text-sm font-semibold text-[#102A43]">{t('package.choosePackage')}</h3>
+                          <span className="text-[11px] font-medium text-slate-500">{t('package.required')}</span>
                         </div>
-                      ) : <h3 id={`${packagePanelId}-title`} className="sr-only">{noPackages ? 'Request description' : 'Package options'}</h3>}
+                      ) : <h3 id={`${packagePanelId}-title`} className="sr-only">{noPackages ? t('package.requestDescription') : t('package.packageOptions')}</h3>}
 
-                      {packagesState === 'loading' && <p role="status" className="flex items-center gap-2 text-xs text-slate-600"><LoaderCircle size={14} className="animate-spin text-[#8C6A2F]" aria-hidden="true"/>Loading packages…</p>}
+                      {packagesState === 'loading' && <p role="status" className="flex items-center gap-2 text-xs text-slate-600"><LoaderCircle size={14} className="animate-spin text-[#8C6A2F]" aria-hidden="true"/>{t('package.loadingPackages')}</p>}
 
                       {hasPackages && (
                         <div className="mt-3 grid gap-2">
@@ -161,10 +158,10 @@ export const ServicePackageSelector: React.FC<Props> = ({
                                   <span className="min-w-0">
                                     <span className="block truncate text-sm font-medium text-[#102A43]">{option.name}</span>
                                     <span className="mt-0.5 block max-w-[230px] truncate text-[11px] text-slate-500">{option.description}</span>
-                                    <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-slate-500"><Clock3 size={12} aria-hidden="true" />~{option.durationMinutes} min</span>
+                                    <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-slate-500"><Clock3 size={12} aria-hidden="true" />{t('package.minutes', { count: option.durationMinutes })}</span>
                                   </span>
                                 </span>
-                                <strong className="shrink-0 text-sm text-[#102A43]">{option.basePrice.toLocaleString()} {option.currency}</strong>
+                                <strong className="shrink-0 text-sm text-[#102A43]">{formatMoney(option.basePrice, option.currency)}</strong>
                               </motion.button>
                             );
                           })}
@@ -174,16 +171,16 @@ export const ServicePackageSelector: React.FC<Props> = ({
                       {packagesState === 'error' && (
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-5 text-slate-600" aria-live="polite">
                           {packageMessage && <span role="alert" className="text-amber-800">{packageMessage}</span>}
-                          {!packageMessage && <span role="alert">Live packages couldn’t be verified. Quote requests are still available.</span>}
-                          <button type="button" onClick={onRetry} className="font-semibold text-[#102A43] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]">Retry</button>
-                          <span>Estimate: {formatDemoEstimate(item.id)} / {getDemoEstimate(item.id)?.unit || 'request'}.</span>
+                          {!packageMessage && <span role="alert">{t('package.verifyFailed')}</span>}
+                          <button type="button" onClick={onRetry} className="font-semibold text-[#102A43] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]">{tCommon('retry')}</button>
+                          <span>{t('package.estimate', { amount: formatDemoEstimate(item.id), unit: getDemoEstimate(item.id)?.unit || t('package.unitFallback') })}</span>
                         </div>
                       )}
 
                       {noPackages && (
                         <label className="block" htmlFor={`request-description-${item.id}`}>
-                          <span className="text-sm font-semibold text-[#102A43]">Request description</span>
-                          <textarea id={`request-description-${item.id}`} value={details} onChange={event => onDetailsChange(event.target.value)} rows={3} maxLength={1000} placeholder="What would you like help with?" className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#D4A853] focus:ring-4 focus:ring-[#D4A853]/15" />
+                          <span className="text-sm font-semibold text-[#102A43]">{t('package.requestDescription')}</span>
+                          <textarea id={`request-description-${item.id}`} value={details} onChange={event => onDetailsChange(event.target.value)} rows={3} maxLength={1000} placeholder={t('package.descriptionPlaceholder')} className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#D4A853] focus:ring-4 focus:ring-[#D4A853]/15" />
                         </label>
                       )}
                     </motion.section>
@@ -196,4 +193,5 @@ export const ServicePackageSelector: React.FC<Props> = ({
       )}
     </fieldset>
   </div>
-);
+  );
+};
