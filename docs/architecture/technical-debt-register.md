@@ -65,7 +65,7 @@ Line numbers refer to `backend/index.mjs` unless another file is named. That fil
 | TD-038 | `shared/` mixes concerns; production code depends on mock data | Medium | Confirmed | Open |
 | TD-039 | App Router used as a shell around a client state router | Medium | Confirmed | Open |
 | TD-040 | God components and minified-style source files | Medium | Confirmed | Open |
-| TD-041 | About 3,200 lines of dead prototype code | Medium | Confirmed | Needs approval (deletion) |
+| TD-041 | Dead prototype code (≈7,500 lines in the end) | Medium | Confirmed | Fixed (2026-11-25) |
 | TD-042 | Management UI ignores permissions; no global 401 handling | Medium | Confirmed | Open |
 | TD-043 | Undefined management hosting; conflicting `vercel.json` files | Medium | Confirmed | Open |
 | TD-044 | No linter or formatter; backend not typechecked | Medium | Confirmed | Open |

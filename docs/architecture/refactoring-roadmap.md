@@ -53,7 +53,7 @@
 
 | # | Task | Objective | Files | Outcome | Depends on | Risk | Validation | Status |
 |---|---|---|---|---|---|---|---|---|
-| 2.1 | Remove dead code (TD-041) | Shrink the surface; free mock data and types | See [proposed-repository-structure.md](proposed-repository-structure.md#files-to-remove-pending-approval-td-041) | About 3,200 fewer lines; mobile tsconfig can use globs | Approval | Low (zero importers verified) | `tsc` root and mobile, build, tests | 🔒 |
+| 2.1 | Remove dead code (TD-041) | Shrink the surface; free mock data and types | See [proposed-repository-structure.md](proposed-repository-structure.md#files-removed-td-041) | ≈7,500 fewer lines; mobile tsconfig uses globs | Approved 2026-11-25 | Low (zero live importers verified) | `tsc` root and mobile, build, tests | ✅ |
 | 2.2 | Prettier baseline (ADR-0006) | Make the core files reviewable | Whole repo | One behaviour-neutral commit + `.git-blame-ignore-revs` | i18n merge; approval of the dev dependency | Low | Tests + build identical | ⏳🔒 |
 | 2.3 | Extract `backend/src/platform/` | Separate infrastructure from routes | `index.mjs:1-135` → `platform/{db,auth,http,config}` | `createApp` composes; routes unchanged | 2.2, ADR-0002 | Low–Med | Full suite | ⏳ |
 | 2.4 | `withTransaction` + typed errors | One transaction and error pattern (TD-053) | `platform/db`, `platform/http` | No hand-rolled BEGIN/ROLLBACK | 2.3 | Low | Full suite | ⏳ |
@@ -178,3 +178,31 @@ All edits are surgical. They do not reformat any line and they leave the uncommi
 | `npm run build` | exit 0 |
 
 **Not verified at runtime:** graceful shutdown, and `seed-demo` / `smoke-live` against a live PostgreSQL. These were only checked with `node --check` and review, because no database was running in this session.
+
+### 2026-11-25: Dead-code removal (2.1, approved)
+
+Before deleting anything, I built an import graph (relative, `@/` and `@shared/` imports, plus `<script src>` in HTML) and confirmed that every deleted file was imported only by other deleted files. None of the deleted files had uncommitted changes. Deletions are unstaged, so `git checkout -- <path>` restores any of them.
+
+| Area | Removed | Notes |
+|---|---|---|
+| Website | `frontend/src/booking/CustomerView.tsx`, `frontend/src/booking/steps/*` (6 files), `assistant/{DateSeparator,EmptyChatState}.tsx`, `assistant/mockResponses.ts`, `website/home/StatisticsSection.tsx` | `App.tsx` now loads `RequestFlow` directly (same lazy, client-only loading). The `bookings` state, which only the dead view read, is gone. |
+| Staff portal | `management/src/{AdminView,WorkerView,AuditReportView,LiveOperationsPanel}.tsx`, `cms/CmsWorkspace.tsx`, `safety/TrustSafetyWorkspace.tsx` | The bundle is byte-identical (334.53 kB), which confirms none of it shipped. |
+| Mobile | AI Studio web prototype: `index.html`, `vite.config.ts`, `metadata.json`, `src/{main,App}.tsx`, `src/index.css`, `src/context/AppContext.tsx`, `src/types/index.ts`, 12 DOM components in `src/components/` | `tsconfig.json` now includes `src/**/*`, so every mobile source file is typechecked. |
+| Shared | `shared/data/{auditData,timeSlots}.ts`; mock arrays in `shared/data/mockServices.ts`; 16 prototype-only types in `shared/types.ts`; `createBookingRequest` in `frontend/src/booking/request.ts` | `mockServices.ts` keeps only its two production constants (see 2.7). The test of `createBookingRequest` was removed with it: it covered only the deleted client-side booking builder. Real booking creation is covered by the API tests. |
+
+Kept deliberately:
+- Root `metadata.json` (configuration, not code).
+- The unused `_legacyToken` parameters in `shared/api.ts` (harmless; remove with the API-client split).
+- The duplicate logo files in `management/app/` (the Vite dev server may serve them; verify before removing).
+
+**Validation:**
+
+| Command | Result |
+|---|---|
+| `npm run lint` | exit 0 |
+| Mobile `tsc --noEmit` (now with globs) | exit 0 |
+| `npm test` | 52 tests: 51 pass, 0 fail, 1 skipped (one dead-code test removed) |
+| Mobile `npm test` | 2 pass |
+| `npm run build` | exit 0 |
+
+**Not run:** a Metro bundle (`expo export`). The removed files were not reachable from the `expo-router` entry.
