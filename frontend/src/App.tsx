@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, LogIn, Moon, Sun } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Currency, Booking } from '@shared/types';
+import { Currency } from '@shared/types';
 import { getServices, postBooking, BookingRequestPayload, setApiLocale } from '@shared/api';
 import { MarketingView } from './website/MarketingView';
 import { CustomerAuthPage, CustomerAccountPage } from './booking/CustomerAccountPage';
@@ -16,7 +16,7 @@ import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { Link, useRouter } from './i18n/navigation';
 import { splitPathAndSearch, stripLocalePrefix } from './i18n/path';
 
-const CustomerView = dynamic(() => import('./booking/CustomerView').then((module) => module.CustomerView), {
+const RequestFlow = dynamic(() => import('./booking/RequestFlow').then((module) => module.RequestFlow), {
   ssr: false,
   loading: () => <BookingLoading />,
 });
@@ -72,7 +72,6 @@ export default function App({
   }, [locale]);
   const [services, setServices] = useState<Awaited<ReturnType<typeof getServices>>>([]);
   const [servicesState, setServicesState] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingSelection, setBookingSelection] = useState(() => {
     const query = new URLSearchParams(initialQuery);
     return { serviceId: query.get('service'), packageId: query.get('package') };
@@ -112,11 +111,7 @@ export default function App({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const submitBooking = async (payload: BookingRequestPayload, key: string) => {
-    const created = await postBooking(payload, key);
-    setBookings((prev) => [created, ...prev.filter((x) => x.id !== created.id)]);
-    return created;
-  };
+  const submitBooking = (payload: BookingRequestPayload, key: string) => postBooking(payload, key);
 
   const serviceRoute = path.match(/^\/services\/([^/]+)$/);
   const bookingRoute = path.match(/^\/booking\/([^/]+)$/);
@@ -183,17 +178,13 @@ export default function App({
   let content: React.ReactNode;
   if (path === '/booking') {
     content = (
-      <CustomerView
-        bookings={bookings}
+      <RequestFlow
         currency={currency}
         services={services}
         servicesState={servicesState}
-        onSubmitRequest={submitBooking}
-        onCreateBooking={() => {}}
-        onUpdateBookingStatus={() => {}}
         presetServiceId={bookingSelection.serviceId}
         presetPackageId={bookingSelection.packageId}
-        initialTab="book"
+        onSubmit={submitBooking}
         onViewBookings={() => navigate('/track-booking')}
       />
     );

@@ -134,7 +134,9 @@ merakihomes/
 | Tests | Next to the code (`__tests__/` or `*.test.ts`) | Integration harness lives in `backend/test/`. |
 | Configuration | Environment variables, validated in `backend/src/platform/config` | `.env.example` is the documented catalog. |
 
-## Files to remove (pending approval, TD-041)
+## Files removed (TD-041)
+
+Removed on 2026-11-25 after approval. The details are in the [roadmap implementation log](refactoring-roadmap.md#2026-11-25-dead-code-removal-21-approved). `CustomerView.tsx` was deleted entirely, and `App.tsx` now loads `RequestFlow` directly. The root `metadata.json` and the `vercel.json` decision remain open.
 
 | Path | Reason |
 |---|---|
