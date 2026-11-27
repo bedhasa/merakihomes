@@ -264,3 +264,17 @@ The lookup page was checked in headless Chrome.
 1. Run `npm run db:migrate:production` (migration 020) after a backup.
 2. On production, demo payments switch off automatically if Railway sets `NODE_ENV=production`; set `DEMO_PAYMENTS_ENABLED=false` explicitly to be sure.
 3. Installed mobile builds that use phone-only lookup will now receive an error until users update.
+
+### 2026-11-27: Batch 4, prices from the database (TD-030)
+
+Approved as "Database 'from' price".
+
+- **API (additive, no contract break):** `GET /api/services` and `GET /api/services/:id` add `fromPrice: {amount, currency} | null`. It is the cheapest active package whose `effective_from`/`effective_to` window includes now, preferring ETB; else a fixed-price service's own price; else `null`.
+- **Behaviour fix:** the service-detail endpoint previously listed inactive-window packages (future `effective_from` or past `effective_to`) that the booking route then rejected. It now lists only packages the booking route accepts. Packages managed through the staff portal use the default window, so nothing visible changes for them.
+- **Web:** home cards, services list, service detail, package selector and booking summary show "From ETB X" or "Price after review". Removed `shared/demoPricing.ts`, `formatCurrency` (×120 USD→ETB), `ETB_EXCHANGE_RATE`, `Booking.totalPriceETB` and the constant `currency` prop.
+- **Mobile:** home tab, services tab and booking flow use `fromPrice` via `src/lib/price.ts` instead of the legacy USD `basePrice`.
+- **i18n:** removed 11 demo-estimate keys, added 6, reworded `serviceDetail.prototypeNote` and the Amharic `booking.package.from` (690 keys). The drafts are in `docs/i18n/amharic-review.md`.
+
+**Validation:** root, mobile and management `tsc` exit 0. `npm test` runs 62 tests: 61 pass, 0 fail, 1 skipped. `build:web` exits 0. The new `backend/pricing.test.mjs` fails on the pre-batch backend. The home, services and detail pages were checked in headless Chrome against a temporary in-memory API, in English and Amharic.
+
+**Product note:** live services with no packages now show "Price after review" instead of the old illustrative ETB figures. To show a "from" price, add a package in the staff portal.

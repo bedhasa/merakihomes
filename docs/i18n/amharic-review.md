@@ -20,6 +20,11 @@ Terminology follows the existing catalog, for example "የቦታ ማስያዝ �
 | `errors.DEMO_PAYMENTS_DISABLED` | Online payment is not available yet. Our team will confirm payment with you. | የመስመር ላይ ክፍያ ገና አይገኝም። ቡድናችን ክፍያውን ከእርስዎ ጋር ያረጋግጣል። |
 | `booking.track.intro` | Enter your booking reference and the phone number used for the request. Both must match. | የቦታ ማስያዝ ማጣቀሻዎን እና ለጥያቄው የተጠቀሙበትን ስልክ ቁጥር ያስገቡ። ሁለቱም መዛመድ አለባቸው። |
 | `booking.received.paymentByTeam` | No payment is taken online. Our team will confirm the final price and payment with you. | በመስመር ላይ ምንም ክፍያ አይወሰድም። ቡድናችን የመጨረሻውን ዋጋ እና ክፍያ ከእርስዎ ጋር ያረጋግጣል። |
+| `featured.priceAfterReview`, `servicesPage.priceAfterReview`, `serviceDetail.priceAfterReview` | Price after review | ዋጋ ከግምገማ በኋላ |
+| `servicesPage.fromPrice`, `serviceDetail.fromPrice` | From {amount} | ከ{amount} ጀምሮ |
+| `booking.package.from` (was "ከ{price}") | From {price} | ከ{price} ጀምሮ |
+| `serviceDetail.afterReviewNote` | The final price is agreed with you after scope review. | የመጨረሻ ዋጋ ከክልል ግምገማ በኋላ ከእርስዎ ጋር ይስማማል። |
+| `serviceDetail.prototypeNote` | Prices shown are starting prices. Availability and final scope require review; a request does not confirm an appointment. | የሚታዩት ዋጋዎች መነሻ ዋጋዎች ናቸው። ተገኝነት እና የመጨረሻ ክልል ግምገማ ይፈልጋሉ፤ ጥያቄ ቀጠሮ አያረጋግጥም። |
 
 ## Approved
 

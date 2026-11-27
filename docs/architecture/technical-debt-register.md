@@ -54,7 +54,7 @@ Line numbers refer to `backend/index.mjs` unless another file is named. That fil
 | TD-027 | Status columns without CHECK constraints | Medium | Confirmed | Needs approval (migration) |
 | TD-028 | Missing FKs and indexes | Low | Confirmed | Needs approval (migration) |
 | TD-029 | Overlapping legacy and new tables; code reads only one | Medium | Confirmed | Open |
-| TD-030 | Displayed prices come from a hard-coded table and a ×120 FX constant | High | Confirmed | Needs approval |
+| TD-030 | Displayed prices come from a hard-coded table and a ×120 FX constant | High | Confirmed | Fixed (2026-11-27): API `fromPrice` from the cheapest bookable package; table and FX constant removed |
 | TD-031 | `backend/index.mjs` is a monolith with no layering | High | Confirmed | Open |
 | TD-032 | Two divergent `POST /api/bookings` handlers | High | Confirmed | Open |
 | TD-033 | Two booking state machines plus a third derivation | High | Confirmed | Open |
@@ -280,6 +280,7 @@ Line numbers refer to `backend/index.mjs` unless another file is named. That fil
 - **Why it matters:** A customer can see one price and be quoted another. Services created by staff get no displayed price.
 - **Severity:** High. **Recommendation:** Display server prices only. Store catalogue prices in ETB, or return an explicit currency from the API and drop the client FX constant.
 - **Risk:** Visible pricing change, so it needs product approval.
+- **Status:** Fixed (2026-11-27), approved as "Database 'from' price". `GET /api/services` and `GET /api/services/:id` return `fromPrice` (`{amount,currency}` or `null`): the cheapest active, currently effective package (ETB preferred), else the price of a fixed-price service, else `null` ("Price after review"). Web and mobile show only that value. `shared/demoPricing.ts`, `formatCurrency`, `ETB_EXCHANGE_RATE`, `totalPriceETB` and the unused `currency` prop were removed. The service-detail package list now uses the same "currently effective" rule as the booking route. Tests: `backend/pricing.test.mjs`. Still open: the hard-coded service ordering in `/api/services` and the legacy booking route.
 
 ### TD-031: Monolithic API module
 - **Problem:** `createApp` spans `index.mjs:115-889`. It holds 83 routes, auth, validation, business rules, SQL and HTTP concerns in one closure. Lines reach 4,007 characters (L466); L373, L295 and L386 are each over 2,000.
