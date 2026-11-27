@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { ContactForm } from './ContactForm';
 import { getServiceDetails } from '@shared/api';
 import { ServicePackage } from '@shared/types';
-import { serviceDetailsCopy } from './serviceDetails';
+import { useServiceDetailsCopy, type ServiceDetailsCopy } from './serviceDetails';
 import { Navbar } from './home/Navbar';
 import { HomePage } from './home/HomePage';
 import { Footer } from './home/Footer';
@@ -44,6 +44,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
   const tContact = useTranslations('contact');
   const tPricing = useTranslations('pricingPage');
   const { formatFromPrice, formatMoney } = useFormatters();
+  const serviceCopy = useServiceDetailsCopy();
 
   const [page, setPage] = useState(initialSubPage);
   const [query, setQuery] = useState('');
@@ -106,7 +107,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
   );
   const btn = 'meraki-button';
 
-  const renderDemoPackageCard = (service: ServiceCategory, copy: (typeof serviceDetailsCopy)[string] | undefined, showPrototypeNote: boolean) => (
+  const renderDemoPackageCard = (service: ServiceCategory, copy: ServiceDetailsCopy | undefined, showPrototypeNote: boolean) => (
     <div className="mt-4 rounded-md border border-[#D4A853]/70 bg-white p-4">
       <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-[#8C6A2F]">{tDetail('demoPackage')}</p>
       <h3 className="mt-2 text-base font-semibold text-[#102A43]">{tDetail('requestSuffix', { name: service.name })}</h3>
@@ -212,7 +213,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
         {page === 'service-detail' &&
           (() => {
             const service = allServices.find((s) => s.id === selectedServiceId);
-            const copy = selectedServiceId ? serviceDetailsCopy[selectedServiceId] : undefined;
+            const copy = serviceCopy(selectedServiceId);
             const selectedPackage = detailPackages.find((p) => p.id === selectedPackageId);
             if (!service) {
               return (

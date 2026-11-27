@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 import { AssistantAvatar } from './AssistantAvatar';
 
-export const TypingIndicator: React.FC = () => (
-  <div role="status" aria-label="Merk is replying" className="flex items-end gap-2.5">
+export const TypingIndicator: React.FC = () => {
+  const t = useTranslations('assistant');
+  return (
+  <div role="status" aria-label={t('typing')} className="flex items-end gap-2.5">
     <AssistantAvatar />
     <div className="flex h-10 items-center gap-1.5 rounded-2xl rounded-bl-sm border border-slate-100 bg-[#F7F8FA] px-4 dark:border-slate-700 dark:bg-slate-800">
       {[0, 1, 2].map(index => (
@@ -17,4 +20,5 @@ export const TypingIndicator: React.FC = () => (
       ))}
     </div>
   </div>
-);
+  );
+};

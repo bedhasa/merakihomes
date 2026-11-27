@@ -12,23 +12,24 @@ interface FooterProps {
 
 const staffPortalUrl=process.env.NEXT_PUBLIC_MANAGEMENT_URL||(process.env.NODE_ENV==='development'?'http://localhost:3004/login':'');
 
+// Labels live in the footer.serviceLinks catalog.
 const serviceLinks = [
-  { id: 'premium_home_cleaning', label: 'Premium Home Cleaning' },
-  { id: 'cooking_service', label: 'Personal Cooking & Prep' },
-  { id: 'childcare_nanny', label: 'Childcare & Babysitting' },
-  { id: 'elder_companion', label: 'Elder Companion Care' },
-  { id: 'maid_laundry', label: 'Laundry & Ironing' },
-  { id: 'handyman_plumbing', label: 'Minor Repairs & Handyman' },
-  { id: 'gardening_outdoor', label: 'Gardening & Grounds' },
-  { id: 'office_cleaning', label: 'Office & Commercial Cleaning' },
-];
+  'premium_home_cleaning',
+  'cooking_service',
+  'childcare_nanny',
+  'elder_companion',
+  'maid_laundry',
+  'handyman_plumbing',
+  'gardening_outdoor',
+  'office_cleaning',
+].map(id => ({ id }));
 
 const companyLinks = [
   { id: 'about', labelKey: 'about' as const },
   { id: 'trust', labelKey: 'trust' as const },
-  { id: 'team', label: 'Our Team' },
-  { id: 'blog', label: 'Journal & Guides' },
-  { id: 'faq', label: 'FAQs' },
+  { id: 'team', footerKey: 'team' as const },
+  { id: 'blog', footerKey: 'blog' as const },
+  { id: 'faq', footerKey: 'faq' as const },
   { id: 'contact', labelKey: 'contact' as const },
 ];
 
@@ -70,7 +71,7 @@ export const Footer: React.FC<FooterProps> = ({
 
               <a
                 href="mailto:bdhsane@gmail.com"
-                aria-label="Email Us"
+                aria-label={t('emailUs')}
                 className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white hover:bg-[#D4A853] hover:text-[#102A43] transition-colors"
               >
                 <Mail size={18} />
@@ -78,7 +79,7 @@ export const Footer: React.FC<FooterProps> = ({
 
               <a
                 href="tel:+251936259142"
-                aria-label="Call Us"
+                aria-label={t('callUs')}
                 className="grid h-10 w-10 place-items-center rounded-xl bg-white/10 text-white hover:bg-[#D4A853] hover:text-[#102A43] transition-colors"
               >
                 <Phone size={18} />
@@ -106,7 +107,7 @@ export const Footer: React.FC<FooterProps> = ({
                     }}
                     className="hover:text-[#D4A853] transition-colors text-left"
                   >
-                    {s.label}
+                    {t(`serviceLinks.${s.id}` as never)}
                   </button>
                 </li>
               ))}
@@ -125,7 +126,7 @@ export const Footer: React.FC<FooterProps> = ({
                     onClick={() => onPageChange(c.id)}
                     className="hover:text-[#D4A853] transition-colors text-left"
                   >
-                    {'labelKey' in c ? tNav(c.labelKey) : c.label}
+                    {'labelKey' in c ? tNav(c.labelKey) : t(c.footerKey)}
                   </button>
                 </li>
               ))}
@@ -147,7 +148,7 @@ export const Footer: React.FC<FooterProps> = ({
             </h3>
 
             <div className="space-y-2 text-sm text-white/80">
-              <p className="font-semibold text-white">Direct Dispatch:</p>
+              <p className="font-semibold text-white">{t('directDispatch')}</p>
               <a
                 href="tel:+251936259142"
                 className="block hover:text-[#D4A853] transition-colors"
@@ -163,7 +164,7 @@ export const Footer: React.FC<FooterProps> = ({
             </div>
 
             <div className="space-y-1 text-sm text-white/80 pt-2">
-              <p className="font-semibold text-white">Email Inquiries:</p>
+              <p className="font-semibold text-white">{t('emailInquiries')}</p>
               <a
                 href="mailto:bdhsane@gmail.com"
                 className="block hover:text-[#D4A853] transition-colors"

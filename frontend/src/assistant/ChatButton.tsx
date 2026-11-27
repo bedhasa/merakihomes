@@ -1,6 +1,7 @@
 import React from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useTranslations } from 'next-intl';
 
 interface ChatButtonProps {
   isOpen: boolean;
@@ -8,16 +9,18 @@ interface ChatButtonProps {
   buttonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
-export const ChatButton: React.FC<ChatButtonProps> = ({ isOpen, onClick, buttonRef }) => (
+export const ChatButton: React.FC<ChatButtonProps> = ({ isOpen, onClick, buttonRef }) => {
+  const t = useTranslations('assistant');
+  return (
   <motion.button
     ref={buttonRef}
     type="button"
     onClick={onClick}
-    aria-label={isOpen ? 'Close Merk assistant' : 'Open Merk assistant'}
+    aria-label={isOpen ? t('closeAssistant') : t('openAssistant')}
     aria-haspopup="dialog"
     aria-expanded={isOpen}
     aria-controls="meraki-assistant-window"
-    title={isOpen ? 'Close chat' : 'Chat with Meraki'}
+    title={isOpen ? t('closeChat') : t('chatWithMeraki')}
     whileHover={{ scale: 1.05, y: -2 }}
     whileTap={{ scale: 0.94 }}
     transition={{ type: 'spring', stiffness: 420, damping: 24 }}
@@ -25,4 +28,5 @@ export const ChatButton: React.FC<ChatButtonProps> = ({ isOpen, onClick, buttonR
   >
     {isOpen ? <X size={25} strokeWidth={2} aria-hidden="true" /> : <MessageCircle size={26} strokeWidth={2} aria-hidden="true" />}
   </motion.button>
-);
+  );
+};

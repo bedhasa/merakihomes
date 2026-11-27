@@ -84,7 +84,24 @@
     "copyright": "© {year} Meraki Homes. All rights reserved.",
     "disclaimer": "Booking requests remain distinct from confirmed appointments. Scope, availability, and pricing are reviewed with you before confirmation.",
     "crafted": "Crafted with",
-    "forAddis": "for Addis Ababa"
+    "forAddis": "for Addis Ababa",
+    "serviceLinks": {
+      "premium_home_cleaning": "Premium Home Cleaning",
+      "cooking_service": "Personal Cooking & Prep",
+      "childcare_nanny": "Childcare & Babysitting",
+      "elder_companion": "Elder Companion Care",
+      "maid_laundry": "Laundry & Ironing",
+      "handyman_plumbing": "Minor Repairs & Handyman",
+      "gardening_outdoor": "Gardening & Grounds",
+      "office_cleaning": "Office & Commercial Cleaning"
+    },
+    "team": "Our Team",
+    "blog": "Journal & Guides",
+    "faq": "FAQs",
+    "emailUs": "Email Us",
+    "callUs": "Call Us",
+    "directDispatch": "Direct Dispatch:",
+    "emailInquiries": "Email Inquiries:"
   },
   "auth": {
     "loginTitle": "Welcome back",
@@ -491,7 +508,117 @@
     "UPSTREAM_TIMEOUT": "Meraki Homes took too long to respond. Please try again.",
     "LOOKUP_DETAILS_REQUIRED": "Enter your booking reference and the phone number used for the request.",
     "LOOKUP_NOT_FOUND": "No request matches that reference and phone number.",
-    "DEMO_PAYMENTS_DISABLED": "Online payment is not available yet. Our team will confirm payment with you."
+    "DEMO_PAYMENTS_DISABLED": "Online payment is not available yet. Our team will confirm payment with you.",
+    "SERVICE_UNAVAILABLE": "This service is unavailable.",
+    "WORKERS_DETAILS_REQUIRED": "Choose a service and future preferred time to check workers.",
+    "WORKERS_DETAILS_INVALID": "Worker matching details are invalid.",
+    "ADDRESS_SEARCH_TOO_SHORT": "Search with at least 3 characters.",
+    "ADDRESS_SEARCH_NOT_CONFIGURED": "Address search is not configured. Enter the address manually or choose the map pin.",
+    "ADDRESS_SEARCH_BUSY": "Address search is busy. Please wait a moment and try again.",
+    "ADDRESS_SEARCH_UNAVAILABLE": "Address search is temporarily unavailable. Enter the location manually.",
+    "MAP_POSITION_INVALID": "Choose a valid map position.",
+    "ADDRESS_LOOKUP_NOT_CONFIGURED": "Address lookup is not configured. Enter the address manually or choose the map pin.",
+    "ADDRESS_LOOKUP_BUSY": "Address lookup is busy. Please wait a moment and try again.",
+    "ADDRESS_LOOKUP_UNAVAILABLE": "Address lookup is temporarily unavailable. Enter the location manually.",
+    "PROFILE_DETAILS_INVALID": "Please check your profile details.",
+    "PROFILE_EMAIL_IN_USE": "That email is already used by another account.",
+    "ADDRESS_DETAILS_INVALID": "Please check the address details.",
+    "ADDRESS_NOT_FOUND": "Saved address not found.",
+    "ADDRESS_DEFAULT_INVALID": "Choose a valid default setting.",
+    "COORDINATES_PAIR_REQUIRED": "Provide valid latitude and longitude together.",
+    "BOOKING_NOT_FOUND": "Booking not found.",
+    "AGAZ_VISITOR_SESSION": "Start a new visitor session and try again.",
+    "AGAZ_SIGN_IN_AGAIN": "Please sign in again to continue this conversation.",
+    "AGAZ_ACCOUNT_INACTIVE": "Your customer account is not active.",
+    "AGAZ_CONVERSATION_UNAVAILABLE": "This conversation is unavailable.",
+    "AGAZ_CONVERSATION_GONE": "This conversation has expired or is unavailable.",
+    "AGAZ_MESSAGE_LENGTH": "Write a message between 1 and 2,000 characters.",
+    "AGAZ_LANGUAGE_INVALID": "Choose Auto, English, Amharic, or Afaan Oromo.",
+    "AGAZ_START_NEW": "Start a new conversation and try again.",
+    "AGAZ_NOT_CONFIGURED": "Merk is not configured on the server yet. Please contact Meraki Homes for help.",
+    "AGAZ_CONVERSATION_EXPIRED": "This conversation has expired. Start a new conversation.",
+    "AGAZ_REPLY_IN_PROGRESS": "Please wait for Merk to finish the previous reply.",
+    "AGAZ_UNSAFE_RESPONSE": "Merk could not prepare a safe response. Please try again.",
+    "AGAZ_BUSY": "Merk is temporarily busy. Please try again shortly.",
+    "AGAZ_RATE_LIMIT": "Merk has reached a temporary request limit. Please try again later.",
+    "AGAZ_QUOTA_DAILY": "Merk has reached a daily request limit. Please try again after the quota resets.",
+    "AGAZ_TIMEOUT": "Merk is taking longer than usual. Please try again.",
+    "AGAZ_NETWORK": "Please check your internet connection and try again.",
+    "AGAZ_CONFIG": "Merk is unavailable right now. Please try again later.",
+    "AGAZ_INVALID": "Merk could not process that request. Please try a shorter message.",
+    "AGAZ_PROVIDER": "Merk could not get a response from its AI service. Please try again.",
+    "BOOKING_ITEM_SERVICE_INVALID": "Choose a valid service for every item.",
+    "BOOKING_DETAILS_TOO_LONG": "Service details must be under 3,000 characters.",
+    "BOOKING_ANSWERS_TOO_LONG": "Please shorten the service answers.",
+    "PACKAGE_REQUIRED": "Choose a current package for the selected service.",
+    "PACKAGE_UNAVAILABLE": "A selected package is unavailable. Refresh the package details.",
+    "PACKAGE_CHANGED": "A package price or duration changed. Review the current package options.",
+    "BOOKING_CURRENCY_MIXED": "Services in one booking must use the same currency. Submit separate bookings for different currencies.",
+    "PACKAGE_NO_LONGER_AVAILABLE": "That package is no longer available. Please review the current service options.",
+    "PACKAGE_CHANGED_REVIEW": "This package price or duration changed. Please review the current package options before continuing.",
+    "PACKAGE_REQUIRED_BEFORE_SEND": "Choose a current package before sending this request.",
+    "WORKER_NOT_ELIGIBLE": "That worker is no longer eligible for this service. Refresh worker options.",
+    "WORKER_BUSY": "That worker is busy during the requested time. Choose another worker or let Meraki Homes match.",
+    "WORKER_NEEDS_CONFIRMATION": "That worker availability needs Operations confirmation. Choose another worker or let Meraki Homes match.",
+    "SUBMISSION_KEY_INVALID": "Invalid submission key.",
+    "DEMO_PAYMENT_DETAILS": "Choose a demo payment method, amount, and explicit outcome.",
+    "PAYMENT_KEY_REQUIRED": "A valid payment request key is required.",
+    "REQUEST_NOT_MATCHED": "No request matches those details.",
+    "DEMO_PAYMENT_DUPLICATE": "This demo payment was already processed. Look up the receipt.",
+    "DEMO_PAYMENT_QUOTE_REQUIRED": "A quote must be approved before a demo payment can be simulated.",
+    "PAYMENT_AMOUNT_INVALID": "Payment amount must match the remaining total or be a smaller partial payment.",
+    "RECEIPT_DETAILS_REQUIRED": "Enter the booking reference and contact phone.",
+    "RECEIPT_NOT_FOUND": "No successful demo payment receipt matches those details.",
+    "BOOKING_ACCESS_REQUIRED": "Sign in or use guest booking lookup.",
+    "REVIEW_DETAILS_REQUIRED": "Choose a completed service, a rating from 1 to 5, and a short review.",
+    "REVIEW_SERVICE_NOT_FOUND": "No completed service matches this account.",
+    "REVIEW_NOT_YET": "Reviews are available after the service item is completed.",
+    "REVIEW_WORKER_INVALID": "Choose a worker who completed this service.",
+    "REVIEW_DUPLICATE": "A review has already been submitted for this service.",
+    "CONTACT_DETAILS_INVALID": "Please check your contact details.",
+    "APPROVAL_DECISION_INVALID": "Choose a valid approval decision.",
+    "WORKER_CHANGE_NOT_FOUND": "No pending worker change matches this account.",
+    "SCHEDULE_CHANGE_NOT_FOUND": "No pending schedule change matches this account.",
+    "SCHEDULE_NO_LONGER_AVAILABLE": "The proposed time is no longer available for every assigned worker. Contact Operations for another time.",
+    "PRICE_CHANGE_NOT_FOUND": "No pending price change matches this account.",
+    "PROPOSAL_DECISION_INVALID": "Choose accept or reject for this proposed change.",
+    "PROPOSAL_NOT_FOUND": "No pending change proposal matches this account.",
+    "REQUEST_TOO_LARGE": "This request is too large.",
+    "REQUEST_DATA_INVALID": "The submitted details do not meet the data requirements.",
+    "REQUEST_JSON_INVALID": "Request body must contain valid JSON.",
+    "PRO_SIGN_IN_REQUIRED": "Professional sign-in is required.",
+    "PRO_LOCATION_NOT_ELIGIBLE": "This professional account is not currently eligible to share location.",
+    "PRO_LOGIN_DETAILS_REQUIRED": "Enter the phone number registered with Meraki and your password.",
+    "PRO_LOGIN_INCORRECT": "Phone number or password is incorrect.",
+    "PRO_ACCOUNT_INACTIVE": "This professional account is not currently active. Contact Meraki Operations.",
+    "PRO_LOCATION_UPDATE_FORBIDDEN": "This professional account cannot update its location.",
+    "PREFERRED_TIME_INVALID": "Choose a valid preferred time.",
+    "PREFERRED_TIME_PAST": "Choose a preferred time in the future.",
+    "PROFESSIONAL_NOT_FOUND": "Professional not found.",
+    "SERVICE_CHOICE_INVALID": "Choose a valid service.",
+    "RATE_MAX_INVALID": "Maximum rate must be zero or more.",
+    "RATING_MIN_INVALID": "Minimum rating must be between 0 and 5.",
+    "COORDINATES_NOT_NUMBERS": "Coordinates must be numbers.",
+    "LATITUDE_RANGE": "Latitude must be between -90 and 90.",
+    "LONGITUDE_RANGE": "Longitude must be between -180 and 180.",
+    "COORDINATES_BOTH_REQUIRED": "Send both latitude and longitude.",
+    "COORDINATES_PLACEHOLDER": "That coordinate is a null island placeholder, not a real location.",
+    "ACCURACY_NOT_NUMBER": "Accuracy must be a number of meters.",
+    "ACCURACY_RANGE": "Accuracy must be between 0 and 100000 meters.",
+    "LIVE_LOCATION_SIGN_IN_VIEW": "Sign in to view live location sharing.",
+    "LIVE_LOCATION_SIGN_IN_MANAGE": "Sign in to manage live location sharing.",
+    "LIVE_LOCATION_SIGN_IN_CONSENT": "Sign in to manage live location consent.",
+    "LIVE_LOCATION_WHICH_PROFESSIONAL": "Choose which assigned professional this consent applies to.",
+    "LIVE_LOCATION_NONE_ACTIVE": "There is no active live location sharing to stop.",
+    "LIVE_LOCATION_BOOKING_STATUS": "Live location sharing needs a confirmed or in-progress booking.",
+    "LIVE_LOCATION_NOT_ASSIGNED": "That professional is not currently assigned to this booking.",
+    "LIVE_LOCATION_SIGN_IN_STOP": "Sign in to stop live location sharing.",
+    "LIVE_LOCATION_NOT_FOUND": "No live location sharing found for this booking.",
+    "LIVE_LOCATION_SIGN_IN_UPDATE": "Sign in to update your shared location.",
+    "LIVE_LOCATION_START_FIRST": "Start live location sharing before sending a position.",
+    "LIVE_LOCATION_EXPIRED": "This live location session expired. Both parties must consent again.",
+    "LIVE_LOCATION_NOT_ACTIVE": "Live location sharing is not active for this booking.",
+    "LIVE_LOCATION_INACTIVE": "Live location sharing is no longer active."
   },
   "validation": {
     "nameRequired": "Enter your name.",
@@ -780,5 +907,168 @@
     "title": "Clear estimates, confirmed together",
     "subtitle": "Starting prices are shown with each service. Scope changes and final pricing are discussed with you for approval before extra work begins.",
     "browse": "Browse service estimates"
+  },
+  "serviceCatalog": {
+    "handyman_plumbing": {
+      "name": "Minor Home Repairs",
+      "description": "Small household repairs, fittings, and maintenance. Share the issue and our team will review the work and price with you."
+    },
+    "gardening_outdoor": {
+      "name": "Gardening & Outdoor",
+      "description": "Garden care and outdoor upkeep for homes. Tell us about the space and the work you have in mind."
+    },
+    "office_cleaning": {
+      "name": "Office & Commercial Cleaning",
+      "description": "Cleaning requests for offices and commercial spaces. Scope and schedule are reviewed before confirmation."
+    },
+    "elder_companion": {
+      "name": "Elder Companion Care",
+      "description": "Companion support requests for older adults. Share the kind of support and preferred schedule for a careful review."
+    },
+    "childcare_nanny": {
+      "name": "Childcare & Babysitting",
+      "description": "Childcare support for infants, toddlers, and school-age children. Share care requirements for review."
+    },
+    "cooking_service": {
+      "name": "Personal Cooking",
+      "description": "In-home meal preparation. Tell us about the menu, dietary needs, and occasion."
+    },
+    "maid_laundry": {
+      "name": "Laundry & Ironing",
+      "description": "Laundry, ironing, and garment care requests for your household. Final scope is reviewed with you."
+    },
+    "premium_home_cleaning": {
+      "name": "Premium Home Cleaning",
+      "description": "Thoughtful home cleaning for apartments and villas, with the requested rooms and priorities agreed before a visit."
+    }
+  },
+  "serviceCopy": {
+    "handyman_plumbing": {
+      "overview": "Get help with supported small repairs around your home, from plumbing issues to minor electrical fixes and painting touch-ups.",
+      "included": {
+        "1": "Plumbing and fixture repairs",
+        "2": "Minor electrical fixes",
+        "3": "Painting touch-ups",
+        "4": "Other supported small repairs agreed after review"
+      },
+      "limitations": {
+        "1": "Major renovation, structural work, and materials are not included unless separately reviewed and approved."
+      }
+    },
+    "gardening_outdoor": {
+      "overview": "Arrange upkeep for a home garden, compound, or terrace. Tell us about the space and the work you need so the scope can be reviewed.",
+      "included": {
+        "1": "Garden and compound upkeep",
+        "2": "Terrace maintenance",
+        "3": "Pruning, weeding, and general care when agreed"
+      },
+      "limitations": {
+        "1": "Planting materials, equipment, disposal, and larger landscaping work need to be confirmed before the request is accepted."
+      }
+    },
+    "office_cleaning": {
+      "overview": "Request cleaning for an office or commercial premises. Share the size, areas, and preferred schedule for an operations review.",
+      "included": {
+        "1": "Cleaning scope for commercial premises",
+        "2": "One-time or recurring schedule requests where available",
+        "3": "A scope and schedule review before confirmation"
+      },
+      "limitations": {
+        "1": "Recurring arrangements depend on confirmed capacity. Supplies, specialist cleaning, and access requirements must be agreed in advance."
+      }
+    },
+    "elder_companion": {
+      "overview": "Arrange a friendly companion visit for an older adult. Share their routines, interests, and the everyday support your household would like reviewed.",
+      "included": {
+        "1": "Conversation and companionship",
+        "2": "Reading, games, or other shared activities",
+        "3": "Light everyday assistance when agreed after review"
+      },
+      "limitations": {
+        "1": "This is a non-medical companion service, not nursing, diagnosis, medication administration, or emergency care. Support needs, suitability, availability, and price are reviewed with the household before confirmation."
+      }
+    },
+    "childcare_nanny": {
+      "overview": "Arrange childcare with a schedule and care needs that fit your family. Share children’s ages and requested hours for review.",
+      "included": {
+        "1": "Childcare requests for infants, toddlers, and school-age children",
+        "2": "Flexible schedule requests",
+        "3": "Care requirements discussed before confirmation"
+      },
+      "limitations": {
+        "1": "Provider availability and qualifications must be confirmed for each request. No appointment is confirmed until the team contacts you."
+      }
+    },
+    "cooking_service": {
+      "overview": "Request in-home meal preparation for daily meals or a weekly plan. Share your menu, dietary needs, servings, and ingredient preferences.",
+      "included": {
+        "1": "Meal preparation at home",
+        "2": "Daily or weekly plan requests",
+        "3": "Menu and dietary preferences reviewed with you"
+      },
+      "limitations": {
+        "1": "Ingredient purchasing, special equipment, and dietary requirements must be agreed before the service is confirmed."
+      }
+    },
+    "maid_laundry": {
+      "overview": "Request household laundry and ironing support, with the garment care and expected volume described up front.",
+      "included": {
+        "1": "Laundry and garment care",
+        "2": "Ironing",
+        "3": "Wash, fold, or other tasks agreed during review"
+      },
+      "limitations": {
+        "1": "Pickup and delivery are not currently listed as a standard option. Detergents, delicate garments, and turnaround time need to be discussed."
+      }
+    },
+    "premium_home_cleaning": {
+      "overview": "Arrange thorough home cleaning for your household. Tell us about the property, priority rooms, and any special surfaces or requirements.",
+      "included": {
+        "1": "Home cleaning scope reviewed for your property",
+        "2": "Priority rooms and tasks agreed with you",
+        "3": "Equipment and supplies discussed before the visit"
+      },
+      "limitations": {
+        "1": "Equipment and supplies are included only when confirmed for your request. Deep restoration or specialist work may require a separate quote."
+      }
+    }
+  },
+  "assistant": {
+    "subtitle": "Meraki Homes AI Assistant",
+    "online": "Online now",
+    "prompt": "Ask about services, pricing, or booking",
+    "closeChat": "Close chat",
+    "openAssistant": "Open Merk assistant",
+    "closeAssistant": "Close Merk assistant",
+    "chatWithMeraki": "Chat with Meraki",
+    "replyLanguage": "Reply language",
+    "languageAuto": "Auto",
+    "inputLabel": "Message Agaz AI, the Meraki Homes assistant",
+    "placeholder": "Ask Agaz AI about Meraki Homes...",
+    "send": "Send message",
+    "waitForReply": "Please wait for the reply",
+    "enterMessage": "Enter a message to send",
+    "conversationRegion": "Conversation and suggestions",
+    "conversation": "Conversation",
+    "assistantMessages": "Assistant messages",
+    "yourMessages": "Your messages",
+    "suggestedQuestions": "Suggested questions",
+    "actionBook": "Book a Service",
+    "actionExplore": "Explore Services",
+    "actionPricing": "Pricing",
+    "actionSupport": "Contact Support",
+    "typing": "Merk is replying",
+    "continueBooking": "Continue to booking",
+    "welcome": "👋 Hello and welcome to Meraki Homes! I’m Agaz AI, Meraki Homes’ assistant. I can help with services, pricing, and booking requests.",
+    "helpTopics": "Choose a service question to start. Operations confirms availability, final scope, and price after reviewing a booking request.",
+    "errorReply": "The assistant could not reply. Please try again.",
+    "errorUnexpected": "The assistant returned an unexpected response. Please try again.",
+    "errorSlow": "The reply is taking longer than expected. Check your connection and retry.",
+    "errorUnavailable": "The assistant is temporarily unavailable. Please try again."
+  },
+  "errorPage": {
+    "title": "This page could not be loaded",
+    "body": "Your booking and account records are not affected. Please try again.",
+    "retry": "Try again"
   }
 }

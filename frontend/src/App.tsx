@@ -79,6 +79,8 @@ export default function App({
 
   useEffect(() => {
     let live = true;
+    // Service names/descriptions are localized by the API (Accept-Language), so refetch when the language changes.
+    setApiLocale(locale);
     getServices()
       .then((s) => {
         if (live) {
@@ -92,7 +94,7 @@ export default function App({
     return () => {
       live = false;
     };
-  }, []);
+  }, [locale]);
 
   useEffect(() => {
     setPath(stripLocalePrefix(initialPath));

@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import type { RefObject } from 'react';
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { isUiLocale, resolveAgazLanguage, type AgazLanguage } from '../../../shared/locales/config';
 import { createTextMessage } from './conversationUtils';
 import { createStarterMessages } from './types';
@@ -26,6 +26,7 @@ function sessionId(key: string): string {
 }
 
 export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
+  const t = useTranslations('assistant');
   const uiLocaleRaw = useLocale();
   const uiLocale = isUiLocale(uiLocaleRaw) ? uiLocaleRaw : 'en';
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -39,8 +40,8 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
   const visitorIdRef = useRef<string | null>(null);
 
   const initializeConversation = useCallback(() => {
-    setMessages(current => current.length ? current : createStarterMessages());
-  }, []);
+    setMessages(current => current.length ? current : createStarterMessages({ welcome: t('welcome'), helpTopics: t('helpTopics') }));
+  }, [t]);
 
   const sendMessage = useCallback(async (rawText = draft, retry = false) => {
     const text = rawText.trim();
@@ -61,7 +62,8 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
       const visitorId = visitorIdRef.current;
       const response = await fetch('/api/agaz/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        // Server error messages follow the page language, not the browser's.
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Language': uiLocale },
         body: JSON.stringify({
           message: text,
           language: resolveAgazLanguage(language as AgazLanguage, uiLocale),
@@ -77,10 +79,10 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
         if (response.status === 404 && conversationId) {
           setConversationId(null);
         }
-        throw new Error(message || 'The assistant could not reply. Please try again.');
+        throw new Error(message || t('errorReply'));
       }
       if (!('message' in payload) || typeof payload.message !== 'string' || typeof payload.conversationId !== 'string') {
-        throw new Error('The assistant returned an unexpected response. Please try again.');
+        throw new Error(t('errorUnexpected'));
       }
       setConversationId(payload.conversationId);
       const reply = createTextMessage('assistant', payload.message);
@@ -90,8 +92,8 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
       inputRef.current?.focus();
     } catch (cause) {
       const message = cause instanceof DOMException && cause.name === 'AbortError'
-        ? 'The reply is taking longer than expected. Check your connection and retry.'
-        : cause instanceof Error ? cause.message : 'The assistant is temporarily unavailable. Please try again.';
+        ? t('errorSlow')
+        : cause instanceof Error ? cause.message : t('errorUnavailable');
       setError(message);
       setRetryText(text);
     } finally {
@@ -99,7 +101,7 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
       sending.current = false;
       setIsTyping(false);
     }
-  }, [conversationId, draft, inputRef, language, uiLocale]);
+  }, [conversationId, draft, inputRef, language, t, uiLocale]);
 
   return { messages, draft, setDraft, isTyping, error, retryText, language, setLanguage, initializeConversation, sendMessage };
 };
