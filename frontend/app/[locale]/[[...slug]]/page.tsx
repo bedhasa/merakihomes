@@ -10,9 +10,11 @@ type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export function generateStaticParams() {
-  return routing.locales.map((locale) => ({ locale }));
-}
+// This page reads `searchParams` (booking pre-fill such as ?service=&package=), which only exists
+// per request. It must therefore render dynamically: with `generateStaticParams` here, Next.js
+// prerendered it as static and then failed at runtime ("Page changed from static to dynamic"),
+// so every page returned 500 under `next start`. The [locale] layout still validates locales.
+export const dynamic = 'force-dynamic';
 
 const metaTitleKeys: Record<string, 'aboutTitle' | 'servicesTitle' | 'teamTitle' | 'trustTitle' | 'contactTitle' | 'faqTitle' | 'blogTitle' | 'bookingTitle' | 'trackTitle' | 'loginTitle' | 'registerTitle' | 'accountTitle'> = {
   about: 'aboutTitle',
