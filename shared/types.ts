@@ -56,7 +56,20 @@ export interface Booking {
   cleanersCount: number;
   addonsSelected: string[];
   totalPrice: number; // starting estimate, in the booking currency (0 when priced after review)
-  status: 'draft' | 'requested' | 'awaiting_assignment' | 'assigned' | 'confirmed' | 'en_route' | 'arrived' | 'in_progress' | 'completed' | 'cancelled' | 'payment_pending' | 'payment_failed' | 'disputed';
+  status:
+    | 'draft'
+    | 'requested'
+    | 'awaiting_assignment'
+    | 'assigned'
+    | 'confirmed'
+    | 'en_route'
+    | 'arrived'
+    | 'in_progress'
+    | 'completed'
+    | 'cancelled'
+    | 'payment_pending'
+    | 'payment_failed'
+    | 'disputed';
   paymentMethod: PaymentMethodType;
   paymentStatus: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded' | 'requires_verification';
   workerId?: string;

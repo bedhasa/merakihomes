@@ -10,7 +10,9 @@ interface FooterProps {
   onServiceSelect?: (serviceId: string) => void;
 }
 
-const staffPortalUrl=process.env.NEXT_PUBLIC_MANAGEMENT_URL||(process.env.NODE_ENV==='development'?'http://localhost:3004/login':'');
+const staffPortalUrl =
+  process.env.NEXT_PUBLIC_MANAGEMENT_URL ||
+  (process.env.NODE_ENV === 'development' ? 'http://localhost:3004/login' : '');
 
 // Labels live in the footer.serviceLinks catalog.
 const serviceLinks = [
@@ -22,7 +24,7 @@ const serviceLinks = [
   'handyman_plumbing',
   'gardening_outdoor',
   'office_cleaning',
-].map(id => ({ id }));
+].map((id) => ({ id }));
 
 const companyLinks = [
   { id: 'about', labelKey: 'about' as const },
@@ -33,11 +35,7 @@ const companyLinks = [
   { id: 'contact', labelKey: 'contact' as const },
 ];
 
-export const Footer: React.FC<FooterProps> = ({
-  onPageChange,
-  onBookNow,
-  onServiceSelect,
-}) => {
+export const Footer: React.FC<FooterProps> = ({ onPageChange, onBookNow, onServiceSelect }) => {
   const t = useTranslations('footer');
   const tNav = useTranslations('nav');
   return (
@@ -54,9 +52,7 @@ export const Footer: React.FC<FooterProps> = ({
               <BrandMark onNavy />
             </button>
 
-            <p className="text-sm leading-relaxed text-white/75 max-w-sm">
-              {t('mission')}
-            </p>
+            <p className="text-sm leading-relaxed text-white/75 max-w-sm">{t('mission')}</p>
 
             <div className="pt-2 flex items-center gap-3">
               <a
@@ -149,40 +145,33 @@ export const Footer: React.FC<FooterProps> = ({
 
             <div className="space-y-2 text-sm text-white/80">
               <p className="font-semibold text-white">{t('directDispatch')}</p>
-              <a
-                href="tel:+251936259142"
-                className="block hover:text-[#D4A853] transition-colors"
-              >
+              <a href="tel:+251936259142" className="block hover:text-[#D4A853] transition-colors">
                 +251 936 259 142
               </a>
-              <a
-                href="tel:+251913394404"
-                className="block hover:text-[#D4A853] transition-colors"
-              >
+              <a href="tel:+251913394404" className="block hover:text-[#D4A853] transition-colors">
                 +251 913 394 404
               </a>
             </div>
 
             <div className="space-y-1 text-sm text-white/80 pt-2">
               <p className="font-semibold text-white">{t('emailInquiries')}</p>
-              <a
-                href="mailto:bdhsane@gmail.com"
-                className="block hover:text-[#D4A853] transition-colors"
-              >
+              <a href="mailto:bdhsane@gmail.com" className="block hover:text-[#D4A853] transition-colors">
                 bdhsane@gmail.com
               </a>
             </div>
 
-            {staffPortalUrl ? <div className="pt-4 border-t border-white/10">
-              <a
-                href={staffPortalUrl}
-                className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors"
-              >
-                <ShieldCheck size={14} className="text-[#D4A853]" />
-                <span>{t('staffPortal')}</span>
-                <ArrowUpRight size={12} />
-              </a>
-            </div> : null}
+            {staffPortalUrl ? (
+              <div className="pt-4 border-t border-white/10">
+                <a
+                  href={staffPortalUrl}
+                  className="inline-flex items-center gap-1.5 text-xs text-white/60 hover:text-white transition-colors"
+                >
+                  <ShieldCheck size={14} className="text-[#D4A853]" />
+                  <span>{t('staffPortal')}</span>
+                  <ArrowUpRight size={12} />
+                </a>
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -190,9 +179,7 @@ export const Footer: React.FC<FooterProps> = ({
         <div className="mt-14 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-white/60">
           <p>{t('copyright', { year: new Date().getFullYear() })}</p>
 
-          <p className="text-center md:text-right text-white/50 max-w-md">
-            {t('disclaimer')}
-          </p>
+          <p className="text-center md:text-right text-white/50 max-w-md">{t('disclaimer')}</p>
 
           <div className="flex items-center gap-1 text-white/70">
             <span>{t('crafted')}</span>

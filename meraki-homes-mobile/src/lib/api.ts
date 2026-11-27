@@ -31,21 +31,28 @@ const TOKEN_KEY = 'meraki.customer.token.v1';
 let onExpired: (() => void) | undefined;
 
 function apiHost() {
-  try { return new URL(API_BASE_URL).host; } catch { return 'the configured API'; }
+  try {
+    return new URL(API_BASE_URL).host;
+  } catch {
+    return 'the configured API';
+  }
 }
 function safeRoute(path: string) {
   return path.split('?')[0].replace(/\/[a-f\d-]{8,}(?=\/|$)/gi, '/:id');
 }
 
-export function setAuthExpiredHandler(handler?: () => void) { onExpired = handler; }
+export function setAuthExpiredHandler(handler?: () => void) {
+  onExpired = handler;
+}
 const isWeb = Platform.OS === 'web';
 export const tokenStore = {
   // The API may be hosted on another origin (for example, through the temporary
   // HTTPS development tunnel), where browsers do not reliably send its cookies.
   // Keep web bearer tokens only for the current tab; native tokens stay in SecureStore.
-  get: () => isWeb
-    ? Promise.resolve(typeof window === 'undefined' ? null : window.sessionStorage.getItem(TOKEN_KEY))
-    : SecureStore.getItemAsync(TOKEN_KEY),
+  get: () =>
+    isWeb
+      ? Promise.resolve(typeof window === 'undefined' ? null : window.sessionStorage.getItem(TOKEN_KEY))
+      : SecureStore.getItemAsync(TOKEN_KEY),
   set: (token: string) => {
     if (isWeb) {
       if (typeof window !== 'undefined') window.sessionStorage.setItem(TOKEN_KEY, token);
@@ -63,14 +70,26 @@ export const tokenStore = {
 };
 
 export class ApiError extends Error {
-  constructor(message: string, readonly status: number, readonly fields?: Record<string, string>, readonly code?: string) { super(message); }
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly fields?: Record<string, string>,
+    readonly code?: string,
+  ) {
+    super(message);
+  }
 }
 
 export async function api<T>(path: string, options: RequestInit = {}, auth = true): Promise<T> {
   const method = (options.method || 'GET').toUpperCase();
   const route = safeRoute(path);
   if (!API_BASE_URL) {
-    const error = new ApiError('The mobile API URL is not configured. Set EXPO_PUBLIC_API_URL to the computer’s LAN address and backend port.', 0, undefined, 'config');
+    const error = new ApiError(
+      'The mobile API URL is not configured. Set EXPO_PUBLIC_API_URL to the computer’s LAN address and backend port.',
+      0,
+      undefined,
+      'config',
+    );
     if (__DEV__) console.warn(`[Meraki API] ${method} ${route}: EXPO_PUBLIC_API_URL is missing.`);
     throw error;
   }
@@ -105,25 +124,54 @@ export async function api<T>(path: string, options: RequestInit = {}, auth = tru
     }
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      if (__DEV__) console.warn(`[Meraki API] ${method} ${route} returned HTTP ${response.status} (${Date.now() - startedAt}ms).`);
+      if (__DEV__)
+        console.warn(
+          `[Meraki API] ${method} ${route} returned HTTP ${response.status} (${Date.now() - startedAt}ms).`,
+        );
       if (response.status === 401 && auth) {
         await tokenStore.clear().catch(() => undefined);
         onExpired?.();
       }
-      throw new ApiError(payload?.error?.message || `Request failed (${response.status}).`, response.status, payload?.error?.fields, payload?.error?.code);
+      throw new ApiError(
+        payload?.error?.message || `Request failed (${response.status}).`,
+        response.status,
+        payload?.error?.fields,
+        payload?.error?.code,
+      );
     }
-    if (__DEV__) console.debug(`[Meraki API] ${method} ${route} -> ${response.status} (${Date.now() - startedAt}ms).`);
+    if (__DEV__)
+      console.debug(`[Meraki API] ${method} ${route} -> ${response.status} (${Date.now() - startedAt}ms).`);
     return payload as T;
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof Error && error.name === 'AbortError') {
       if (__DEV__) console.warn(`[Meraki API] ${method} ${route} timed out at ${apiHost()}.`);
-      throw new ApiError(`The request to ${apiHost()} timed out. Check the phone’s network and try again.`, 408, undefined, 'timeout');
+      throw new ApiError(
+        `The request to ${apiHost()} timed out. Check the phone’s network and try again.`,
+        408,
+        undefined,
+        'timeout',
+      );
     }
-    if (__DEV__) console.warn(`[Meraki API] ${method} ${route} could not reach ${apiHost()} (${error instanceof Error ? `${error.name}: ${error.message}` : 'network error'}).${Platform.OS === 'web' ? ` Page origin: ${globalThis.location?.origin || 'unknown'}. Check that the API allows this origin and that the page uses HTTP/HTTPS consistently with the API.` : ''}`);
-    throw new ApiError(`Cannot reach Meraki Homes at ${apiHost()}. Put the phone and computer on the same network and confirm the backend port is reachable.`, 0, undefined, 'network');
-  } finally { clearTimeout(timer); callerSignal?.removeEventListener('abort', abortFromCaller); }
+    if (__DEV__)
+      console.warn(
+        `[Meraki API] ${method} ${route} could not reach ${apiHost()} (${error instanceof Error ? `${error.name}: ${error.message}` : 'network error'}).${Platform.OS === 'web' ? ` Page origin: ${globalThis.location?.origin || 'unknown'}. Check that the API allows this origin and that the page uses HTTP/HTTPS consistently with the API.` : ''}`,
+      );
+    throw new ApiError(
+      `Cannot reach Meraki Homes at ${apiHost()}. Put the phone and computer on the same network and confirm the backend port is reachable.`,
+      0,
+      undefined,
+      'network',
+    );
+  } finally {
+    clearTimeout(timer);
+    callerSignal?.removeEventListener('abort', abortFromCaller);
+  }
 }
 
-export const postJson = (body: unknown, headers?: Record<string, string>): RequestInit => ({ method: 'POST', body: JSON.stringify(body), headers });
+export const postJson = (body: unknown, headers?: Record<string, string>): RequestInit => ({
+  method: 'POST',
+  body: JSON.stringify(body),
+  headers,
+});
 export const patchJson = (body: unknown): RequestInit => ({ method: 'PATCH', body: JSON.stringify(body) });

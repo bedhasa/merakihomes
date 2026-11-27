@@ -1,25 +1,267 @@
-import React,{useState} from 'react';
-import {useTranslations} from 'next-intl';
-import {Booking} from '@shared/types';
-import {DemoPaymentReceipt,lookupDemoReceipt,simulateDemoPayment} from '@shared/api';
-import {useApiErrorMessage} from './useApiErrorMessage';
-import {translateDynamic} from './translateDynamic';
-import {useFormatters} from '../i18n/useFormatters';
+import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Booking } from '@shared/types';
+import { DemoPaymentReceipt, lookupDemoReceipt, simulateDemoPayment } from '@shared/api';
+import { useApiErrorMessage } from './useApiErrorMessage';
+import { translateDynamic } from './translateDynamic';
+import { useFormatters } from '../i18n/useFormatters';
 
-type Props={booking:Booking;total:number;currency:'ETB'|'USD';phone:string;onReceipt:(receipt:DemoPaymentReceipt)=>void;onSkip:()=>void};
-export const DemoPaymentStep:React.FC<Props>=({booking,total,currency,phone,onReceipt,onSkip})=>{
- const t=useTranslations('booking'),errorMessage=useApiErrorMessage();
- const {formatMoney,formatNumber}=useFormatters();
- const [type,setType]=useState<'full'|'partial'>('full'),[amount,setAmount]=useState(String(total)),[provider,setProvider]=useState<'telebirr'|'cbe'>('telebirr'),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
- const pay=async(outcome:'success'|'failed'|'cancelled')=>{const value=Number(amount);if(type==='full'&&value!==total){setError(t('payment.errFull'));return;}if(type==='partial'&&(!Number.isFinite(value)||value<=0||value>=total)){setError(t('payment.errPartial',{max:Math.max(1,total-1),currency}));return;}setBusy(true);setError('');setMessage('');try{const result=await simulateDemoPayment({reference:booking.id,phone,provider,amount:value,outcome,paymentType:type,idempotencyKey:crypto.randomUUID()});setMessage(result.message);if(result.receipt)onReceipt(result.receipt);}catch(e){setError(errorMessage(e,t('payment.errSimulate')));}finally{setBusy(false)}};
- const findReceipt=async()=>{setBusy(true);setError('');try{onReceipt(await lookupDemoReceipt(booking.id,phone));}catch(e){setError(errorMessage(e,t('payment.errNoReceipt')));}finally{setBusy(false)}};
- return <main className="min-h-[calc(100vh-5rem)] bg-[#F7F8FA] px-4 py-10"><section className="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 sm:p-8"><p className="text-xs font-semibold uppercase tracking-[.18em] text-[#8C6A2F]">{t('payment.eyebrow')}</p><h1 className="mt-2 text-2xl font-semibold text-[#102A43]">{t('payment.title')}</h1><p className="mt-2 text-sm leading-6 text-slate-600">{t('payment.intro')}</p><div className="mt-6 rounded-md bg-[#F7F8FA] p-4 text-sm"><p><strong>{t('payment.bookingLabel')}</strong> {booking.id}</p><p className="mt-1"><strong>{t('payment.serviceLabel')}</strong> {booking.serviceName}</p><p className="mt-1"><strong>{t('payment.totalLabel')}</strong> {formatMoney(total,currency)}</p></div><fieldset className="mt-6"><legend className="text-sm font-semibold text-[#102A43]">{t('payment.amountLegend')}</legend><div className="mt-2 grid gap-2 sm:grid-cols-2"><label className="flex min-h-12 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm"><input type="radio" checked={type==='full'} onChange={()=>{setType('full');setAmount(String(total));}}/>{t('payment.full')}</label><label className="flex min-h-12 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm"><input type="radio" checked={type==='partial'} onChange={()=>{setType('partial');setAmount(String(Math.max(1,Math.floor(total/2))));}}/>{t('payment.partial')}</label></div></fieldset>{type==='partial'&&<label className="mt-4 block text-sm font-medium">{t('payment.amountLabel')}<input type="number" min="1" max={Math.max(1,total-1)} step="0.01" value={amount} onChange={e=>setAmount(e.target.value)} className="mt-2 h-12 w-full rounded-md border border-slate-300 px-3"/><span className="mt-1 block text-xs text-slate-500">{t('payment.remaining',{amount:formatNumber(Math.max(0,total-(Number(amount)||0))),currency})}</span></label>}<label className="mt-4 block text-sm font-medium">{t('payment.method')}<select value={provider} onChange={e=>setProvider(e.target.value as 'telebirr'|'cbe')} className="mt-2 h-12 w-full rounded-md border border-slate-300 bg-white px-3"><option value="telebirr">{t('payment.telebirr')}</option><option value="cbe">{t('payment.cbe')}</option></select></label>{error&&<p role="alert" className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-800">{error}</p>}{message&&<p role="status" className="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900">{message}</p>}<div className="mt-6 grid gap-2 sm:grid-cols-3"><button disabled={busy} onClick={()=>void pay('success')} className="min-h-12 rounded-md bg-[#102A43] px-3 text-sm font-semibold text-white disabled:opacity-60">{busy?t('payment.working'):t('payment.success')}</button><button disabled={busy} onClick={()=>void pay('failed')} className="min-h-12 rounded-md border border-slate-300 px-3 text-sm font-semibold text-[#102A43] disabled:opacity-60">{t('payment.failure')}</button><button disabled={busy} onClick={()=>void pay('cancelled')} className="min-h-12 rounded-md border border-slate-300 px-3 text-sm font-semibold text-[#102A43] disabled:opacity-60">{t('payment.cancel')}</button></div><div className="mt-5 flex flex-wrap gap-4 border-t border-slate-100 pt-4"><button disabled={busy} onClick={()=>void findReceipt()} className="min-h-10 text-sm font-semibold text-[#102A43] underline">{t('payment.lookup')}</button><button onClick={onSkip} className="min-h-10 text-sm text-slate-600 underline">{t('payment.skip')}</button></div></section></main>;
+type Props = {
+  booking: Booking;
+  total: number;
+  currency: 'ETB' | 'USD';
+  phone: string;
+  onReceipt: (receipt: DemoPaymentReceipt) => void;
+  onSkip: () => void;
+};
+export const DemoPaymentStep: React.FC<Props> = ({ booking, total, currency, phone, onReceipt, onSkip }) => {
+  const t = useTranslations('booking'),
+    errorMessage = useApiErrorMessage();
+  const { formatMoney, formatNumber } = useFormatters();
+  const [type, setType] = useState<'full' | 'partial'>('full'),
+    [amount, setAmount] = useState(String(total)),
+    [provider, setProvider] = useState<'telebirr' | 'cbe'>('telebirr'),
+    [busy, setBusy] = useState(false),
+    [message, setMessage] = useState(''),
+    [error, setError] = useState('');
+  const pay = async (outcome: 'success' | 'failed' | 'cancelled') => {
+    const value = Number(amount);
+    if (type === 'full' && value !== total) {
+      setError(t('payment.errFull'));
+      return;
+    }
+    if (type === 'partial' && (!Number.isFinite(value) || value <= 0 || value >= total)) {
+      setError(t('payment.errPartial', { max: Math.max(1, total - 1), currency }));
+      return;
+    }
+    setBusy(true);
+    setError('');
+    setMessage('');
+    try {
+      const result = await simulateDemoPayment({
+        reference: booking.id,
+        phone,
+        provider,
+        amount: value,
+        outcome,
+        paymentType: type,
+        idempotencyKey: crypto.randomUUID(),
+      });
+      setMessage(result.message);
+      if (result.receipt) onReceipt(result.receipt);
+    } catch (e) {
+      setError(errorMessage(e, t('payment.errSimulate')));
+    } finally {
+      setBusy(false);
+    }
+  };
+  const findReceipt = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      onReceipt(await lookupDemoReceipt(booking.id, phone));
+    } catch (e) {
+      setError(errorMessage(e, t('payment.errNoReceipt')));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <main className="min-h-[calc(100vh-5rem)] bg-[#F7F8FA] px-4 py-10">
+      <section className="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[.18em] text-[#8C6A2F]">
+          {t('payment.eyebrow')}
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold text-[#102A43]">{t('payment.title')}</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{t('payment.intro')}</p>
+        <div className="mt-6 rounded-md bg-[#F7F8FA] p-4 text-sm">
+          <p>
+            <strong>{t('payment.bookingLabel')}</strong> {booking.id}
+          </p>
+          <p className="mt-1">
+            <strong>{t('payment.serviceLabel')}</strong> {booking.serviceName}
+          </p>
+          <p className="mt-1">
+            <strong>{t('payment.totalLabel')}</strong> {formatMoney(total, currency)}
+          </p>
+        </div>
+        <fieldset className="mt-6">
+          <legend className="text-sm font-semibold text-[#102A43]">{t('payment.amountLegend')}</legend>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <label className="flex min-h-12 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm">
+              <input
+                type="radio"
+                checked={type === 'full'}
+                onChange={() => {
+                  setType('full');
+                  setAmount(String(total));
+                }}
+              />
+              {t('payment.full')}
+            </label>
+            <label className="flex min-h-12 items-center gap-2 rounded-md border border-slate-200 px-3 text-sm">
+              <input
+                type="radio"
+                checked={type === 'partial'}
+                onChange={() => {
+                  setType('partial');
+                  setAmount(String(Math.max(1, Math.floor(total / 2))));
+                }}
+              />
+              {t('payment.partial')}
+            </label>
+          </div>
+        </fieldset>
+        {type === 'partial' && (
+          <label className="mt-4 block text-sm font-medium">
+            {t('payment.amountLabel')}
+            <input
+              type="number"
+              min="1"
+              max={Math.max(1, total - 1)}
+              step="0.01"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="mt-2 h-12 w-full rounded-md border border-slate-300 px-3"
+            />
+            <span className="mt-1 block text-xs text-slate-500">
+              {t('payment.remaining', {
+                amount: formatNumber(Math.max(0, total - (Number(amount) || 0))),
+                currency,
+              })}
+            </span>
+          </label>
+        )}
+        <label className="mt-4 block text-sm font-medium">
+          {t('payment.method')}
+          <select
+            value={provider}
+            onChange={(e) => setProvider(e.target.value as 'telebirr' | 'cbe')}
+            className="mt-2 h-12 w-full rounded-md border border-slate-300 bg-white px-3"
+          >
+            <option value="telebirr">{t('payment.telebirr')}</option>
+            <option value="cbe">{t('payment.cbe')}</option>
+          </select>
+        </label>
+        {error && (
+          <p role="alert" className="mt-4 rounded-md bg-red-50 p-3 text-sm text-red-800">
+            {error}
+          </p>
+        )}
+        {message && (
+          <p role="status" className="mt-4 rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+            {message}
+          </p>
+        )}
+        <div className="mt-6 grid gap-2 sm:grid-cols-3">
+          <button
+            disabled={busy}
+            onClick={() => void pay('success')}
+            className="min-h-12 rounded-md bg-[#102A43] px-3 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {busy ? t('payment.working') : t('payment.success')}
+          </button>
+          <button
+            disabled={busy}
+            onClick={() => void pay('failed')}
+            className="min-h-12 rounded-md border border-slate-300 px-3 text-sm font-semibold text-[#102A43] disabled:opacity-60"
+          >
+            {t('payment.failure')}
+          </button>
+          <button
+            disabled={busy}
+            onClick={() => void pay('cancelled')}
+            className="min-h-12 rounded-md border border-slate-300 px-3 text-sm font-semibold text-[#102A43] disabled:opacity-60"
+          >
+            {t('payment.cancel')}
+          </button>
+        </div>
+        <div className="mt-5 flex flex-wrap gap-4 border-t border-slate-100 pt-4">
+          <button
+            disabled={busy}
+            onClick={() => void findReceipt()}
+            className="min-h-10 text-sm font-semibold text-[#102A43] underline"
+          >
+            {t('payment.lookup')}
+          </button>
+          <button onClick={onSkip} className="min-h-10 text-sm text-slate-600 underline">
+            {t('payment.skip')}
+          </button>
+        </div>
+      </section>
+    </main>
+  );
 };
 
-export const DemoReceipt:React.FC<{receipt:DemoPaymentReceipt;onTrack:()=>void;onBookAnother:()=>void}>=({receipt,onTrack,onBookAnother})=>{
- const t=useTranslations('booking'),tCommon=useTranslations('common');
- const {formatMoney,formatDateTime}=useFormatters();
- const payStatus=(status:string)=>translateDynamic(t,`payStatus.${status}`,status.replaceAll('_',' '));
- const money=(amount:number)=>formatMoney(amount,receipt.currency);
- return <main className="min-h-[calc(100vh-5rem)] bg-[#F7F8FA] px-4 py-12"><article className="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 sm:p-9"><p className="text-center text-sm font-bold tracking-[.15em] text-[#102A43]">{tCommon('brand').toUpperCase()}</p><p className="mt-5 text-center text-xs font-semibold uppercase tracking-wider text-[#8C6A2F]">{t('receipt.simulated')}</p><h1 className="mt-2 text-center text-2xl font-semibold text-[#102A43]">{receipt.paymentStatus==='paid'?t('receipt.paid'):t('receipt.partial')}</h1><p className="mt-2 text-center text-sm text-slate-600">{t('receipt.noFunds')}</p><dl className="mt-6 divide-y divide-slate-100 border-y border-slate-100">{[[t('receipt.number'),receipt.receiptNumber],[t('receipt.reference'),receipt.bookingReference],[t('receipt.service'),receipt.serviceName],[t('receipt.package'),receipt.packageName],[t('receipt.total'),money(receipt.bookingTotal)],[t('receipt.method'),receipt.paymentMethod==='cbe'?t('payment.cbe'):t('payment.telebirr')],[t('receipt.transaction'),receipt.transactionReference],[t('receipt.thisPayment'),money(receipt.amountPaid)],[t('receipt.paidToDate'),money(receipt.totalPaid)],[t('receipt.remaining'),money(receipt.remainingBalance)],[t('receipt.status'),payStatus(receipt.paymentStatus)],[t('receipt.date'),formatDateTime(receipt.paidAt)]].map(([key,value])=><div key={key} className="grid gap-1 py-3 sm:grid-cols-[180px_1fr]"><dt className="text-xs text-slate-500">{key}</dt><dd className="text-sm text-[#102A43]">{value}</dd></div>)}</dl><p className="mt-5 rounded-md bg-amber-50 p-3 text-xs leading-5 text-amber-950">{t('receipt.disclaimer')}</p><div className="mt-6 flex flex-wrap justify-center gap-3"><button onClick={onTrack} className="min-h-11 rounded-md bg-[#102A43] px-4 text-sm font-semibold text-white">{t('receipt.track')}</button><button onClick={onBookAnother} className="min-h-11 rounded-md border border-slate-300 px-4 text-sm font-semibold text-[#102A43]">{t('receipt.bookAnother')}</button><button onClick={()=>window.print()} className="min-h-11 rounded-md border border-slate-300 px-4 text-sm font-semibold text-[#102A43]">{t('receipt.print')}</button></div></article></main>;
+export const DemoReceipt: React.FC<{
+  receipt: DemoPaymentReceipt;
+  onTrack: () => void;
+  onBookAnother: () => void;
+}> = ({ receipt, onTrack, onBookAnother }) => {
+  const t = useTranslations('booking'),
+    tCommon = useTranslations('common');
+  const { formatMoney, formatDateTime } = useFormatters();
+  const payStatus = (status: string) =>
+    translateDynamic(t, `payStatus.${status}`, status.replaceAll('_', ' '));
+  const money = (amount: number) => formatMoney(amount, receipt.currency);
+  return (
+    <main className="min-h-[calc(100vh-5rem)] bg-[#F7F8FA] px-4 py-12">
+      <article className="mx-auto max-w-2xl rounded-lg border border-slate-200 bg-white p-6 sm:p-9">
+        <p className="text-center text-sm font-bold tracking-[.15em] text-[#102A43]">
+          {tCommon('brand').toUpperCase()}
+        </p>
+        <p className="mt-5 text-center text-xs font-semibold uppercase tracking-wider text-[#8C6A2F]">
+          {t('receipt.simulated')}
+        </p>
+        <h1 className="mt-2 text-center text-2xl font-semibold text-[#102A43]">
+          {receipt.paymentStatus === 'paid' ? t('receipt.paid') : t('receipt.partial')}
+        </h1>
+        <p className="mt-2 text-center text-sm text-slate-600">{t('receipt.noFunds')}</p>
+        <dl className="mt-6 divide-y divide-slate-100 border-y border-slate-100">
+          {[
+            [t('receipt.number'), receipt.receiptNumber],
+            [t('receipt.reference'), receipt.bookingReference],
+            [t('receipt.service'), receipt.serviceName],
+            [t('receipt.package'), receipt.packageName],
+            [t('receipt.total'), money(receipt.bookingTotal)],
+            [t('receipt.method'), receipt.paymentMethod === 'cbe' ? t('payment.cbe') : t('payment.telebirr')],
+            [t('receipt.transaction'), receipt.transactionReference],
+            [t('receipt.thisPayment'), money(receipt.amountPaid)],
+            [t('receipt.paidToDate'), money(receipt.totalPaid)],
+            [t('receipt.remaining'), money(receipt.remainingBalance)],
+            [t('receipt.status'), payStatus(receipt.paymentStatus)],
+            [t('receipt.date'), formatDateTime(receipt.paidAt)],
+          ].map(([key, value]) => (
+            <div key={key} className="grid gap-1 py-3 sm:grid-cols-[180px_1fr]">
+              <dt className="text-xs text-slate-500">{key}</dt>
+              <dd className="text-sm text-[#102A43]">{value}</dd>
+            </div>
+          ))}
+        </dl>
+        <p className="mt-5 rounded-md bg-amber-50 p-3 text-xs leading-5 text-amber-950">
+          {t('receipt.disclaimer')}
+        </p>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <button
+            onClick={onTrack}
+            className="min-h-11 rounded-md bg-[#102A43] px-4 text-sm font-semibold text-white"
+          >
+            {t('receipt.track')}
+          </button>
+          <button
+            onClick={onBookAnother}
+            className="min-h-11 rounded-md border border-slate-300 px-4 text-sm font-semibold text-[#102A43]"
+          >
+            {t('receipt.bookAnother')}
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="min-h-11 rounded-md border border-slate-300 px-4 text-sm font-semibold text-[#102A43]"
+          >
+            {t('receipt.print')}
+          </button>
+        </div>
+      </article>
+    </main>
+  );
 };

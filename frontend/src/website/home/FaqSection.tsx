@@ -36,9 +36,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ onContactClick }) => {
           <h2 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#102A43] dark:text-white tracking-tight">
             {t('title')}
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300">
-            {t('subtitle')}
-          </p>
+          <p className="mt-4 text-base sm:text-lg text-slate-600 dark:text-slate-300">{t('subtitle')}</p>
         </div>
 
         <div className="space-y-4">
@@ -99,9 +97,7 @@ export const FaqSection: React.FC<FaqSectionProps> = ({ onContactClick }) => {
         <div className="mt-12 text-center p-6 rounded-2xl bg-white dark:bg-[#14283b] border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
           <div className="text-left">
             <h3 className="font-bold text-[#102A43] dark:text-white">{t('moreTitle')}</h3>
-            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-              {t('moreBody')}
-            </p>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300">{t('moreBody')}</p>
           </div>
           <button
             onClick={onContactClick}

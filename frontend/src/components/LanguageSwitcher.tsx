@@ -21,11 +21,7 @@ export function LanguageSwitcher({ className = '', compact = false }: Props) {
   };
 
   return (
-    <div
-      role="group"
-      aria-label={t('language')}
-      className={`inline-flex items-center gap-1 ${className}`}
-    >
+    <div role="group" aria-label={t('language')} className={`inline-flex items-center gap-1 ${className}`}>
       {uiLocales.map((code) => {
         const active = locale === code;
         return (

@@ -17,7 +17,21 @@ type PageProps = {
 // so every page returned 500 under `next start`. The [locale] layout still validates locales.
 export const dynamic = 'force-dynamic';
 
-const metaTitleKeys: Record<string, 'aboutTitle' | 'servicesTitle' | 'teamTitle' | 'trustTitle' | 'contactTitle' | 'faqTitle' | 'blogTitle' | 'bookingTitle' | 'trackTitle' | 'loginTitle' | 'registerTitle' | 'accountTitle'> = {
+const metaTitleKeys: Record<
+  string,
+  | 'aboutTitle'
+  | 'servicesTitle'
+  | 'teamTitle'
+  | 'trustTitle'
+  | 'contactTitle'
+  | 'faqTitle'
+  | 'blogTitle'
+  | 'bookingTitle'
+  | 'trackTitle'
+  | 'loginTitle'
+  | 'registerTitle'
+  | 'accountTitle'
+> = {
   about: 'aboutTitle',
   services: 'servicesTitle',
   team: 'teamTitle',

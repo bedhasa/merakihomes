@@ -128,13 +128,22 @@ export default function App({
           <small className="hidden text-[10px] text-white/65 sm:block">{tNav('customerPortal')}</small>
         </button>
         <nav className="flex items-center gap-2">
-          <Link href="/services" className="hidden px-3 py-2 text-sm text-white/80 hover:text-white sm:inline">
+          <Link
+            href="/services"
+            className="hidden px-3 py-2 text-sm text-white/80 hover:text-white sm:inline"
+          >
             {tNav('services')}
           </Link>
-          <Link href="/track-booking" className="hidden px-3 py-2 text-sm text-white/80 hover:text-white sm:inline">
+          <Link
+            href="/track-booking"
+            className="hidden px-3 py-2 text-sm text-white/80 hover:text-white sm:inline"
+          >
             {tNav('trackRequest')}
           </Link>
-          <LanguageSwitcher className="hidden sm:inline-flex [&_button]:text-white [&_button[aria-pressed=true]]:bg-white [&_button[aria-pressed=true]]:text-[#102A43]" compact />
+          <LanguageSwitcher
+            className="hidden sm:inline-flex [&_button]:text-white [&_button[aria-pressed=true]]:bg-white [&_button[aria-pressed=true]]:text-[#102A43]"
+            compact
+          />
           <Link
             href="/login"
             aria-label={tNav('ariaSignIn')}
@@ -143,7 +152,11 @@ export default function App({
             <LogIn size={16} />
             <span className="hidden sm:inline">{tNav('signIn')}</span>
           </Link>
-          <button onClick={toggleTheme} aria-label={themeLabel} className="rounded-sm p-2 text-white/80 hover:bg-white/10">
+          <button
+            onClick={toggleTheme}
+            aria-label={themeLabel}
+            className="rounded-sm p-2 text-white/80 hover:bg-white/10"
+          >
             {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </nav>
@@ -187,7 +200,9 @@ export default function App({
       />
     );
   } else if (path === '/track-booking' || bookingRoute) {
-    content = <RequestStatusLookup initialReference={bookingRoute ? decodeURIComponent(bookingRoute[1]) : ''} />;
+    content = (
+      <RequestStatusLookup initialReference={bookingRoute ? decodeURIComponent(bookingRoute[1]) : ''} />
+    );
   } else if (path === '/login' || path === '/register') {
     content = (
       <CustomerAuthPage
@@ -196,7 +211,9 @@ export default function App({
       />
     );
   } else if (path === '/my-account' || path === '/my-account/bookings') {
-    content = <CustomerAccountPage bookings={path.endsWith('/bookings')} onSignOut={() => navigate('/login')} />;
+    content = (
+      <CustomerAccountPage bookings={path.endsWith('/bookings')} onSignOut={() => navigate('/login')} />
+    );
   } else {
     content = (
       <main className="mx-auto max-w-2xl px-5 py-16">

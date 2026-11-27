@@ -29,10 +29,20 @@ const ADDIS_WEEKDAY = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }
 function addisTimeParts(value) {
   const date = new Date(value);
   if (!Number.isFinite(date.getTime())) return null;
-  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Africa/Addis_Ababa', year: 'numeric', month: '2-digit', day: '2-digit',
-    weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
-  }).formatToParts(date).map(part => [part.type, part.value]));
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Africa/Addis_Ababa',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      weekday: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .formatToParts(date)
+      .map((part) => [part.type, part.value]),
+  );
   return {
     date: `${parts.year}-${parts.month}-${parts.day}`,
     weekday: ADDIS_WEEKDAY[parts.weekday],
@@ -73,7 +83,10 @@ export function registerProfessionalRoutes(app, deps) {
   }
 
   function cookieValue(req, name) {
-    const pair = (req.headers.cookie || '').split(';').map(value => value.trim()).find(value => value.startsWith(`${name}=`));
+    const pair = (req.headers.cookie || '')
+      .split(';')
+      .map((value) => value.trim())
+      .find((value) => value.startsWith(`${name}=`));
     return pair ? decodeURIComponent(pair.slice(name.length + 1)) : '';
   }
 
@@ -99,7 +112,8 @@ export function registerProfessionalRoutes(app, deps) {
   /** Requires a signed-in, active, eligible professional. */
   const workerAuth = asyncRoute(async (req, res, next) => {
     const professional = await signedInProfessional(req);
-    if (!professional || !professional.credentialActive) return apiError(res, 401, 'Professional sign-in is required.');
+    if (!professional || !professional.credentialActive)
+      return apiError(res, 401, 'Professional sign-in is required.');
     if (professional.operationalStatus !== 'active' || professional.eligibilityStatus !== 'eligible') {
       return apiError(res, 403, 'This professional account is not currently eligible to share location.');
     }
@@ -113,11 +127,15 @@ export function registerProfessionalRoutes(app, deps) {
     // Precise coordinates are only exposed when the professional opted in and the
     // fix is not stale. Otherwise the marker is placed nowhere rather than at a
     // guess, and the client falls back to the list.
-    const visible = hasPosition && professional.locationSharingEnabled === true && ['live', 'recent'].includes(freshness);
+    const visible =
+      hasPosition && professional.locationSharingEnabled === true && ['live', 'recent'].includes(freshness);
     return {
       latitude: visible ? Number(professional.latitude) : null,
       longitude: visible ? Number(professional.longitude) : null,
-      accuracyMeters: visible && professional.locationAccuracyMeters !== null ? Number(professional.locationAccuracyMeters) : null,
+      accuracyMeters:
+        visible && professional.locationAccuracyMeters !== null
+          ? Number(professional.locationAccuracyMeters)
+          : null,
       locationVisible: visible,
       locationFreshness: freshness,
       locationUpdatedAt: professional.locationUpdatedAt ?? null,
@@ -143,54 +161,72 @@ export function registerProfessionalRoutes(app, deps) {
     };
   }
 
-  app.post('/api/professionals/auth/login', professionalLoginLimit, asyncRoute(async (req, res) => {
-    const phone = normalizedPhone(req.body?.phone);
-    const password = req.body?.password;
-    if (phone.length < 9 || phone.length > 15 || typeof password !== 'string') {
-      return apiError(res, 400, 'Enter the phone number registered with Meraki and your password.');
-    }
-    const { rows } = await pool.query(
-      `SELECT w.id, w.full_name AS name, w.worker_code AS "workerCode", a.password_hash, w.operational_status, w.eligibility_status
+  app.post(
+    '/api/professionals/auth/login',
+    professionalLoginLimit,
+    asyncRoute(async (req, res) => {
+      const phone = normalizedPhone(req.body?.phone);
+      const password = req.body?.password;
+      if (phone.length < 9 || phone.length > 15 || typeof password !== 'string') {
+        return apiError(res, 400, 'Enter the phone number registered with Meraki and your password.');
+      }
+      const { rows } = await pool.query(
+        `SELECT w.id, w.full_name AS name, w.worker_code AS "workerCode", a.password_hash, w.operational_status, w.eligibility_status
          FROM worker_auth a JOIN workers w ON w.id = a.worker_id
         WHERE regexp_replace(a.phone, '[^0-9]', '', 'g') = $1
           AND a.is_active = TRUE`,
-      [phone],
-    );
-    const account = rows[0];
-    if (!account || !passwordMatches(password, account.password_hash)) {
-      return apiError(res, 401, 'Phone number or password is incorrect.');
-    }
-    if (account.operational_status !== 'active' || account.eligibility_status !== 'eligible') {
-      return apiError(res, 403, 'This professional account is not currently active. Contact Meraki Operations.');
-    }
-    const token = signToken('worker', account.id);
-    writeCookie(res, 'meraki_worker_session', token);
-    res.json({ professional: { id: account.id, name: account.name, workerCode: account.workerCode }, accessToken: token });
-  }));
+        [phone],
+      );
+      const account = rows[0];
+      if (!account || !passwordMatches(password, account.password_hash)) {
+        return apiError(res, 401, 'Phone number or password is incorrect.');
+      }
+      if (account.operational_status !== 'active' || account.eligibility_status !== 'eligible') {
+        return apiError(
+          res,
+          403,
+          'This professional account is not currently active. Contact Meraki Operations.',
+        );
+      }
+      const token = signToken('worker', account.id);
+      writeCookie(res, 'meraki_worker_session', token);
+      res.json({
+        professional: { id: account.id, name: account.name, workerCode: account.workerCode },
+        accessToken: token,
+      });
+    }),
+  );
 
   app.post('/api/professionals/auth/logout', (_req, res) => {
     clearCookie(res, 'meraki_worker_session');
     res.status(204).end();
   });
 
-  app.get('/api/professionals/me', workerAuth, asyncRoute(async (req, res) => {
-    const professional = req.professional;
-    res.json({
-      professional: {
-        id: professional.id,
-        name: professional.name,
-        workerCode: professional.workerCode,
-        photoUrl: professional.photoUrl,
-        serviceArea: professional.serviceArea,
-        locationSharingEnabled: professional.locationSharingEnabled === true,
-        ...publicProfessional(professional),
-      },
-    });
-  }));
+  app.get(
+    '/api/professionals/me',
+    workerAuth,
+    asyncRoute(async (req, res) => {
+      const professional = req.professional;
+      res.json({
+        professional: {
+          id: professional.id,
+          name: professional.name,
+          workerCode: professional.workerCode,
+          photoUrl: professional.photoUrl,
+          serviceArea: professional.serviceArea,
+          locationSharingEnabled: professional.locationSharingEnabled === true,
+          ...publicProfessional(professional),
+        },
+      });
+    }),
+  );
 
-  app.get('/api/professionals/me/bookings', workerAuth, asyncRoute(async (req, res) => {
-    const { rows } = await pool.query(
-      `SELECT DISTINCT b.id AS "bookingId", b.reference, b.status,
+  app.get(
+    '/api/professionals/me/bookings',
+    workerAuth,
+    asyncRoute(async (req, res) => {
+      const { rows } = await pool.query(
+        `SELECT DISTINCT b.id AS "bookingId", b.reference, b.status,
               b.customer_name_snapshot AS "customerName", b.requested_start AS "requestedStart",
               bi.id AS "itemId", bi.service_name_snapshot AS "serviceName",
               ba.assignment_status AS "assignmentStatus"
@@ -200,20 +236,25 @@ export function registerProfessionalRoutes(app, deps) {
         WHERE ba.worker_id = $1 AND ba.assignment_status = ANY($2::text[])
           AND b.status = ANY($3::text[])
         ORDER BY b.requested_start DESC`,
-      [req.professional.id, ACTIVE_ASSIGNMENT_STATUSES, TRACKABLE_BOOKING_STATUSES],
-    );
-    res.json({ bookings: rows });
-  }));
+        [req.professional.id, ACTIVE_ASSIGNMENT_STATUSES, TRACKABLE_BOOKING_STATUSES],
+      );
+      res.json({ bookings: rows });
+    }),
+  );
 
   // ---------------------------------------------------------------------------
   // Professional location updates
   // ---------------------------------------------------------------------------
 
-  app.patch('/api/professionals/me/location-settings', workerAuth, asyncRoute(async (req, res) => {
-    const shareLocation = req.body?.shareLocation;
-    if (typeof shareLocation !== 'boolean') return apiError(res, 400, 'Send shareLocation as true or false.');
-    const { rows } = await pool.query(
-      `UPDATE workers SET location_sharing_enabled = $2,
+  app.patch(
+    '/api/professionals/me/location-settings',
+    workerAuth,
+    asyncRoute(async (req, res) => {
+      const shareLocation = req.body?.shareLocation;
+      if (typeof shareLocation !== 'boolean')
+        return apiError(res, 400, 'Send shareLocation as true or false.');
+      const { rows } = await pool.query(
+        `UPDATE workers SET location_sharing_enabled = $2,
               latitude = CASE WHEN $2 THEN latitude ELSE NULL END,
               longitude = CASE WHEN $2 THEN longitude ELSE NULL END,
               location_accuracy_meters = CASE WHEN $2 THEN location_accuracy_meters ELSE NULL END,
@@ -224,36 +265,47 @@ export function registerProfessionalRoutes(app, deps) {
         RETURNING location_sharing_enabled AS "locationSharingEnabled",
                   latitude, longitude, location_accuracy_meters AS "locationAccuracyMeters",
                   location_updated_at AS "locationUpdatedAt"`,
-      [req.professional.id, shareLocation],
-    );
-    res.json({ locationSharingEnabled: rows[0].locationSharingEnabled, ...publicProfessional(rows[0]) });
-  }));
+        [req.professional.id, shareLocation],
+      );
+      res.json({ locationSharingEnabled: rows[0].locationSharingEnabled, ...publicProfessional(rows[0]) });
+    }),
+  );
 
-  app.post('/api/professionals/me/location', workerAuth, locationUpdateLimit, asyncRoute(async (req, res) => {
-    const latitude = req.body?.latitude;
-    const longitude = req.body?.longitude;
-    const accuracyMeters = req.body?.accuracyMeters ?? null;
+  app.post(
+    '/api/professionals/me/location',
+    workerAuth,
+    locationUpdateLimit,
+    asyncRoute(async (req, res) => {
+      const latitude = req.body?.latitude;
+      const longitude = req.body?.longitude;
+      const accuracyMeters = req.body?.accuracyMeters ?? null;
 
-    const coordinateProblem = coordinateError(latitude, longitude, { required: true });
-    if (coordinateProblem) return apiError(res, 400, coordinateProblem);
-    const accuracyProblem = accuracyError(accuracyMeters);
-    if (accuracyProblem) return apiError(res, 400, accuracyProblem);
+      const coordinateProblem = coordinateError(latitude, longitude, { required: true });
+      if (coordinateProblem) return apiError(res, 400, coordinateProblem);
+      const accuracyProblem = accuracyError(accuracyMeters);
+      if (accuracyProblem) return apiError(res, 400, accuracyProblem);
 
-    // A professional can only ever write their own row: the id comes from the
-    // verified token, never from the request body.
-    const { rows } = await pool.query(
-      `UPDATE workers SET latitude = $2, longitude = $3, location_accuracy_meters = $4,
+      // A professional can only ever write their own row: the id comes from the
+      // verified token, never from the request body.
+      const { rows } = await pool.query(
+        `UPDATE workers SET latitude = $2, longitude = $3, location_accuracy_meters = $4,
               location_updated_at = now(), location_source = 'device', updated_at = now()
         WHERE id = $1 AND operational_status = 'active' AND eligibility_status = 'eligible' AND location_sharing_enabled = TRUE
         RETURNING latitude, longitude, location_accuracy_meters AS "locationAccuracyMeters",
                   location_updated_at AS "locationUpdatedAt",
                   location_sharing_enabled AS "locationSharingEnabled"`,
-      [req.professional.id, Number(latitude), Number(longitude), accuracyMeters === null ? null : Number(accuracyMeters)],
-    );
-    if (!rows.length) return apiError(res, 403, 'This professional account cannot update its location.');
-    res.json({ location: publicProfessional(rows[0]) });
-  }));
-// ---------------------------------------------------------------------------
+        [
+          req.professional.id,
+          Number(latitude),
+          Number(longitude),
+          accuracyMeters === null ? null : Number(accuracyMeters),
+        ],
+      );
+      if (!rows.length) return apiError(res, 403, 'This professional account cannot update its location.');
+      res.json({ location: publicProfessional(rows[0]) });
+    }),
+  );
+  // ---------------------------------------------------------------------------
   // Nearby discovery
   // ---------------------------------------------------------------------------
 
@@ -271,7 +323,8 @@ export function registerProfessionalRoutes(app, deps) {
     const coordinateProblem = coordinateError(latitude, longitude, { required: true });
     if (coordinateProblem) filterErrors.push(coordinateProblem);
 
-    const serviceId = typeof query.serviceId === 'string' && query.serviceId.trim() ? query.serviceId.trim() : null;
+    const serviceId =
+      typeof query.serviceId === 'string' && query.serviceId.trim() ? query.serviceId.trim() : null;
     if (serviceId && serviceId.length > 80) filterErrors.push('Choose a valid service.');
 
     let radiusKm = NEARBY_DEFAULT_RADIUS_KM;
@@ -287,7 +340,8 @@ export function registerProfessionalRoutes(app, deps) {
     let minRating = null;
     if (query.minRating !== undefined && query.minRating !== '') {
       const value = Number(query.minRating);
-      if (!Number.isFinite(value) || value < 0 || value > 5) filterErrors.push('Minimum rating must be between 0 and 5.');
+      if (!Number.isFinite(value) || value < 0 || value > 5)
+        filterErrors.push('Minimum rating must be between 0 and 5.');
       else minRating = value;
     }
 
@@ -298,9 +352,11 @@ export function registerProfessionalRoutes(app, deps) {
       else maxRate = value;
     }
 
-    if (query.availableOnly !== undefined && !['true', 'false', true, false].includes(query.availableOnly)) filterErrors.push('Availability filter must be true or false.');
+    if (query.availableOnly !== undefined && !['true', 'false', true, false].includes(query.availableOnly))
+      filterErrors.push('Availability filter must be true or false.');
     const availableOnly = query.availableOnly === 'true' || query.availableOnly === true;
-    if (query.sort !== undefined && !['distance', 'rating', 'price'].includes(query.sort)) filterErrors.push('Choose distance, rating, or price sorting.');
+    if (query.sort !== undefined && !['distance', 'rating', 'price'].includes(query.sort))
+      filterErrors.push('Choose distance, rating, or price sorting.');
     const sorting = query.sort || 'distance';
 
     return {
@@ -317,31 +373,42 @@ export function registerProfessionalRoutes(app, deps) {
     };
   }
 
-  app.get('/api/professionals/nearby', nearbyLimit, asyncRoute(async (req, res) => {
-    const filters = parseNearbyFilters(req.query);
-    if (filters.errors.length) return apiError(res, 400, filters.errors[0]);
+  app.get(
+    '/api/professionals/nearby',
+    nearbyLimit,
+    asyncRoute(async (req, res) => {
+      const filters = parseNearbyFilters(req.query);
+      if (filters.errors.length) return apiError(res, 400, filters.errors[0]);
 
-    if (req.query.requestedStart !== undefined
-      && (typeof req.query.requestedStart !== 'string' || !Number.isFinite(Date.parse(req.query.requestedStart)))) {
-      return apiError(res, 400, 'Choose a valid preferred time.');
-    }
-    const requestedStartAt = typeof req.query.requestedStart === 'string'
-      ? new Date(req.query.requestedStart)
-      : new Date(Date.now() + 60 * 60 * 1000);
-    if (requestedStartAt.getTime() <= Date.now()) return apiError(res, 400, 'Choose a preferred time in the future.');
+      if (
+        req.query.requestedStart !== undefined &&
+        (typeof req.query.requestedStart !== 'string' ||
+          !Number.isFinite(Date.parse(req.query.requestedStart)))
+      ) {
+        return apiError(res, 400, 'Choose a valid preferred time.');
+      }
+      const requestedStartAt =
+        typeof req.query.requestedStart === 'string'
+          ? new Date(req.query.requestedStart)
+          : new Date(Date.now() + 60 * 60 * 1000);
+      if (requestedStartAt.getTime() <= Date.now())
+        return apiError(res, 400, 'Choose a preferred time in the future.');
 
-    const parts = addisTimeParts(requestedStartAt.toISOString());
-    if (!parts) return apiError(res, 400, 'Choose a valid preferred time.');
+      const parts = addisTimeParts(requestedStartAt.toISOString());
+      if (!parts) return apiError(res, 400, 'Choose a valid preferred time.');
 
-    let durationMinutes = 60;
-    if (filters.serviceId) {
-      const service = await pool.query('SELECT estimated_duration_minutes FROM services WHERE id = $1 AND is_active = TRUE', [filters.serviceId]);
-      if (!service.rowCount) return apiError(res, 404, 'This service is unavailable.');
-      durationMinutes = service.rows[0].estimated_duration_minutes;
-    }
+      let durationMinutes = 60;
+      if (filters.serviceId) {
+        const service = await pool.query(
+          'SELECT estimated_duration_minutes FROM services WHERE id = $1 AND is_active = TRUE',
+          [filters.serviceId],
+        );
+        if (!service.rowCount) return apiError(res, 404, 'This service is unavailable.');
+        durationMinutes = service.rows[0].estimated_duration_minutes;
+      }
 
-    const { rows } = await pool.query(
-      `SELECT w.id, w.worker_code AS "workerCode", w.full_name AS name, w.photo_url AS "photoUrl",
+      const { rows } = await pool.query(
+        `SELECT w.id, w.worker_code AS "workerCode", w.full_name AS name, w.photo_url AS "photoUrl",
               w.service_area AS "serviceArea", w.latitude, w.longitude,
               w.location_accuracy_meters AS "locationAccuracyMeters",
               w.location_updated_at AS "locationUpdatedAt",
@@ -392,79 +459,100 @@ export function registerProfessionalRoutes(app, deps) {
                                                 AND skill.verification_status = 'verified'
                                                 AND (skill.valid_until IS NULL OR skill.valid_until >= CURRENT_DATE)))
         GROUP BY w.id`,
-      [filters.serviceId, parts.date, parts.weekday, parts.time, durationMinutes, requestedStartAt.toISOString()],
-    );
+        [
+          filters.serviceId,
+          parts.date,
+          parts.weekday,
+          parts.time,
+          durationMinutes,
+          requestedStartAt.toISOString(),
+        ],
+      );
 
-    const professionals = [];
-    for (const row of rows) {
-      const availability = availabilityOf(row);
-      const rating = row.rating === null ? null : Number(row.rating);
-      const baseRate = row.baseRate === null ? null : Number(row.baseRate);
-      const position = publicListingPosition(row);
-      // Discovery is distance based, so only professionals who explicitly share a
-      // recent, usable position can be included in the selected radius.
-      if (filters.hasLocationFilter && !position.locationVisible) continue;
-      // Distance from the rounded public position, never the exact one (see publicListingPosition).
-      const meters = filters.hasLocationFilter ? haversineMeters(filters.latitude, filters.longitude, position.latitude, position.longitude) : null;
-      const distance = distancePayload(meters);
-      if (filters.hasLocationFilter && (meters === null || meters > filters.radiusKm * 1000)) continue;
-      if (filters.availableOnly && availability !== 'available') continue;
-      if (filters.minRating !== null && (rating === null || rating < filters.minRating)) continue;
-      if (filters.maxRate !== null && (baseRate === null || baseRate > filters.maxRate)) continue;
+      const professionals = [];
+      for (const row of rows) {
+        const availability = availabilityOf(row);
+        const rating = row.rating === null ? null : Number(row.rating);
+        const baseRate = row.baseRate === null ? null : Number(row.baseRate);
+        const position = publicListingPosition(row);
+        // Discovery is distance based, so only professionals who explicitly share a
+        // recent, usable position can be included in the selected radius.
+        if (filters.hasLocationFilter && !position.locationVisible) continue;
+        // Distance from the rounded public position, never the exact one (see publicListingPosition).
+        const meters = filters.hasLocationFilter
+          ? haversineMeters(filters.latitude, filters.longitude, position.latitude, position.longitude)
+          : null;
+        const distance = distancePayload(meters);
+        if (filters.hasLocationFilter && (meters === null || meters > filters.radiusKm * 1000)) continue;
+        if (filters.availableOnly && availability !== 'available') continue;
+        if (filters.minRating !== null && (rating === null || rating < filters.minRating)) continue;
+        if (filters.maxRate !== null && (baseRate === null || baseRate > filters.maxRate)) continue;
 
-      professionals.push({
-        id: row.id,
-        name: row.name,
-        photoUrl: row.photoUrl,
-        serviceArea: row.serviceArea,
-        services: row.services,
-        serviceIds: row.serviceIds,
-        skills: row.skills,
-        baseRate,
-        rateCurrency: row.rateCurrency?.trim() ?? null,
-        rating,
-        reviewCount: row.reviewCount,
-        isDemo: row.isDemo,
-        availability,
-        ...position,
-        distanceMeters: distance.distanceMeters,
-        distanceKm: distance.distanceKm,
-        distanceLabel: distance.distanceLabel,
-        distanceKind: distance.distanceKind,
+        professionals.push({
+          id: row.id,
+          name: row.name,
+          photoUrl: row.photoUrl,
+          serviceArea: row.serviceArea,
+          services: row.services,
+          serviceIds: row.serviceIds,
+          skills: row.skills,
+          baseRate,
+          rateCurrency: row.rateCurrency?.trim() ?? null,
+          rating,
+          reviewCount: row.reviewCount,
+          isDemo: row.isDemo,
+          availability,
+          ...position,
+          distanceMeters: distance.distanceMeters,
+          distanceKm: distance.distanceKm,
+          distanceLabel: distance.distanceLabel,
+          distanceKind: distance.distanceKind,
+        });
+      }
+
+      const sorters = {
+        distance: (a, b) =>
+          (a.distanceMeters ?? Number.MAX_SAFE_INTEGER) - (b.distanceMeters ?? Number.MAX_SAFE_INTEGER) ||
+          (b.rating ?? 0) - (a.rating ?? 0),
+        rating: (a, b) =>
+          (b.rating ?? -1) - (a.rating ?? -1) ||
+          (a.distanceMeters ?? Number.MAX_SAFE_INTEGER) - (b.distanceMeters ?? Number.MAX_SAFE_INTEGER),
+        price: (a, b) =>
+          (a.baseRate ?? Number.MAX_SAFE_INTEGER) - (b.baseRate ?? Number.MAX_SAFE_INTEGER) ||
+          (a.distanceMeters ?? Number.MAX_SAFE_INTEGER) - (b.distanceMeters ?? Number.MAX_SAFE_INTEGER),
+      };
+      professionals.sort(sorters[filters.sorting]);
+      const limited = professionals.slice(0, NEARBY_RESULT_LIMIT);
+
+      res.json({
+        professionals: limited,
+        total: professionals.length,
+        returned: limited.length,
+        center: filters.hasLocationFilter
+          ? { latitude: filters.latitude, longitude: filters.longitude }
+          : null,
+        radiusKm: filters.radiusKm,
+        requestedStart: requestedStartAt.toISOString(),
+        sort: filters.sorting,
+        distanceKind: 'straight_line',
+        availabilitySource: limited.some((item) => item.isDemo)
+          ? 'demo schedules and assignments'
+          : 'configured schedules and assignments',
+        demoData: limited.some((item) => item.isDemo),
       });
-    }
-
-    const sorters = {
-      distance: (a, b) => (a.distanceMeters ?? Number.MAX_SAFE_INTEGER) - (b.distanceMeters ?? Number.MAX_SAFE_INTEGER)
-        || (b.rating ?? 0) - (a.rating ?? 0),
-      rating: (a, b) => (b.rating ?? -1) - (a.rating ?? -1) || (a.distanceMeters ?? Number.MAX_SAFE_INTEGER) - (b.distanceMeters ?? Number.MAX_SAFE_INTEGER),
-      price: (a, b) => (a.baseRate ?? Number.MAX_SAFE_INTEGER) - (b.baseRate ?? Number.MAX_SAFE_INTEGER)
-        || (a.distanceMeters ?? Number.MAX_SAFE_INTEGER) - (b.distanceMeters ?? Number.MAX_SAFE_INTEGER),
-    };
-    professionals.sort(sorters[filters.sorting]);
-    const limited = professionals.slice(0, NEARBY_RESULT_LIMIT);
-
-    res.json({
-      professionals: limited,
-      total: professionals.length,
-      returned: limited.length,
-      center: filters.hasLocationFilter ? { latitude: filters.latitude, longitude: filters.longitude } : null,
-      radiusKm: filters.radiusKm,
-      requestedStart: requestedStartAt.toISOString(),
-      sort: filters.sorting,
-      distanceKind: 'straight_line',
-      availabilitySource: limited.some(item => item.isDemo) ? 'demo schedules and assignments' : 'configured schedules and assignments',
-      demoData: limited.some(item => item.isDemo),
-    });
-  }));
+    }),
+  );
 
   // Registered after /nearby so the literal path wins over the :id parameter.
-  app.get('/api/professionals/:id', publicLimit, asyncRoute(async (req, res) => {
-    const id = String(req.params.id);
-    if (!/^[0-9a-f-]{36}$/i.test(id)) return apiError(res, 404, 'Professional not found.');
+  app.get(
+    '/api/professionals/:id',
+    publicLimit,
+    asyncRoute(async (req, res) => {
+      const id = String(req.params.id);
+      if (!/^[0-9a-f-]{36}$/i.test(id)) return apiError(res, 404, 'Professional not found.');
 
-    const { rows } = await pool.query(
-      `SELECT w.id, w.worker_code AS "workerCode", w.full_name AS name, w.photo_url AS "photoUrl",
+      const { rows } = await pool.query(
+        `SELECT w.id, w.worker_code AS "workerCode", w.full_name AS name, w.photo_url AS "photoUrl",
               w.service_area AS "serviceArea", w.latitude, w.longitude,
               w.location_accuracy_meters AS "locationAccuracyMeters",
               w.location_updated_at AS "locationUpdatedAt",
@@ -479,43 +567,48 @@ export function registerProfessionalRoutes(app, deps) {
          LEFT JOIN services s ON s.id = ws.service_id AND s.is_active = TRUE
         WHERE w.id = $1 AND w.operational_status = 'active' AND w.eligibility_status = 'eligible' AND w.is_demo = FALSE
         GROUP BY w.id`,
-      [id],
-    );
-    const row = rows[0];
-    if (!row) return apiError(res, 404, 'Professional not found.');
+        [id],
+      );
+      const row = rows[0];
+      if (!row) return apiError(res, 404, 'Professional not found.');
 
-    const position = publicListingPosition(row);
-    const latitude = req.query.latitude === undefined ? null : Number(req.query.latitude);
-    const longitude = req.query.longitude === undefined ? null : Number(req.query.longitude);
-    // Distance from the rounded public position only; null when the position is not shared.
-    const meters = coordinateError(req.query.latitude, req.query.longitude) === null && latitude !== null && longitude !== null && position.locationVisible
-      ? haversineMeters(latitude, longitude, position.latitude, position.longitude)
-      : null;
-    const distance = distancePayload(position.locationFreshness === 'stale' ? null : meters);
+      const position = publicListingPosition(row);
+      const latitude = req.query.latitude === undefined ? null : Number(req.query.latitude);
+      const longitude = req.query.longitude === undefined ? null : Number(req.query.longitude);
+      // Distance from the rounded public position only; null when the position is not shared.
+      const meters =
+        coordinateError(req.query.latitude, req.query.longitude) === null &&
+        latitude !== null &&
+        longitude !== null &&
+        position.locationVisible
+          ? haversineMeters(latitude, longitude, position.latitude, position.longitude)
+          : null;
+      const distance = distancePayload(position.locationFreshness === 'stale' ? null : meters);
 
-    // Public profile only: no phone, no email, no private address, no account rows.
-    res.json({
-      professional: {
-        id: row.id,
-        workerCode: row.workerCode,
-        name: row.name,
-        photoUrl: row.photoUrl,
-        serviceArea: row.serviceArea,
-        services: row.services,
-        serviceIds: row.serviceIds,
-        skills: row.skills,
-        rating: row.rating === null ? null : Number(row.rating),
-        reviewCount: row.reviewCount,
-        baseRate: row.baseRate === null ? null : Number(row.baseRate),
-        rateCurrency: row.rateCurrency?.trim() ?? null,
-        isDemo: row.isDemo,
-        verified: true,
-        ...position,
-        ...distance,
-      },
-    });
-  }));
-// ---------------------------------------------------------------------------
+      // Public profile only: no phone, no email, no private address, no account rows.
+      res.json({
+        professional: {
+          id: row.id,
+          workerCode: row.workerCode,
+          name: row.name,
+          photoUrl: row.photoUrl,
+          serviceArea: row.serviceArea,
+          services: row.services,
+          serviceIds: row.serviceIds,
+          skills: row.skills,
+          rating: row.rating === null ? null : Number(row.rating),
+          reviewCount: row.reviewCount,
+          baseRate: row.baseRate === null ? null : Number(row.baseRate),
+          rateCurrency: row.rateCurrency?.trim() ?? null,
+          isDemo: row.isDemo,
+          verified: true,
+          ...position,
+          ...distance,
+        },
+      });
+    }),
+  );
+  // ---------------------------------------------------------------------------
   // Booking-scoped live location sharing (requires consent from both parties)
   // ---------------------------------------------------------------------------
 
@@ -533,13 +626,20 @@ export function registerProfessionalRoutes(app, deps) {
 
   async function resolveSharingActor(req) {
     const professional = await signedInProfessional(req);
-    if (professional && professional.credentialActive
-      && professional.operationalStatus === 'active' && professional.eligibilityStatus === 'eligible') {
+    if (
+      professional &&
+      professional.credentialActive &&
+      professional.operationalStatus === 'active' &&
+      professional.eligibilityStatus === 'eligible'
+    ) {
       return { workerId: professional.id, name: professional.name, isProfessional: true };
     }
     const claims = customerClaims(req);
     if (claims) {
-      const { rows } = await pool.query("SELECT id, full_name AS name FROM customers WHERE id = $1 AND account_status = 'active'", [claims.sub]);
+      const { rows } = await pool.query(
+        "SELECT id, full_name AS name FROM customers WHERE id = $1 AND account_status = 'active'",
+        [claims.sub],
+      );
       if (rows[0]) return { customerId: rows[0].id, name: rows[0].name, isProfessional: false };
     }
     return null;
@@ -556,7 +656,8 @@ export function registerProfessionalRoutes(app, deps) {
     const booking = rows[0];
     // Cross-account probing must not reveal whether a booking exists.
     if (!booking) return { error: [404, 'Booking not found.'] };
-    if (actor.customerId && booking.customerId !== actor.customerId) return { error: [404, 'Booking not found.'] };
+    if (actor.customerId && booking.customerId !== actor.customerId)
+      return { error: [404, 'Booking not found.'] };
 
     const assigned = await pool.query(
       `SELECT DISTINCT ba.worker_id AS "workerId", w.full_name AS "workerName"
@@ -564,9 +665,11 @@ export function registerProfessionalRoutes(app, deps) {
         WHERE ba.booking_id = $1 AND ba.assignment_status = ANY($2::text[])`,
       [bookingId, ACTIVE_ASSIGNMENT_STATUSES],
     );
-    const assignedWorkerIds = assigned.rows.map(row => row.workerId);
-    if (actor.workerId && !assignedWorkerIds.includes(actor.workerId)) return { error: [404, 'Booking not found.'] };
-    if (!actor.customerId && !actor.workerId) return { error: [401, 'Sign in to manage live location sharing.'] };
+    const assignedWorkerIds = assigned.rows.map((row) => row.workerId);
+    if (actor.workerId && !assignedWorkerIds.includes(actor.workerId))
+      return { error: [404, 'Booking not found.'] };
+    if (!actor.customerId && !actor.workerId)
+      return { error: [401, 'Sign in to manage live location sharing.'] };
 
     return { booking, assigned: assigned.rows, assignedWorkerIds };
   }
@@ -591,14 +694,19 @@ export function registerProfessionalRoutes(app, deps) {
    * permanently stops the session so later reads and updates are rejected.
    */
   async function enforceSessionLifecycle(session, booking, assignedWorkerIds) {
-    if (!['pending_customer_consent', 'pending_professional_consent', 'active'].includes(session.status)) return session;
+    if (!['pending_customer_consent', 'pending_professional_consent', 'active'].includes(session.status))
+      return session;
 
     if (new Date(session.expiresAt).getTime() <= Date.now()) {
       return (await markSessionStopped(session.id, 'expired')) ?? session;
     }
     if (!TRACKABLE_BOOKING_STATUSES.includes(booking.status)) {
-      const reason = booking.status === 'cancelled' ? 'booking_cancelled'
-        : booking.status === 'completed' ? 'booking_completed' : 'booking_not_active';
+      const reason =
+        booking.status === 'cancelled'
+          ? 'booking_cancelled'
+          : booking.status === 'completed'
+            ? 'booking_completed'
+            : 'booking_not_active';
       return (await markSessionStopped(session.id, reason)) ?? session;
     }
     if (!assignedWorkerIds.includes(session.workerId)) {
@@ -624,12 +732,24 @@ export function registerProfessionalRoutes(app, deps) {
     // Each side only ever receives the other side's position, and only while the
     // session is active. Pending consent reveals nothing.
     const counterpart = active
-      ? (isCustomer
-        ? positionView(session.workerLatitude, session.workerLongitude, session.workerAccuracyMeters, session.workerLocationUpdatedAt)
-        : positionView(session.customerLatitude, session.customerLongitude, session.customerAccuracyMeters, session.customerLocationUpdatedAt))
+      ? isCustomer
+        ? positionView(
+            session.workerLatitude,
+            session.workerLongitude,
+            session.workerAccuracyMeters,
+            session.workerLocationUpdatedAt,
+          )
+        : positionView(
+            session.customerLatitude,
+            session.customerLongitude,
+            session.customerAccuracyMeters,
+            session.customerLocationUpdatedAt,
+          )
       : null;
     const counterpartUpdatedAt = active
-      ? (isCustomer ? session.workerLocationUpdatedAt : session.customerLocationUpdatedAt)
+      ? isCustomer
+        ? session.workerLocationUpdatedAt
+        : session.customerLocationUpdatedAt
       : null;
 
     return {
@@ -658,106 +778,144 @@ export function registerProfessionalRoutes(app, deps) {
     return null;
   }
 
-  app.get('/api/bookings/:bookingId/location-sharing', sharingReadLimit, asyncRoute(async (req, res) => {
-    const actor = await resolveSharingActor(req);
-    if (!actor) return apiError(res, 401, 'Sign in to view live location sharing.');
-    const parties = await loadBookingParties(req.params.bookingId, actor);
-    if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
+  app.get(
+    '/api/bookings/:bookingId/location-sharing',
+    sharingReadLimit,
+    asyncRoute(async (req, res) => {
+      const actor = await resolveSharingActor(req);
+      if (!actor) return apiError(res, 401, 'Sign in to view live location sharing.');
+      const parties = await loadBookingParties(req.params.bookingId, actor);
+      if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
 
-    const { rows } = await pool.query(
-      `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
+      const { rows } = await pool.query(
+        `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
         WHERE booking_id = $1 AND ($2::uuid IS NULL OR worker_id = $2)
         ORDER BY created_at DESC LIMIT 20`,
-      [parties.booking.id, actor.workerId ?? null],
-    );
-    const nameByWorker = new Map(parties.assigned.map(row => [row.workerId, row.workerName]));
+        [parties.booking.id, actor.workerId ?? null],
+      );
+      const nameByWorker = new Map(parties.assigned.map((row) => [row.workerId, row.workerName]));
 
-    const sessions = [];
-    for (const row of rows) {
-      const live = await enforceSessionLifecycle(row, parties.booking, parties.assignedWorkerIds);
-      sessions.push(sessionView(live, actor, nameByWorker.get(live.workerId)));
-    }
+      const sessions = [];
+      for (const row of rows) {
+        const live = await enforceSessionLifecycle(row, parties.booking, parties.assignedWorkerIds);
+        sessions.push(sessionView(live, actor, nameByWorker.get(live.workerId)));
+      }
 
-    const trackable = TRACKABLE_BOOKING_STATUSES.includes(parties.booking.status) && parties.assignedWorkerIds.length > 0;
-    res.json({
-      bookingId: parties.booking.id,
-      bookingReference: parties.booking.reference,
-      bookingStatus: parties.booking.status,
-      trackable,
-      sessions,
-      assignedProfessionals: parties.assigned.map(row => ({ workerId: row.workerId, name: row.workerName })),
-      notice: trackable
-        ? 'Live location starts only after both you and the assigned professional consent, and stops as soon as either of you withdraws.'
-        : 'Live location sharing is only available while a booking is confirmed or in progress and a professional is assigned.',
-    });
-  }));
+      const trackable =
+        TRACKABLE_BOOKING_STATUSES.includes(parties.booking.status) && parties.assignedWorkerIds.length > 0;
+      res.json({
+        bookingId: parties.booking.id,
+        bookingReference: parties.booking.reference,
+        bookingStatus: parties.booking.status,
+        trackable,
+        sessions,
+        assignedProfessionals: parties.assigned.map((row) => ({
+          workerId: row.workerId,
+          name: row.workerName,
+        })),
+        notice: trackable
+          ? 'Live location starts only after both you and the assigned professional consent, and stops as soon as either of you withdraws.'
+          : 'Live location sharing is only available while a booking is confirmed or in progress and a professional is assigned.',
+      });
+    }),
+  );
 
-  app.post('/api/bookings/:bookingId/location-sharing/consent', sharingUpdateLimit, asyncRoute(async (req, res) => {
-    const actor = await resolveSharingActor(req);
-    if (!actor) return apiError(res, 401, 'Sign in to manage live location consent.');
-    const decision = req.body?.decision;
-    if (decision !== 'grant' && decision !== 'withdraw') return apiError(res, 400, 'Send decision as grant or withdraw.');
+  app.post(
+    '/api/bookings/:bookingId/location-sharing/consent',
+    sharingUpdateLimit,
+    asyncRoute(async (req, res) => {
+      const actor = await resolveSharingActor(req);
+      if (!actor) return apiError(res, 401, 'Sign in to manage live location consent.');
+      const decision = req.body?.decision;
+      if (decision !== 'grant' && decision !== 'withdraw')
+        return apiError(res, 400, 'Send decision as grant or withdraw.');
 
-    const parties = await loadBookingParties(req.params.bookingId, actor);
-    if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
+      const parties = await loadBookingParties(req.params.bookingId, actor);
+      if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
 
-    const workerId = targetWorkerId(actor, req.body?.workerId, parties.assignedWorkerIds);
-    if (!workerId) return apiError(res, 400, 'Choose which assigned professional this consent applies to.');
+      const workerId = targetWorkerId(actor, req.body?.workerId, parties.assignedWorkerIds);
+      if (!workerId) return apiError(res, 400, 'Choose which assigned professional this consent applies to.');
 
-    const { rows: openRows } = await pool.query(
-      `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
+      const { rows: openRows } = await pool.query(
+        `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
         WHERE booking_id = $1 AND worker_id = $2
           AND status IN ('pending_customer_consent','pending_professional_consent','active')
         LIMIT 1`,
-      [parties.booking.id, workerId],
-    );
-    const open = openRows[0] ? await enforceSessionLifecycle(openRows[0], parties.booking, parties.assignedWorkerIds) : null;
+        [parties.booking.id, workerId],
+      );
+      const open = openRows[0]
+        ? await enforceSessionLifecycle(openRows[0], parties.booking, parties.assignedWorkerIds)
+        : null;
 
-    if (decision === 'withdraw') {
-      if (!open || !['pending_customer_consent', 'pending_professional_consent', 'active'].includes(open.status)) {
-        return apiError(res, 409, 'There is no active live location sharing to stop.');
+      if (decision === 'withdraw') {
+        if (
+          !open ||
+          !['pending_customer_consent', 'pending_professional_consent', 'active'].includes(open.status)
+        ) {
+          return apiError(res, 409, 'There is no active live location sharing to stop.');
+        }
+        const stopped = await markSessionStopped(
+          open.id,
+          actor.isProfessional ? 'professional_withdrew_consent' : 'customer_withdrew_consent',
+        );
+        return res.json({
+          session: sessionView(
+            stopped,
+            actor,
+            parties.assigned.find((row) => row.workerId === workerId)?.workerName,
+          ),
+          stopped: true,
+        });
       }
-      const stopped = await markSessionStopped(open.id, actor.isProfessional ? 'professional_withdrew_consent' : 'customer_withdrew_consent');
-      return res.json({ session: sessionView(stopped, actor, parties.assigned.find(row => row.workerId === workerId)?.workerName), stopped: true });
-    }
 
-    if (!TRACKABLE_BOOKING_STATUSES.includes(parties.booking.status)) {
-      return apiError(res, 409, 'Live location sharing needs a confirmed or in-progress booking.');
-    }
-    if (!parties.assignedWorkerIds.includes(workerId)) {
-      return apiError(res, 409, 'That professional is not currently assigned to this booking.');
-    }
+      if (!TRACKABLE_BOOKING_STATUSES.includes(parties.booking.status)) {
+        return apiError(res, 409, 'Live location sharing needs a confirmed or in-progress booking.');
+      }
+      if (!parties.assignedWorkerIds.includes(workerId)) {
+        return apiError(res, 409, 'That professional is not currently assigned to this booking.');
+      }
 
-    const consentColumn = actor.isProfessional ? 'professional_consent_at' : 'customer_consent_at';
-    const consentParty = actor.isProfessional ? 'professional' : 'customer';
+      const consentColumn = actor.isProfessional ? 'professional_consent_at' : 'customer_consent_at';
+      const consentParty = actor.isProfessional ? 'professional' : 'customer';
 
-    if (!open) {
-      const createdAt = new Date();
-      const { rows } = await pool.query(
-        `INSERT INTO booking_location_sharing(booking_id, worker_id, status, ${consentColumn}, expires_at)
+      if (!open) {
+        const createdAt = new Date();
+        const { rows } = await pool.query(
+          `INSERT INTO booking_location_sharing(booking_id, worker_id, status, ${consentColumn}, expires_at)
          VALUES($1, $2, $3, now(), $4)
          RETURNING ${SESSION_COLUMNS}`,
-        [
-          parties.booking.id,
-          workerId,
-          actor.isProfessional ? 'pending_customer_consent' : 'pending_professional_consent',
-          new Date(createdAt.getTime() + CONSENT_TTL_MS).toISOString(),
-        ],
-      );
-      return res.json({
-        session: sessionView(rows[0], actor, parties.assigned.find(row => row.workerId === workerId)?.workerName),
-        awaitingOtherParty: true,
-      });
-    }
+          [
+            parties.booking.id,
+            workerId,
+            actor.isProfessional ? 'pending_customer_consent' : 'pending_professional_consent',
+            new Date(createdAt.getTime() + CONSENT_TTL_MS).toISOString(),
+          ],
+        );
+        return res.json({
+          session: sessionView(
+            rows[0],
+            actor,
+            parties.assigned.find((row) => row.workerId === workerId)?.workerName,
+          ),
+          awaitingOtherParty: true,
+        });
+      }
 
-    if (open.status === 'active') {
-      return res.json({ session: sessionView(open, actor, parties.assigned.find(row => row.workerId === workerId)?.workerName), alreadyActive: true });
-    }
+      if (open.status === 'active') {
+        return res.json({
+          session: sessionView(
+            open,
+            actor,
+            parties.assigned.find((row) => row.workerId === workerId)?.workerName,
+          ),
+          alreadyActive: true,
+        });
+      }
 
-    // A single conditional UPDATE makes concurrent customer/professional consent
-    // safe: PostgreSQL rechecks the other party's consent after acquiring the row lock.
-    const { rows } = await pool.query(
-      `UPDATE booking_location_sharing
+      // A single conditional UPDATE makes concurrent customer/professional consent
+      // safe: PostgreSQL rechecks the other party's consent after acquiring the row lock.
+      const { rows } = await pool.query(
+        `UPDATE booking_location_sharing
           SET customer_consent_at = CASE WHEN $2 = 'customer' THEN COALESCE(customer_consent_at, now()) ELSE customer_consent_at END,
               professional_consent_at = CASE WHEN $2 = 'professional' THEN COALESCE(professional_consent_at, now()) ELSE professional_consent_at END,
               status = CASE WHEN (customer_consent_at IS NOT NULL OR $2 = 'customer')
@@ -769,97 +927,132 @@ export function registerProfessionalRoutes(app, deps) {
               updated_at = now()
         WHERE id = $1 AND status IN ('pending_customer_consent','pending_professional_consent')
         RETURNING ${SESSION_COLUMNS}`,
-      [open.id, consentParty, new Date(Date.now() + SHARING_DEFAULT_TTL_MS).toISOString()],
-    );
-    const updated = rows[0] ?? (await pool.query(`SELECT ${SESSION_COLUMNS} FROM booking_location_sharing WHERE id = $1`, [open.id])).rows[0] ?? open;
-    const active = updated.status === 'active';
-    res.json({
-      session: sessionView(updated, actor, parties.assigned.find(row => row.workerId === workerId)?.workerName),
-      ...(active ? { active: true } : { awaitingOtherParty: true }),
-    });
-  }));
+        [open.id, consentParty, new Date(Date.now() + SHARING_DEFAULT_TTL_MS).toISOString()],
+      );
+      const updated =
+        rows[0] ??
+        (await pool.query(`SELECT ${SESSION_COLUMNS} FROM booking_location_sharing WHERE id = $1`, [open.id]))
+          .rows[0] ??
+        open;
+      const active = updated.status === 'active';
+      res.json({
+        session: sessionView(
+          updated,
+          actor,
+          parties.assigned.find((row) => row.workerId === workerId)?.workerName,
+        ),
+        ...(active ? { active: true } : { awaitingOtherParty: true }),
+      });
+    }),
+  );
 
-  app.post('/api/bookings/:bookingId/location-sharing/stop', sharingUpdateLimit, asyncRoute(async (req, res) => {
-    const actor = await resolveSharingActor(req);
-    if (!actor) return apiError(res, 401, 'Sign in to stop live location sharing.');
-    const parties = await loadBookingParties(req.params.bookingId, actor);
-    if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
+  app.post(
+    '/api/bookings/:bookingId/location-sharing/stop',
+    sharingUpdateLimit,
+    asyncRoute(async (req, res) => {
+      const actor = await resolveSharingActor(req);
+      if (!actor) return apiError(res, 401, 'Sign in to stop live location sharing.');
+      const parties = await loadBookingParties(req.params.bookingId, actor);
+      if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
 
-    const workerId = targetWorkerId(actor, req.body?.workerId, parties.assignedWorkerIds);
-    if (!workerId) return apiError(res, 404, 'No live location sharing found for this booking.');
+      const workerId = targetWorkerId(actor, req.body?.workerId, parties.assignedWorkerIds);
+      if (!workerId) return apiError(res, 404, 'No live location sharing found for this booking.');
 
-    const { rows: openRows } = await pool.query(
-      `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
+      const { rows: openRows } = await pool.query(
+        `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
         WHERE booking_id = $1 AND worker_id = $2
           AND status IN ('pending_customer_consent','pending_professional_consent','active')
         LIMIT 1`,
-      [parties.booking.id, workerId],
-    );
-    if (!openRows[0]) return apiError(res, 404, 'No live location sharing found for this booking.');
+        [parties.booking.id, workerId],
+      );
+      if (!openRows[0]) return apiError(res, 404, 'No live location sharing found for this booking.');
 
-    const requestedReason = typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 120) : '';
-    const reason = requestedReason || (actor.isProfessional ? 'professional_stopped' : 'customer_stopped');
-    const stopped = await markSessionStopped(openRows[0].id, reason);
-    res.json({ session: sessionView(stopped, actor, parties.assigned.find(row => row.workerId === workerId)?.workerName), stopped: true });
-  }));
+      const requestedReason = typeof req.body?.reason === 'string' ? req.body.reason.slice(0, 120) : '';
+      const reason = requestedReason || (actor.isProfessional ? 'professional_stopped' : 'customer_stopped');
+      const stopped = await markSessionStopped(openRows[0].id, reason);
+      res.json({
+        session: sessionView(
+          stopped,
+          actor,
+          parties.assigned.find((row) => row.workerId === workerId)?.workerName,
+        ),
+        stopped: true,
+      });
+    }),
+  );
 
-  app.post('/api/bookings/:bookingId/location-sharing/update', sharingUpdateLimit, asyncRoute(async (req, res) => {
-    const actor = await resolveSharingActor(req);
-    if (!actor) return apiError(res, 401, 'Sign in to update your shared location.');
+  app.post(
+    '/api/bookings/:bookingId/location-sharing/update',
+    sharingUpdateLimit,
+    asyncRoute(async (req, res) => {
+      const actor = await resolveSharingActor(req);
+      if (!actor) return apiError(res, 401, 'Sign in to update your shared location.');
 
-    const coordinateProblem = coordinateError(req.body?.latitude, req.body?.longitude, { required: true });
-    if (coordinateProblem) return apiError(res, 400, coordinateProblem);
-    const accuracyProblem = accuracyError(req.body?.accuracyMeters ?? null);
-    if (accuracyProblem) return apiError(res, 400, accuracyProblem);
+      const coordinateProblem = coordinateError(req.body?.latitude, req.body?.longitude, { required: true });
+      if (coordinateProblem) return apiError(res, 400, coordinateProblem);
+      const accuracyProblem = accuracyError(req.body?.accuracyMeters ?? null);
+      if (accuracyProblem) return apiError(res, 400, accuracyProblem);
 
-    const parties = await loadBookingParties(req.params.bookingId, actor);
-    if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
+      const parties = await loadBookingParties(req.params.bookingId, actor);
+      if (parties.error) return apiError(res, parties.error[0], parties.error[1]);
 
-    const workerId = targetWorkerId(actor, req.body?.workerId, parties.assignedWorkerIds);
-    if (!workerId) return apiError(res, 404, 'No live location sharing found for this booking.');
+      const workerId = targetWorkerId(actor, req.body?.workerId, parties.assignedWorkerIds);
+      if (!workerId) return apiError(res, 404, 'No live location sharing found for this booking.');
 
-    const { rows: openRows } = await pool.query(
-      `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
+      const { rows: openRows } = await pool.query(
+        `SELECT ${SESSION_COLUMNS} FROM booking_location_sharing
         WHERE booking_id = $1 AND worker_id = $2
           AND status IN ('pending_customer_consent','pending_professional_consent','active')
         LIMIT 1`,
-      [parties.booking.id, workerId],
-    );
-    if (!openRows[0]) return apiError(res, 403, 'Start live location sharing before sending a position.');
+        [parties.booking.id, workerId],
+      );
+      if (!openRows[0]) return apiError(res, 403, 'Start live location sharing before sending a position.');
 
-    const session = await enforceSessionLifecycle(openRows[0], parties.booking, parties.assignedWorkerIds);
-    if (session.status !== 'active') {
-      return apiError(res, 403, session.stopReason === 'expired'
-        ? 'This live location session expired. Both parties must consent again.'
-        : 'Live location sharing is not active for this booking.');
-    }
+      const session = await enforceSessionLifecycle(openRows[0], parties.booking, parties.assignedWorkerIds);
+      if (session.status !== 'active') {
+        return apiError(
+          res,
+          403,
+          session.stopReason === 'expired'
+            ? 'This live location session expired. Both parties must consent again.'
+            : 'Live location sharing is not active for this booking.',
+        );
+      }
 
-    const latitude = Number(req.body.latitude);
-    const longitude = Number(req.body.longitude);
-    const accuracyMeters = req.body?.accuracyMeters === null || req.body?.accuracyMeters === undefined ? null : Number(req.body.accuracyMeters);
+      const latitude = Number(req.body.latitude);
+      const longitude = Number(req.body.longitude);
+      const accuracyMeters =
+        req.body?.accuracyMeters === null || req.body?.accuracyMeters === undefined
+          ? null
+          : Number(req.body.accuracyMeters);
 
-    // Each party may only ever write its own coordinates.
-    const { rows } = await pool.query(
-      actor.isProfessional
-        ? `UPDATE booking_location_sharing
+      // Each party may only ever write its own coordinates.
+      const { rows } = await pool.query(
+        actor.isProfessional
+          ? `UPDATE booking_location_sharing
               SET worker_latitude = $2, worker_longitude = $3, worker_accuracy_meters = $4,
                   worker_location_updated_at = now(), updated_at = now()
             WHERE id = $1 AND status = 'active'
             RETURNING ${SESSION_COLUMNS}`
-        : `UPDATE booking_location_sharing
+          : `UPDATE booking_location_sharing
               SET customer_latitude = $2, customer_longitude = $3, customer_accuracy_meters = $4,
                   customer_location_updated_at = now(), updated_at = now()
             WHERE id = $1 AND status = 'active'
             RETURNING ${SESSION_COLUMNS}`,
-      [session.id, latitude, longitude, accuracyMeters],
-    );
-    if (!rows.length) return apiError(res, 403, 'Live location sharing is no longer active.');
+        [session.id, latitude, longitude, accuracyMeters],
+      );
+      if (!rows.length) return apiError(res, 403, 'Live location sharing is no longer active.');
 
-    res.json({
-      session: sessionView(rows[0], actor, parties.assigned.find(row => row.workerId === workerId)?.workerName),
-      accepted: true,
-    });
-  }));
+      res.json({
+        session: sessionView(
+          rows[0],
+          actor,
+          parties.assigned.find((row) => row.workerId === workerId)?.workerName,
+        ),
+        accepted: true,
+      });
+    }),
+  );
 }
 
 /**

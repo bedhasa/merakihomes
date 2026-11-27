@@ -47,8 +47,6 @@ const serviceIcons: Record<string, LucideIcon> = {
   Sparkles,
 };
 
-
-
 export const ServicePackageSelector: React.FC<Props> = ({
   services,
   servicesState,
@@ -67,128 +65,223 @@ export const ServicePackageSelector: React.FC<Props> = ({
   const tCommon = useTranslations('common');
   const { formatFromPrice, formatMoney } = useFormatters();
   return (
-  <div aria-label={t('package.ariaLabel')}>
-    <fieldset>
-      <legend className="sr-only">{t('package.legend')}</legend>
-      <p className="sr-only" id="booking-service-hint">{t('package.hint')}</p>
-
-      {servicesState === 'loading' ? (
-        <div role="status" className="flex items-center gap-2 rounded-2xl bg-slate-50 p-5 text-sm text-slate-600"><LoaderCircle size={16} className="animate-spin text-[#8C6A2F]" aria-hidden="true"/>{t('package.loadingServices')}</div>
-      ) : servicesState === 'error' ? (
-        <p id="booking-service-hint" role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-          {t('package.servicesError')}
+    <div aria-label={t('package.ariaLabel')}>
+      <fieldset>
+        <legend className="sr-only">{t('package.legend')}</legend>
+        <p className="sr-only" id="booking-service-hint">
+          {t('package.hint')}
         </p>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {services.map(item => {
-            const Icon = item.id === 'handyman_plumbing' ? Hammer : serviceIcons[item.iconName] || Home;
-            const selected = item.id === serviceId;
-            const hasPackages = packagesState === 'ready' && packages.length > 0;
-            const noPackages = packagesState === 'ready' && packages.length === 0;
-            const showPackagePanel = selected && (hasPackages || noPackages || packagesState === 'loading' || packagesState === 'error');
-            const packagePanelId = `packages-${item.id}`;
 
-            return (
-              <motion.article layout transition={{ duration: 0.22, ease: 'easeOut' }} key={item.id} className={`overflow-hidden rounded-2xl border transition duration-200 ${selected ? 'border-[#102A43] bg-white shadow-md ring-1 ring-[#102A43]/10' : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-[#D4A853]/80 hover:shadow-md'}`}>
-                <button
-                  type="button"
-                  aria-pressed={selected}
-                  aria-describedby="booking-service-hint"
-                  aria-expanded={showPackagePanel}
-                  aria-controls={showPackagePanel ? packagePanelId : undefined}
-                  onClick={() => onServiceChange(item.id)}
-                  className="group relative w-full p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#D4A853]"
+        {servicesState === 'loading' ? (
+          <div
+            role="status"
+            className="flex items-center gap-2 rounded-2xl bg-slate-50 p-5 text-sm text-slate-600"
+          >
+            <LoaderCircle size={16} className="animate-spin text-[#8C6A2F]" aria-hidden="true" />
+            {t('package.loadingServices')}
+          </div>
+        ) : servicesState === 'error' ? (
+          <p
+            id="booking-service-hint"
+            role="alert"
+            className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-800"
+          >
+            {t('package.servicesError')}
+          </p>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2">
+            {services.map((item) => {
+              const Icon = item.id === 'handyman_plumbing' ? Hammer : serviceIcons[item.iconName] || Home;
+              const selected = item.id === serviceId;
+              const hasPackages = packagesState === 'ready' && packages.length > 0;
+              const noPackages = packagesState === 'ready' && packages.length === 0;
+              const showPackagePanel =
+                selected &&
+                (hasPackages || noPackages || packagesState === 'loading' || packagesState === 'error');
+              const packagePanelId = `packages-${item.id}`;
+
+              return (
+                <motion.article
+                  layout
+                  transition={{ duration: 0.22, ease: 'easeOut' }}
+                  key={item.id}
+                  className={`overflow-hidden rounded-2xl border transition duration-200 ${selected ? 'border-[#102A43] bg-white shadow-md ring-1 ring-[#102A43]/10' : 'border-slate-200 bg-white hover:-translate-y-0.5 hover:border-[#D4A853]/80 hover:shadow-md'}`}
                 >
-                  <span className="flex items-start gap-3">
-                    <span className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl transition-colors duration-200 ${selected ? 'bg-[#102A43] text-[#D4A853]' : 'bg-[#D4A853]/15 text-[#102A43] group-hover:bg-[#D4A853]/25'}`} aria-hidden="true">
-                      <Icon size={23} strokeWidth={1.8} />
+                  <button
+                    type="button"
+                    aria-pressed={selected}
+                    aria-describedby="booking-service-hint"
+                    aria-expanded={showPackagePanel}
+                    aria-controls={showPackagePanel ? packagePanelId : undefined}
+                    onClick={() => onServiceChange(item.id)}
+                    className="group relative w-full p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#D4A853]"
+                  >
+                    <span className="flex items-start gap-3">
+                      <span
+                        className={`grid h-12 w-12 shrink-0 place-items-center rounded-xl transition-colors duration-200 ${selected ? 'bg-[#102A43] text-[#D4A853]' : 'bg-[#D4A853]/15 text-[#102A43] group-hover:bg-[#D4A853]/25'}`}
+                        aria-hidden="true"
+                      >
+                        <Icon size={23} strokeWidth={1.8} />
+                      </span>
+                      <span className="min-w-0 flex-1 pr-7">
+                        <span className="block text-sm font-semibold text-[#102A43]">{item.name}</span>
+                        <span className="mt-1 block truncate text-xs leading-5 text-slate-500">
+                          {translateDynamic(t, `blurbs.${item.id}`, item.description)}
+                        </span>
+                      </span>
+                      <span
+                        className={`absolute right-4 top-4 grid h-6 w-6 place-items-center rounded-full transition-all duration-200 ${selected ? 'scale-100 bg-[#102A43] text-white' : 'scale-90 border border-slate-300 text-transparent group-hover:border-[#D4A853]'}`}
+                        aria-hidden="true"
+                      >
+                        <Check size={14} />
+                      </span>
                     </span>
-                    <span className="min-w-0 flex-1 pr-7">
-                      <span className="block text-sm font-semibold text-[#102A43]">{item.name}</span>
-                      <span className="mt-1 block truncate text-xs leading-5 text-slate-500">{translateDynamic(t, `blurbs.${item.id}`, item.description)}</span>
+                    <span className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs">
+                      <span className="inline-flex items-center gap-1.5 text-slate-500">
+                        <Clock3 size={13} aria-hidden="true" />
+                        {t('package.minutes', { count: item.durationMinutes })}
+                      </span>
+                      <span className="font-semibold text-[#8C6A2F]">
+                        {item.fromPrice
+                          ? t('package.from', { price: formatFromPrice(item.fromPrice) ?? '' })
+                          : t('package.customQuote')}
+                      </span>
                     </span>
-                    <span className={`absolute right-4 top-4 grid h-6 w-6 place-items-center rounded-full transition-all duration-200 ${selected ? 'scale-100 bg-[#102A43] text-white' : 'scale-90 border border-slate-300 text-transparent group-hover:border-[#D4A853]'}`} aria-hidden="true">
-                      <Check size={14} />
-                    </span>
-                  </span>
-                  <span className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs">
-                    <span className="inline-flex items-center gap-1.5 text-slate-500"><Clock3 size={13} aria-hidden="true" />{t('package.minutes', { count: item.durationMinutes })}</span>
-                    <span className="font-semibold text-[#8C6A2F]">{item.fromPrice ? t('package.from', { price: formatFromPrice(item.fromPrice) ?? '' }) : t('package.customQuote')}</span>
-                  </span>
-                </button>
+                  </button>
 
-                <AnimatePresence initial={false}>
-                  {showPackagePanel && (
-                    <motion.section
-                      id={packagePanelId}
-                      aria-labelledby={`${packagePanelId}-title`}
-                      initial={{ opacity: 0, height: 0, y: -6 }}
-                      animate={{ opacity: 1, height: 'auto', y: 0 }}
-                      exit={{ opacity: 0, height: 0, y: -6 }}
-                      transition={{ duration: 0.22, ease: 'easeOut' }}
-                      className="overflow-hidden border-t border-slate-100 bg-[#F7F8FA] p-4"
-                    >
-                      {hasPackages ? (
-                        <div className="flex items-center justify-between gap-3">
-                          <h3 id={`${packagePanelId}-title`} className="text-sm font-semibold text-[#102A43]">{t('package.choosePackage')}</h3>
-                          <span className="text-[11px] font-medium text-slate-500">{t('package.required')}</span>
-                        </div>
-                      ) : <h3 id={`${packagePanelId}-title`} className="sr-only">{noPackages ? t('package.requestDescription') : t('package.packageOptions')}</h3>}
+                  <AnimatePresence initial={false}>
+                    {showPackagePanel && (
+                      <motion.section
+                        id={packagePanelId}
+                        aria-labelledby={`${packagePanelId}-title`}
+                        initial={{ opacity: 0, height: 0, y: -6 }}
+                        animate={{ opacity: 1, height: 'auto', y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -6 }}
+                        transition={{ duration: 0.22, ease: 'easeOut' }}
+                        className="overflow-hidden border-t border-slate-100 bg-[#F7F8FA] p-4"
+                      >
+                        {hasPackages ? (
+                          <div className="flex items-center justify-between gap-3">
+                            <h3
+                              id={`${packagePanelId}-title`}
+                              className="text-sm font-semibold text-[#102A43]"
+                            >
+                              {t('package.choosePackage')}
+                            </h3>
+                            <span className="text-[11px] font-medium text-slate-500">
+                              {t('package.required')}
+                            </span>
+                          </div>
+                        ) : (
+                          <h3 id={`${packagePanelId}-title`} className="sr-only">
+                            {noPackages ? t('package.requestDescription') : t('package.packageOptions')}
+                          </h3>
+                        )}
 
-                      {packagesState === 'loading' && <p role="status" className="flex items-center gap-2 text-xs text-slate-600"><LoaderCircle size={14} className="animate-spin text-[#8C6A2F]" aria-hidden="true"/>{t('package.loadingPackages')}</p>}
+                        {packagesState === 'loading' && (
+                          <p role="status" className="flex items-center gap-2 text-xs text-slate-600">
+                            <LoaderCircle
+                              size={14}
+                              className="animate-spin text-[#8C6A2F]"
+                              aria-hidden="true"
+                            />
+                            {t('package.loadingPackages')}
+                          </p>
+                        )}
 
-                      {hasPackages && (
-                        <div className="mt-3 grid gap-2">
-                          {packages.map(option => {
-                            const packageSelected = option.id === packageId;
-                            return (
-                              <motion.button
-                                key={option.id}
-                                type="button"
-                                aria-pressed={packageSelected}
-                                onClick={() => onPackageChange(option.id)}
-                                whileTap={{ scale: 0.99 }}
-                                className={`flex min-h-[76px] items-center justify-between gap-3 rounded-xl border p-3 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853] ${packageSelected ? 'border-[#D4A853] bg-[#D4A853]/10 shadow-sm' : 'border-slate-200 bg-white hover:border-[#D4A853]/70 hover:shadow-sm'}`}
-                              >
-                                <span className="flex min-w-0 items-center gap-2">
-                                  <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${packageSelected ? 'border-[#102A43] bg-[#102A43] text-white' : 'border-slate-300 text-transparent'}`} aria-hidden="true"><Check size={12} /></span>
-                                  <span className="min-w-0">
-                                    <span className="block truncate text-sm font-medium text-[#102A43]">{option.name}</span>
-                                    <span className="mt-0.5 block max-w-[230px] truncate text-[11px] text-slate-500">{option.description}</span>
-                                    <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-slate-500"><Clock3 size={12} aria-hidden="true" />{t('package.minutes', { count: option.durationMinutes })}</span>
+                        {hasPackages && (
+                          <div className="mt-3 grid gap-2">
+                            {packages.map((option) => {
+                              const packageSelected = option.id === packageId;
+                              return (
+                                <motion.button
+                                  key={option.id}
+                                  type="button"
+                                  aria-pressed={packageSelected}
+                                  onClick={() => onPackageChange(option.id)}
+                                  whileTap={{ scale: 0.99 }}
+                                  className={`flex min-h-[76px] items-center justify-between gap-3 rounded-xl border p-3 text-left transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853] ${packageSelected ? 'border-[#D4A853] bg-[#D4A853]/10 shadow-sm' : 'border-slate-200 bg-white hover:border-[#D4A853]/70 hover:shadow-sm'}`}
+                                >
+                                  <span className="flex min-w-0 items-center gap-2">
+                                    <span
+                                      className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition-colors ${packageSelected ? 'border-[#102A43] bg-[#102A43] text-white' : 'border-slate-300 text-transparent'}`}
+                                      aria-hidden="true"
+                                    >
+                                      <Check size={12} />
+                                    </span>
+                                    <span className="min-w-0">
+                                      <span className="block truncate text-sm font-medium text-[#102A43]">
+                                        {option.name}
+                                      </span>
+                                      <span className="mt-0.5 block max-w-[230px] truncate text-[11px] text-slate-500">
+                                        {option.description}
+                                      </span>
+                                      <span className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-slate-500">
+                                        <Clock3 size={12} aria-hidden="true" />
+                                        {t('package.minutes', { count: option.durationMinutes })}
+                                      </span>
+                                    </span>
                                   </span>
-                                </span>
-                                <strong className="shrink-0 text-sm text-[#102A43]">{formatMoney(option.basePrice, option.currency)}</strong>
-                              </motion.button>
-                            );
-                          })}
-                        </div>
-                      )}
+                                  <strong className="shrink-0 text-sm text-[#102A43]">
+                                    {formatMoney(option.basePrice, option.currency)}
+                                  </strong>
+                                </motion.button>
+                              );
+                            })}
+                          </div>
+                        )}
 
-                      {packagesState === 'error' && (
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-5 text-slate-600" aria-live="polite">
-                          {packageMessage && <span role="alert" className="text-amber-800">{packageMessage}</span>}
-                          {!packageMessage && <span role="alert">{t('package.verifyFailed')}</span>}
-                          <button type="button" onClick={onRetry} className="font-semibold text-[#102A43] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]">{tCommon('retry')}</button>
-                          <span>{item.fromPrice ? t('package.from', { price: formatFromPrice(item.fromPrice) ?? '' }) : t('estimateAfterReview')}</span>
-                        </div>
-                      )}
+                        {packagesState === 'error' && (
+                          <div
+                            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-5 text-slate-600"
+                            aria-live="polite"
+                          >
+                            {packageMessage && (
+                              <span role="alert" className="text-amber-800">
+                                {packageMessage}
+                              </span>
+                            )}
+                            {!packageMessage && <span role="alert">{t('package.verifyFailed')}</span>}
+                            <button
+                              type="button"
+                              onClick={onRetry}
+                              className="font-semibold text-[#102A43] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]"
+                            >
+                              {tCommon('retry')}
+                            </button>
+                            <span>
+                              {item.fromPrice
+                                ? t('package.from', { price: formatFromPrice(item.fromPrice) ?? '' })
+                                : t('estimateAfterReview')}
+                            </span>
+                          </div>
+                        )}
 
-                      {noPackages && (
-                        <label className="block" htmlFor={`request-description-${item.id}`}>
-                          <span className="text-sm font-semibold text-[#102A43]">{t('package.requestDescription')}</span>
-                          <textarea id={`request-description-${item.id}`} value={details} onChange={event => onDetailsChange(event.target.value)} rows={3} maxLength={1000} placeholder={t('package.descriptionPlaceholder')} className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#D4A853] focus:ring-4 focus:ring-[#D4A853]/15" />
-                        </label>
-                      )}
-                    </motion.section>
-                  )}
-                </AnimatePresence>
-              </motion.article>
-            );
-          })}
-        </div>
-      )}
-    </fieldset>
-  </div>
+                        {noPackages && (
+                          <label className="block" htmlFor={`request-description-${item.id}`}>
+                            <span className="text-sm font-semibold text-[#102A43]">
+                              {t('package.requestDescription')}
+                            </span>
+                            <textarea
+                              id={`request-description-${item.id}`}
+                              value={details}
+                              onChange={(event) => onDetailsChange(event.target.value)}
+                              rows={3}
+                              maxLength={1000}
+                              placeholder={t('package.descriptionPlaceholder')}
+                              className="mt-2 w-full rounded-xl border border-slate-300 bg-white p-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-[#D4A853] focus:ring-4 focus:ring-[#D4A853]/15"
+                            />
+                          </label>
+                        )}
+                      </motion.section>
+                    )}
+                  </AnimatePresence>
+                </motion.article>
+              );
+            })}
+          </div>
+        )}
+      </fieldset>
+    </div>
   );
 };

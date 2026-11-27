@@ -122,7 +122,8 @@ export const CustomerAuthPage: React.FC<{ mode: 'login' | 'register'; onSignedIn
             )}
           </label>
           <button disabled={busy} className="meraki-button w-full">
-            {busy ? t('wait') : mode === 'login' ? t('submitButton') : t('createButton')} <ArrowRight size={16} />
+            {busy ? t('wait') : mode === 'login' ? t('submitButton') : t('createButton')}{' '}
+            <ArrowRight size={16} />
           </button>
         </form>
         <p className="mt-5 text-center text-sm text-slate-600">
@@ -210,7 +211,9 @@ export const CustomerAccountPage: React.FC<{ bookings: boolean; onSignOut: () =>
     <main className="mx-auto max-w-5xl px-5 py-10">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#8C6A2F]">{t('account.eyebrow')}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#8C6A2F]">
+            {t('account.eyebrow')}
+          </p>
           <h1 className="mt-2 text-3xl font-semibold text-[#102A43]">
             {t('account.hello', { name: customer?.name ?? '' })}
           </h1>

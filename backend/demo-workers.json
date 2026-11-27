@@ -8,22 +8,10 @@
     "lon": 38.787,
     "rate": 650,
     "skills": [
-      [
-        "handyman_plumbing",
-        "Minor plumbing and fixture repairs"
-      ],
-      [
-        "gardening_outdoor",
-        "Home garden upkeep"
-      ]
+      ["handyman_plumbing", "Minor plumbing and fixture repairs"],
+      ["gardening_outdoor", "Home garden upkeep"]
     ],
-    "days": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "days": [1, 2, 3, 4, 5],
     "rating": 4.9,
     "reviewCount": 184
   },
@@ -36,23 +24,10 @@
     "lon": 38.766,
     "rate": 550,
     "skills": [
-      [
-        "premium_home_cleaning",
-        "Home cleaning"
-      ],
-      [
-        "maid_laundry",
-        "Laundry and garment care"
-      ]
+      ["premium_home_cleaning", "Home cleaning"],
+      ["maid_laundry", "Laundry and garment care"]
     ],
-    "days": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "days": [0, 1, 2, 3, 4, 5],
     "rating": 4.8,
     "reviewCount": 126
   },
@@ -65,22 +40,10 @@
     "lon": 38.828,
     "rate": 900,
     "skills": [
-      [
-        "childcare_nanny",
-        "Childcare qualification - demo record"
-      ],
-      [
-        "elder_companion",
-        "Non-medical companion care"
-      ]
+      ["childcare_nanny", "Childcare qualification - demo record"],
+      ["elder_companion", "Non-medical companion care"]
     ],
-    "days": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "days": [1, 2, 3, 4, 5],
     "rating": 4.9,
     "reviewCount": 93
   },
@@ -93,22 +56,10 @@
     "lon": 38.752,
     "rate": 700,
     "skills": [
-      [
-        "cooking_service",
-        "Home meal preparation"
-      ],
-      [
-        "premium_home_cleaning",
-        "Home cleaning"
-      ]
+      ["cooking_service", "Home meal preparation"],
+      ["premium_home_cleaning", "Home cleaning"]
     ],
-    "days": [
-      0,
-      1,
-      2,
-      3,
-      4
-    ],
+    "days": [0, 1, 2, 3, 4],
     "rating": 4.7,
     "reviewCount": 211
   },
@@ -121,22 +72,10 @@
     "lon": 38.773,
     "rate": 500,
     "skills": [
-      [
-        "gardening_outdoor",
-        "Garden maintenance"
-      ],
-      [
-        "handyman_plumbing",
-        "Minor repairs - qualification review needed"
-      ]
+      ["gardening_outdoor", "Garden maintenance"],
+      ["handyman_plumbing", "Minor repairs - qualification review needed"]
     ],
-    "days": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "days": [1, 2, 3, 4, 5],
     "reviewSkill": "handyman_plumbing",
     "rating": 4.8,
     "reviewCount": 142
@@ -150,23 +89,10 @@
     "lon": 38.79,
     "rate": 800,
     "skills": [
-      [
-        "office_cleaning",
-        "Commercial cleaning"
-      ],
-      [
-        "premium_home_cleaning",
-        "Home cleaning"
-      ]
+      ["office_cleaning", "Commercial cleaning"],
+      ["premium_home_cleaning", "Home cleaning"]
     ],
-    "days": [
-      0,
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "days": [0, 1, 2, 3, 4, 5],
     "rating": 4.9,
     "reviewCount": 167
   },
@@ -179,22 +105,10 @@
     "lon": 38.738,
     "rate": 600,
     "skills": [
-      [
-        "elder_companion",
-        "Non-medical companion care"
-      ],
-      [
-        "maid_laundry",
-        "Laundry and garment care"
-      ]
+      ["elder_companion", "Non-medical companion care"],
+      ["maid_laundry", "Laundry and garment care"]
     ],
-    "days": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "days": [1, 2, 3, 4, 5],
     "rating": 4.8,
     "reviewCount": 88
   },
@@ -207,22 +121,10 @@
     "lon": 38.746,
     "rate": 1000,
     "skills": [
-      [
-        "childcare_nanny",
-        "Childcare qualification - demo record"
-      ],
-      [
-        "cooking_service",
-        "Home meal preparation"
-      ]
+      ["childcare_nanny", "Childcare qualification - demo record"],
+      ["cooking_service", "Home meal preparation"]
     ],
-    "days": [
-      0,
-      1,
-      2,
-      3,
-      4
-    ],
+    "days": [0, 1, 2, 3, 4],
     "rating": 4.9,
     "reviewCount": 204
   },
@@ -235,22 +137,10 @@
     "lon": 38.795,
     "rate": 750,
     "skills": [
-      [
-        "handyman_plumbing",
-        "Minor plumbing and fixture repairs"
-      ],
-      [
-        "office_cleaning",
-        "Commercial cleaning"
-      ]
+      ["handyman_plumbing", "Minor plumbing and fixture repairs"],
+      ["office_cleaning", "Commercial cleaning"]
     ],
-    "days": [
-      1,
-      2,
-      3,
-      4,
-      5
-    ],
+    "days": [1, 2, 3, 4, 5],
     "rating": 4.7,
     "reviewCount": 115
   },
@@ -262,12 +152,7 @@
     "lat": 9.045,
     "lon": 38.731,
     "rate": 0,
-    "skills": [
-      [
-        "premium_home_cleaning",
-        "Qualification details pending review"
-      ]
-    ],
+    "skills": [["premium_home_cleaning", "Qualification details pending review"]],
     "days": [],
     "pending": true,
     "rating": null,

@@ -14,7 +14,17 @@ interface PopularServicesProps {
 const imageForService = (id: string, image: string) =>
   id === 'elder_companion' ? '/elder-companion-care.jpg' : image;
 
-const serviceBadgeKeys: Record<string, 'badgeCleaning' | 'badgeCooking' | 'badgeChildcare' | 'badgeElder' | 'badgeHandyman' | 'badgeOffice' | 'badgeGarden' | 'badgeLaundry'> = {
+const serviceBadgeKeys: Record<
+  string,
+  | 'badgeCleaning'
+  | 'badgeCooking'
+  | 'badgeChildcare'
+  | 'badgeElder'
+  | 'badgeHandyman'
+  | 'badgeOffice'
+  | 'badgeGarden'
+  | 'badgeLaundry'
+> = {
   premium_home_cleaning: 'badgeCleaning',
   cooking_service: 'badgeCooking',
   childcare_nanny: 'badgeChildcare',
@@ -70,7 +80,11 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
   ];
 
   return (
-    <section id="popular-services" aria-labelledby="featured-services-title" className="bg-[#F8FAFC] py-20 transition-colors duration-300 dark:bg-[#0b1724] lg:py-28">
+    <section
+      id="popular-services"
+      aria-labelledby="featured-services-title"
+      className="bg-[#F8FAFC] py-20 transition-colors duration-300 dark:bg-[#0b1724] lg:py-28"
+    >
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
@@ -83,7 +97,10 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
             <div className="inline-flex items-center gap-2 rounded-full bg-[#102A43]/5 px-3.5 py-1 text-xs font-bold uppercase tracking-[.2em] text-[#102A43] dark:bg-white/10 dark:text-white">
               <span>{t('eyebrow')}</span>
             </div>
-            <h2 id="featured-services-title" className="mt-4 text-3xl font-bold tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-5xl">
+            <h2
+              id="featured-services-title"
+              className="mt-4 text-3xl font-bold tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-5xl"
+            >
               {t('title')}
             </h2>
             <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
@@ -114,18 +131,33 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
         </div>
 
         {servicesState === 'loading' && (
-          <div role="status" aria-label={t('loadingLabel')} className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            role="status"
+            aria-label={t('loadingLabel')}
+            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {[...Array(3)].map((_, index) => (
-              <div key={index} className="animate-pulse overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-[#14283b]">
+              <div
+                key={index}
+                className="animate-pulse overflow-hidden rounded-3xl border border-slate-200 bg-white dark:border-slate-700 dark:bg-[#14283b]"
+              >
                 <div className="h-48 bg-slate-200 dark:bg-slate-700" />
-                <div className="space-y-4 p-5"><div className="h-5 w-28 rounded bg-slate-200 dark:bg-slate-700"/><div className="h-7 w-3/4 rounded bg-slate-200 dark:bg-slate-700"/><div className="h-16 rounded bg-slate-100 dark:bg-slate-800"/><div className="h-10 rounded bg-slate-200 dark:bg-slate-700"/></div>
+                <div className="space-y-4 p-5">
+                  <div className="h-5 w-28 rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="h-7 w-3/4 rounded bg-slate-200 dark:bg-slate-700" />
+                  <div className="h-16 rounded bg-slate-100 dark:bg-slate-800" />
+                  <div className="h-10 rounded bg-slate-200 dark:bg-slate-700" />
+                </div>
               </div>
             ))}
           </div>
         )}
 
         {servicesState === 'error' && (
-          <div role="alert" className="mx-auto my-8 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:bg-red-950/30">
+          <div
+            role="alert"
+            className="mx-auto my-8 max-w-xl rounded-2xl border border-red-200 bg-red-50 p-8 text-center dark:bg-red-950/30"
+          >
             <p className="text-sm font-medium text-red-800 dark:text-red-300">{t('loadError')}</p>
           </div>
         )}
@@ -154,35 +186,63 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/image:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none"
                       loading="lazy"
                     />
-                    <div aria-hidden="true" className="absolute inset-0 bg-gradient-to-t from-[#102A43]/45 via-transparent to-transparent opacity-70 transition-opacity duration-300 group-hover/image:opacity-50" />
+                    <div
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-gradient-to-t from-[#102A43]/45 via-transparent to-transparent opacity-70 transition-opacity duration-300 group-hover/image:opacity-50"
+                    />
                     <span className="absolute left-5 top-5 inline-flex items-center gap-1.5 rounded-full bg-[#102A43]/90 px-3 py-1.5 text-[11px] font-bold tracking-wide text-white shadow-md backdrop-blur-sm">
-                      <CheckCircle2 size={13} className="text-[#D4A853]" aria-hidden="true" />{badge}
+                      <CheckCircle2 size={13} className="text-[#D4A853]" aria-hidden="true" />
+                      {badge}
                     </span>
                     <span className="absolute bottom-5 right-5 inline-flex items-center gap-1.5 rounded-lg bg-white/95 px-3 py-2 text-xs font-semibold text-[#102A43] shadow-sm backdrop-blur-sm dark:bg-[#14283b]/95 dark:text-white">
-                      <Clock3 size={14} className="text-[#8C6A2F] dark:text-[#D4A853]" aria-hidden="true" />{t('minutes', { count: service.durationMinutes || 60 })}
+                      <Clock3 size={14} className="text-[#8C6A2F] dark:text-[#D4A853]" aria-hidden="true" />
+                      {t('minutes', { count: service.durationMinutes || 60 })}
                     </span>
                   </div>
 
                   <div className="flex flex-1 flex-col p-5 sm:p-6">
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-[#D4A853]/15 px-3 py-1 text-xs font-semibold text-[#102A43] dark:text-[#F3F7FB]">
-                        <Star size={13} fill="#D4A853" className="text-[#8C6A2F] dark:text-[#D4A853]" aria-hidden="true" />
-                        {ratingData.rating} <span className="text-slate-500 dark:text-slate-300">{t('reviewsLabel', { count: ratingData.reviews })}</span>
+                        <Star
+                          size={13}
+                          fill="#D4A853"
+                          className="text-[#8C6A2F] dark:text-[#D4A853]"
+                          aria-hidden="true"
+                        />
+                        {ratingData.rating}{' '}
+                        <span className="text-slate-500 dark:text-slate-300">
+                          {t('reviewsLabel', { count: ratingData.reviews })}
+                        </span>
                       </span>
-                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">{t('verifiedTeam')}</span>
+                      <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
+                        {t('verifiedTeam')}
+                      </span>
                     </div>
-                    <h3 className="mt-4 text-xl font-bold tracking-tight text-[#102A43] dark:text-white">{service.name}</h3>
-                    <p className="mt-3 flex-1 text-sm leading-6 text-slate-600 dark:text-slate-300">{service.description}</p>
+                    <h3 className="mt-4 text-xl font-bold tracking-tight text-[#102A43] dark:text-white">
+                      {service.name}
+                    </h3>
+                    <p className="mt-3 flex-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                      {service.description}
+                    </p>
 
                     <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-slate-200 pt-5 dark:border-slate-700">
                       <div>
-                        {fromPrice ? <>
-                          <span className="block text-[11px] font-semibold uppercase tracking-[.15em] text-slate-500 dark:text-slate-400">{t('startingFrom')}</span>
-                          <span className="mt-1 block text-xl font-extrabold tracking-tight text-[#102A43] dark:text-white">{fromPrice}</span>
-                        </> : <span className="block text-base font-bold tracking-tight text-[#102A43] dark:text-white">{t('priceAfterReview')}</span>}
+                        {fromPrice ? (
+                          <>
+                            <span className="block text-[11px] font-semibold uppercase tracking-[.15em] text-slate-500 dark:text-slate-400">
+                              {t('startingFrom')}
+                            </span>
+                            <span className="mt-1 block text-xl font-extrabold tracking-tight text-[#102A43] dark:text-white">
+                              {fromPrice}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="block text-base font-bold tracking-tight text-[#102A43] dark:text-white">
+                            {t('priceAfterReview')}
+                          </span>
+                        )}
                       </div>
                     </div>
-
                   </div>
                 </motion.article>
               );
@@ -202,10 +262,14 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
             onClick={onExploreAll}
             className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#102A43]/30 bg-white px-6 py-3 text-sm font-bold text-[#102A43] shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#D4A853] hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853] dark:border-slate-600 dark:bg-[#14283b] dark:text-white"
           >
-            {t('viewDetails')} <ArrowRight size={16} aria-hidden="true" className="transition-transform group-hover:translate-x-1" />
+            {t('viewDetails')}{' '}
+            <ArrowRight
+              size={16}
+              aria-hidden="true"
+              className="transition-transform group-hover:translate-x-1"
+            />
           </button>
         </div>
-
       </div>
     </section>
   );

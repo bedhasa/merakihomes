@@ -40,68 +40,97 @@ export const useChat = (inputRef: RefObject<HTMLTextAreaElement | null>) => {
   const visitorIdRef = useRef<string | null>(null);
 
   const initializeConversation = useCallback(() => {
-    setMessages(current => current.length ? current : createStarterMessages({ welcome: t('welcome'), helpTopics: t('helpTopics') }));
+    setMessages((current) =>
+      current.length
+        ? current
+        : createStarterMessages({ welcome: t('welcome'), helpTopics: t('helpTopics') }),
+    );
   }, [t]);
 
-  const sendMessage = useCallback(async (rawText = draft, retry = false) => {
-    const text = rawText.trim();
-    if (!text || text.length > 2000 || sending.current) return;
-    sending.current = true;
-    if (!retry) {
-      setMessages(current => [...current, createTextMessage('user', text)]);
-      setDraft('');
-    }
-    setIsTyping(true);
-    setError(null);
-    setRetryText(null);
-
-    const controller = new AbortController();
-    const timer = window.setTimeout(() => controller.abort(), 90_000);
-    try {
-      visitorIdRef.current ??= sessionId(VISITOR_KEY);
-      const visitorId = visitorIdRef.current;
-      const response = await fetch('/api/agaz/chat', {
-        method: 'POST',
-        // Server error messages follow the page language, not the browser's.
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'Accept-Language': uiLocale },
-        body: JSON.stringify({
-          message: text,
-          language: resolveAgazLanguage(language as AgazLanguage, uiLocale),
-          conversationId,
-          visitorId,
-        }),
-        signal: controller.signal,
-        cache: 'no-store',
-      });
-      const payload = await response.json() as ChatReply | { error?: { message?: string } };
-      if (!response.ok) {
-        const message = 'error' in payload ? payload.error?.message : undefined;
-        if (response.status === 404 && conversationId) {
-          setConversationId(null);
-        }
-        throw new Error(message || t('errorReply'));
+  const sendMessage = useCallback(
+    async (rawText = draft, retry = false) => {
+      const text = rawText.trim();
+      if (!text || text.length > 2000 || sending.current) return;
+      sending.current = true;
+      if (!retry) {
+        setMessages((current) => [...current, createTextMessage('user', text)]);
+        setDraft('');
       }
-      if (!('message' in payload) || typeof payload.message !== 'string' || typeof payload.conversationId !== 'string') {
-        throw new Error(t('errorUnexpected'));
-      }
-      setConversationId(payload.conversationId);
-      const reply = createTextMessage('assistant', payload.message);
-      reply.suggestedService = payload.suggestedService ?? null;
-      setMessages(current => [...current, reply]);
+      setIsTyping(true);
+      setError(null);
       setRetryText(null);
-      inputRef.current?.focus();
-    } catch (cause) {
-      const message = cause instanceof DOMException && cause.name === 'AbortError'
-        ? t('errorSlow')
-        : cause instanceof Error ? cause.message : t('errorUnavailable');
-      setError(message);
-      setRetryText(text);
-    } finally {
-      window.clearTimeout(timer);
-      sending.current = false;
-      setIsTyping(false);
-    }
-  }, [conversationId, draft, inputRef, language, t, uiLocale]);
 
-  return { messages, draft, setDraft, isTyping, error, retryText, language, setLanguage, initializeConversation, sendMessage };
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 90_000);
+      try {
+        visitorIdRef.current ??= sessionId(VISITOR_KEY);
+        const visitorId = visitorIdRef.current;
+        const response = await fetch('/api/agaz/chat', {
+          method: 'POST',
+          // Server error messages follow the page language, not the browser's.
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+            'Accept-Language': uiLocale,
+          },
+          body: JSON.stringify({
+            message: text,
+            language: resolveAgazLanguage(language as AgazLanguage, uiLocale),
+            conversationId,
+            visitorId,
+          }),
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+        const payload = (await response.json()) as ChatReply | { error?: { message?: string } };
+        if (!response.ok) {
+          const message = 'error' in payload ? payload.error?.message : undefined;
+          if (response.status === 404 && conversationId) {
+            setConversationId(null);
+          }
+          throw new Error(message || t('errorReply'));
+        }
+        if (
+          !('message' in payload) ||
+          typeof payload.message !== 'string' ||
+          typeof payload.conversationId !== 'string'
+        ) {
+          throw new Error(t('errorUnexpected'));
+        }
+        setConversationId(payload.conversationId);
+        const reply = createTextMessage('assistant', payload.message);
+        reply.suggestedService = payload.suggestedService ?? null;
+        setMessages((current) => [...current, reply]);
+        setRetryText(null);
+        inputRef.current?.focus();
+      } catch (cause) {
+        const message =
+          cause instanceof DOMException && cause.name === 'AbortError'
+            ? t('errorSlow')
+            : cause instanceof Error
+              ? cause.message
+              : t('errorUnavailable');
+        setError(message);
+        setRetryText(text);
+      } finally {
+        window.clearTimeout(timer);
+        sending.current = false;
+        setIsTyping(false);
+      }
+    },
+    [conversationId, draft, inputRef, language, t, uiLocale],
+  );
+
+  return {
+    messages,
+    draft,
+    setDraft,
+    isTyping,
+    error,
+    retryText,
+    language,
+    setLanguage,
+    initializeConversation,
+    sendMessage,
+  };
 };

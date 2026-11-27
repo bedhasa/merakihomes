@@ -15,7 +15,8 @@ export function useServiceDetailsCopy() {
   const t = useTranslations('serviceCopy');
   return (serviceId?: string): ServiceDetailsCopy | undefined => {
     if (!serviceId || !t.has(`${serviceId}.overview` as never)) return undefined;
-    const list = (key: string) => Object.values((t.raw(`${serviceId}.${key}` as never) ?? {}) as Record<string, string>);
+    const list = (key: string) =>
+      Object.values((t.raw(`${serviceId}.${key}` as never) ?? {}) as Record<string, string>);
     return {
       overview: t(`${serviceId}.overview` as never),
       included: list('included'),

@@ -16,7 +16,10 @@ export const OurValues: React.FC = () => {
   ] as const;
 
   return (
-    <section aria-labelledby="our-values-title" className="bg-[#F8FAFC] py-20 transition-colors duration-300 dark:bg-[#0b1724] lg:py-24">
+    <section
+      aria-labelledby="our-values-title"
+      className="bg-[#F8FAFC] py-20 transition-colors duration-300 dark:bg-[#0b1724] lg:py-24"
+    >
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
         <motion.div
           initial={reduceMotion ? false : { opacity: 0, y: 16 }}
@@ -28,7 +31,12 @@ export const OurValues: React.FC = () => {
           <div className="inline-flex items-center gap-2 rounded-full bg-[#D4A853]/15 px-3.5 py-1 text-xs font-bold uppercase tracking-[.2em] text-[#102A43] dark:text-white">
             <span>{t('eyebrow')}</span>
           </div>
-          <h2 id="our-values-title" className="mt-4 text-3xl font-bold tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-5xl">{t('title')}</h2>
+          <h2
+            id="our-values-title"
+            className="mt-4 text-3xl font-bold tracking-tight text-[#102A43] dark:text-white sm:text-4xl lg:text-5xl"
+          >
+            {t('title')}
+          </h2>
           <p className="mt-4 text-base leading-7 text-slate-600 dark:text-slate-300 sm:text-lg">
             {t('subtitle')}
           </p>
@@ -45,7 +53,10 @@ export const OurValues: React.FC = () => {
               whileHover={reduceMotion ? undefined : { y: -4 }}
               className="group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:border-[#D4A853] hover:shadow-lg dark:border-slate-700 dark:bg-[#14283b]"
             >
-              <div className="grid h-11 w-11 place-items-center rounded-full bg-[#D4A853]/15 text-[#102A43] transition-colors group-hover:bg-[#D4A853] dark:text-[#D4A853]" aria-hidden="true">
+              <div
+                className="grid h-11 w-11 place-items-center rounded-full bg-[#D4A853]/15 text-[#102A43] transition-colors group-hover:bg-[#D4A853] dark:text-[#D4A853]"
+                aria-hidden="true"
+              >
                 <Icon size={21} strokeWidth={1.8} />
               </div>
               <h3 className="mt-5 text-base font-bold text-[#102A43] dark:text-white">{t(titleKey)}</h3>

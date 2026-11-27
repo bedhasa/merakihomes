@@ -1,6 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ServiceCategory } from '@shared/types';
-import { ArrowRight, Search, Clock3, ChevronDown, BadgeCheck, ShieldCheck, KeyRound, IdCard, Award, UserRoundCheck, Phone } from 'lucide-react';
+import {
+  ArrowRight,
+  Search,
+  Clock3,
+  ChevronDown,
+  BadgeCheck,
+  ShieldCheck,
+  KeyRound,
+  IdCard,
+  Award,
+  UserRoundCheck,
+  Phone,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ContactForm } from './ContactForm';
 import { getServiceDetails } from '@shared/api';
@@ -23,7 +35,8 @@ interface MarketingViewProps {
 }
 
 const photo = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1400&q=85';
-const imageForService = (id: string, image: string) => (id === 'elder_companion' ? '/elder-companion-care.jpg' : image);
+const imageForService = (id: string, image: string) =>
+  id === 'elder_companion' ? '/elder-companion-care.jpg' : image;
 
 export const MarketingView: React.FC<MarketingViewProps> = ({
   services: allServices,
@@ -107,10 +120,18 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
   );
   const btn = 'meraki-button';
 
-  const renderDemoPackageCard = (service: ServiceCategory, copy: ServiceDetailsCopy | undefined, showPrototypeNote: boolean) => (
+  const renderDemoPackageCard = (
+    service: ServiceCategory,
+    copy: ServiceDetailsCopy | undefined,
+    showPrototypeNote: boolean,
+  ) => (
     <div className="mt-4 rounded-md border border-[#D4A853]/70 bg-white p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-[#8C6A2F]">{tDetail('demoPackage')}</p>
-      <h3 className="mt-2 text-base font-semibold text-[#102A43]">{tDetail('requestSuffix', { name: service.name })}</h3>
+      <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-[#8C6A2F]">
+        {tDetail('demoPackage')}
+      </p>
+      <h3 className="mt-2 text-base font-semibold text-[#102A43]">
+        {tDetail('requestSuffix', { name: service.name })}
+      </h3>
       <p className="mt-2 text-sm leading-6 text-slate-600">{copy?.overview || service.description}</p>
       <ul className="mt-3 space-y-1 text-xs leading-5 text-slate-600">
         {(copy?.included || [tDetail('fallbackIncluded')]).slice(0, 3).map((task) => (
@@ -118,9 +139,13 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
         ))}
       </ul>
       <p className="mt-3 border-t border-slate-100 pt-3 text-sm font-semibold text-[#102A43]">
-        {service.fromPrice ? tDetail('fromPrice', { amount: formatFromPrice(service.fromPrice) ?? '' }) : tDetail('priceAfterReview')}
+        {service.fromPrice
+          ? tDetail('fromPrice', { amount: formatFromPrice(service.fromPrice) ?? '' })
+          : tDetail('priceAfterReview')}
       </p>
-      {showPrototypeNote && <p className="mt-2 text-xs leading-5 text-slate-500">{tDetail('prototypeNote')}</p>}
+      {showPrototypeNote && (
+        <p className="mt-2 text-xs leading-5 text-slate-500">{tDetail('prototypeNote')}</p>
+      )}
       <button onClick={() => onBookService(service.id)} className="meraki-button mt-4 w-full">
         {tDetail('requestService')} <ArrowRight size={16} />
       </button>
@@ -129,7 +154,12 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
 
   return (
     <div id="public-site" className="min-h-screen bg-[#F8FAFC] text-[#102A43]">
-      <Navbar currentPage={page} onPageChange={changePage} onBookNow={() => onBookService()} isTransparentTop={page === 'home'} />
+      <Navbar
+        currentPage={page}
+        onPageChange={changePage}
+        onBookNow={() => onBookService()}
+        isTransparentTop={page === 'home'}
+      />
 
       <main className={page !== 'home' ? 'pt-24 sm:pt-28' : ''}>
         {page === 'home' && (
@@ -147,13 +177,24 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
           <>
             <section
               className="relative isolate -mt-20 min-h-[420px] w-full overflow-hidden bg-cover bg-center px-5 pb-12 pt-32 sm:pb-14 lg:min-h-[500px] lg:px-8 lg:pb-16"
-              style={{ backgroundImage: `url('${photo}')`, backgroundPosition: 'center', backgroundSize: 'cover' }}
+              style={{
+                backgroundImage: `url('${photo}')`,
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+              }}
             >
-              <div className="absolute inset-0 z-0 bg-gradient-to-r from-white/85 via-white/65 to-white/25 dark:from-[#102A43]/80 dark:via-[#102A43]/60 dark:to-[#102A43]/30" aria-hidden="true" />
+              <div
+                className="absolute inset-0 z-0 bg-gradient-to-r from-white/85 via-white/65 to-white/25 dark:from-[#102A43]/80 dark:via-[#102A43]/60 dark:to-[#102A43]/30"
+                aria-hidden="true"
+              />
               <div className="relative z-10 mx-auto max-w-7xl">
                 <div className="max-w-3xl">
-                  <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#8C6A2F] dark:text-[#D4A853]">{tServices('eyebrow')}</p>
-                  <h1 className="mt-3 text-3xl font-semibold text-[#102A43] sm:text-4xl dark:text-white">{tServices('title')}</h1>
+                  <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#8C6A2F] dark:text-[#D4A853]">
+                    {tServices('eyebrow')}
+                  </p>
+                  <h1 className="mt-3 text-3xl font-semibold text-[#102A43] sm:text-4xl dark:text-white">
+                    {tServices('title')}
+                  </h1>
                   <p className="mt-3 max-w-2xl text-slate-700 dark:text-white/90">{tServices('subtitle')}</p>
                 </div>
               </div>
@@ -161,7 +202,12 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
             <section className="mx-auto max-w-7xl px-5 py-12 lg:px-8 lg:py-16">
               <label className="mt-7 flex max-w-lg items-center gap-3 rounded-lg border border-slate-300 bg-white px-4">
                 <Search size={18} className="text-slate-400" />
-                <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={tServices('searchPlaceholder')} className="h-12 w-full bg-transparent text-sm outline-none" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={tServices('searchPlaceholder')}
+                  className="h-12 w-full bg-transparent text-sm outline-none"
+                />
               </label>
               {servicesState === 'loading' ? (
                 <p role="status" className="mt-8 text-sm">
@@ -185,11 +231,15 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                         alt={tServices('serviceAlt', { name: s.name })}
                         className={`h-56 w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transition-none sm:h-72 lg:h-full lg:min-h-[22rem] ${index % 2 === 0 ? 'lg:order-2' : ''}`}
                       />
-                      <div className={`flex flex-col justify-center p-6 sm:p-8 lg:p-10 ${index % 2 === 0 ? 'lg:order-1' : ''}`}>
+                      <div
+                        className={`flex flex-col justify-center p-6 sm:p-8 lg:p-10 ${index % 2 === 0 ? 'lg:order-1' : ''}`}
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <h2 className="text-xl font-semibold text-[#102A43] sm:text-2xl">{s.name}</h2>
-                            <span className="mt-2 inline-block text-xs font-semibold text-[#102A43] underline underline-offset-4">{tServices('viewDetails')}</span>
+                            <span className="mt-2 inline-block text-xs font-semibold text-[#102A43] underline underline-offset-4">
+                              {tServices('viewDetails')}
+                            </span>
                           </div>
                           <span className="shrink-0 pt-1 text-xs text-slate-500">
                             <Clock3 size={13} className="mr-1 inline" />
@@ -198,14 +248,18 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                         </div>
                         <p className="mt-4 text-sm leading-6 text-slate-600">{s.description}</p>
                         <p className="mt-5 text-sm font-semibold">
-                          {s.fromPrice ? tServices('fromPrice', { amount: formatFromPrice(s.fromPrice) ?? '' }) : tServices('priceAfterReview')}
+                          {s.fromPrice
+                            ? tServices('fromPrice', { amount: formatFromPrice(s.fromPrice) ?? '' })
+                            : tServices('priceAfterReview')}
                         </p>
                       </div>
                     </button>
                   ))}
                 </div>
               )}
-              {services.length === 0 && servicesState === 'ready' && <p className="py-12 text-center text-slate-500">{tServices('emptySearch')}</p>}
+              {services.length === 0 && servicesState === 'ready' && (
+                <p className="py-12 text-center text-slate-500">{tServices('emptySearch')}</p>
+              )}
             </section>
           </>
         )}
@@ -218,7 +272,9 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
             if (!service) {
               return (
                 <section className="mx-auto max-w-3xl px-5 py-16">
-                  <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#8C6A2F]">{tDetail('eyebrow')}</p>
+                  <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#8C6A2F]">
+                    {tDetail('eyebrow')}
+                  </p>
                   <h1 className="mt-3 text-2xl font-semibold text-[#102A43]">{tDetail('notFoundTitle')}</h1>
                   <p className="mt-3 text-sm text-slate-600">{tDetail('notFoundBody')}</p>
                   <button onClick={() => changePage('services')} className="meraki-button mt-6">
@@ -251,13 +307,25 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                     <span className="text-[#102A43]">{service.name}</span>
                   </nav>
                   <div className="grid gap-8 lg:grid-cols-[1.05fr_.95fr] lg:items-center">
-                    <img src={imageForService(service.id, service.image)} alt={service.name} className="h-64 w-full rounded-md object-cover sm:h-[400px]" />
+                    <img
+                      src={imageForService(service.id, service.image)}
+                      alt={service.name}
+                      className="h-64 w-full rounded-md object-cover sm:h-[400px]"
+                    />
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[.18em] text-[#8C6A2F]">{tDetail('brandEyebrow')}</p>
-                      <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#102A43] sm:text-4xl">{service.name}</h1>
+                      <p className="text-xs font-semibold uppercase tracking-[.18em] text-[#8C6A2F]">
+                        {tDetail('brandEyebrow')}
+                      </p>
+                      <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#102A43] sm:text-4xl">
+                        {service.name}
+                      </h1>
                       <p className="mt-4 text-base leading-7 text-slate-600">{service.description}</p>
                       <p className="mt-4 text-sm font-semibold text-[#102A43]">
-                        {detailPackages.length ? tDetail('selectPackage') : service.fromPrice ? tDetail('fromPrice', { amount: formatFromPrice(service.fromPrice) ?? '' }) : tDetail('priceAfterReview')}
+                        {detailPackages.length
+                          ? tDetail('selectPackage')
+                          : service.fromPrice
+                            ? tDetail('fromPrice', { amount: formatFromPrice(service.fromPrice) ?? '' })
+                            : tDetail('priceAfterReview')}
                         <span className="mt-1 block font-normal text-slate-600">
                           {detailPackages.length === 0
                             ? tDetail('afterReviewNote')
@@ -277,13 +345,17 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                     <div>
                       <h2 className="text-xl font-semibold text-[#102A43]">{tDetail('coversTitle')}</h2>
                       <p className="mt-3 leading-7 text-slate-600">{copy?.overview || service.description}</p>
-                      <h3 className="mt-7 text-base font-semibold text-[#102A43]">{tDetail('typicalTasks')}</h3>
+                      <h3 className="mt-7 text-base font-semibold text-[#102A43]">
+                        {tDetail('typicalTasks')}
+                      </h3>
                       <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600">
                         {(copy?.included || [tDetail('fallbackIncluded')]).map((task) => (
                           <li key={task}>{task}</li>
                         ))}
                       </ul>
-                      <h3 className="mt-7 text-base font-semibold text-[#102A43]">{tDetail('importantDetails')}</h3>
+                      <h3 className="mt-7 text-base font-semibold text-[#102A43]">
+                        {tDetail('importantDetails')}
+                      </h3>
                       <ul className="mt-3 list-disc space-y-2 pl-5 text-sm leading-6 text-slate-600">
                         {(copy?.limitations || [tDetail('fallbackLimit')]).map((item) => (
                           <li key={item}>{item}</li>
@@ -291,7 +363,9 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                       </ul>
                     </div>
                     <aside className="h-fit rounded-md border border-slate-200 bg-[#F7F8FA] p-5">
-                      <h2 className="text-lg font-semibold text-[#102A43]">{detailPackages.length ? tDetail('availablePackages') : tDetail('pricing')}</h2>
+                      <h2 className="text-lg font-semibold text-[#102A43]">
+                        {detailPackages.length ? tDetail('availablePackages') : tDetail('pricing')}
+                      </h2>
                       {detailLoading ? (
                         <p role="status" className="mt-4 text-sm text-slate-600">
                           {tDetail('checkingPackages')}
@@ -301,7 +375,10 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                           <p role="alert" className="text-sm text-red-700">
                             {tDetail('packagesError')}
                           </p>
-                          <button onClick={() => setPackageRetry((value) => value + 1)} className="mt-3 min-h-11 text-sm font-semibold text-[#102A43] underline underline-offset-4">
+                          <button
+                            onClick={() => setPackageRetry((value) => value + 1)}
+                            className="mt-3 min-h-11 text-sm font-semibold text-[#102A43] underline underline-offset-4"
+                          >
                             {tDetail('retryPackages')}
                           </button>
                           {renderDemoPackageCard(service, copy, false)}
@@ -324,8 +401,14 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                                     {formatMoney(pack.basePrice, pack.currency)}
                                   </span>
                                 </span>
-                                {pack.description && <span className="mt-2 block text-xs leading-5 text-slate-600">{pack.description}</span>}
-                                <span className="mt-2 block text-xs text-slate-500">{tServices('minutes', { count: pack.durationMinutes })}</span>
+                                {pack.description && (
+                                  <span className="mt-2 block text-xs leading-5 text-slate-600">
+                                    {pack.description}
+                                  </span>
+                                )}
+                                <span className="mt-2 block text-xs text-slate-500">
+                                  {tServices('minutes', { count: pack.durationMinutes })}
+                                </span>
                               </button>
                             ))}
                           </div>
@@ -334,7 +417,8 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                             onClick={() => selectedPackage && onBookService(service.id, selectedPackage.id)}
                             className="meraki-button mt-5 w-full disabled:cursor-not-allowed disabled:opacity-50"
                           >
-                            {selectedPackage ? tDetail('bookThis') : tDetail('choosePackage')} <ArrowRight size={16} />
+                            {selectedPackage ? tDetail('bookThis') : tDetail('choosePackage')}{' '}
+                            <ArrowRight size={16} />
                           </button>
                         </>
                       )}
@@ -342,7 +426,10 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                   </div>
                 </section>
                 <section className="mx-auto max-w-7xl px-5 py-8 lg:px-8">
-                  <button onClick={() => changePage('services')} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#102A43] underline">
+                  <button
+                    onClick={() => changePage('services')}
+                    className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#102A43] underline"
+                  >
                     <ArrowRight size={16} className="rotate-180" />
                     {tDetail('allServices')}
                   </button>
@@ -354,9 +441,15 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
         {page === 'trust' && (
           <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8 lg:py-20">
             <div className="mx-auto max-w-3xl text-center">
-              <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#8C6A2F]">{tTrust('eyebrow')}</p>
-              <h1 className="mt-4 text-3xl font-semibold leading-tight text-[#102A43] sm:text-5xl">{tTrust('title')}</h1>
-              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600">{tTrust('subtitle')}</p>
+              <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#8C6A2F]">
+                {tTrust('eyebrow')}
+              </p>
+              <h1 className="mt-4 text-3xl font-semibold leading-tight text-[#102A43] sm:text-5xl">
+                {tTrust('title')}
+              </h1>
+              <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-slate-600">
+                {tTrust('subtitle')}
+              </p>
             </div>
             <div className="mt-12 grid gap-x-10 gap-y-0 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3">
               {trustCommitments.map(({ titleKey, bodyKey, icon: Icon }, index) => (
@@ -390,13 +483,18 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
 
         {page === 'team' && (
           <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">{tTeam('eyebrow')}</p>
+            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">
+              {tTeam('eyebrow')}
+            </p>
             <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{tTeam('title')}</h1>
             <p className="mt-4 max-w-2xl leading-7 text-slate-600">{tTeam('body')}</p>
             <div className="mt-8 rounded-lg border border-slate-200 bg-white p-6">
               <h2 className="font-semibold">{tTeam('hireTitle')}</h2>
               <p className="mt-2 text-sm text-slate-600">{tTeam('hireBody')}</p>
-              <button className="mt-4 text-sm font-semibold text-[#102A43]" onClick={() => changePage('contact')}>
+              <button
+                className="mt-4 text-sm font-semibold text-[#102A43]"
+                onClick={() => changePage('contact')}
+              >
                 {tTeam('getInTouch')} <ArrowRight size={14} className="ml-1 inline" />
               </button>
             </div>
@@ -405,13 +503,17 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
 
         {page === 'blog' && (
           <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">{tBlog('eyebrow')}</p>
+            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">
+              {tBlog('eyebrow')}
+            </p>
             <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{tBlog('title')}</h1>
             <p className="mt-4 max-w-2xl leading-7 text-slate-600">{tBlog('subtitle')}</p>
             <article className="mt-8 max-w-2xl overflow-hidden rounded-lg border border-slate-200 bg-white">
               <img src={photo} alt={tBlog('imageAlt')} className="h-60 w-full object-cover" />
               <div className="p-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-[#102A43]">{tBlog('articleEyebrow')}</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-[#102A43]">
+                  {tBlog('articleEyebrow')}
+                </p>
                 <h2 className="mt-2 text-xl font-semibold">{tBlog('articleTitle')}</h2>
                 <p className="mt-3 text-sm leading-6 text-slate-600">{tBlog('articleBody')}</p>
               </div>
@@ -421,16 +523,27 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
 
         {page === 'faq' && (
           <section className="mx-auto max-w-3xl px-5 py-14">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">{tFaq('eyebrow')}</p>
+            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">
+              {tFaq('eyebrow')}
+            </p>
             <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{tFaq('title')}</h1>
             <div className="mt-8 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white px-5">
               {faqItems.map((item, i) => (
                 <div key={item.q}>
-                  <button className="flex min-h-14 w-full items-center justify-between gap-4 text-left font-medium" aria-expanded={faqOpen === i} onClick={() => setFaqOpen(faqOpen === i ? null : i)}>
+                  <button
+                    className="flex min-h-14 w-full items-center justify-between gap-4 text-left font-medium"
+                    aria-expanded={faqOpen === i}
+                    onClick={() => setFaqOpen(faqOpen === i ? null : i)}
+                  >
                     {tFaq(item.q)}
-                    <ChevronDown size={18} className={`shrink-0 transition ${faqOpen === i ? 'rotate-180' : ''}`} />
+                    <ChevronDown
+                      size={18}
+                      className={`shrink-0 transition ${faqOpen === i ? 'rotate-180' : ''}`}
+                    />
                   </button>
-                  {faqOpen === i && <p className="max-w-2xl pb-5 text-sm leading-6 text-slate-600">{tFaq(item.a)}</p>}
+                  {faqOpen === i && (
+                    <p className="max-w-2xl pb-5 text-sm leading-6 text-slate-600">{tFaq(item.a)}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -439,16 +552,24 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
 
         {page === 'contact' && (
           <section className="mx-auto max-w-5xl px-5 py-14 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">{tContact('eyebrow')}</p>
+            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">
+              {tContact('eyebrow')}
+            </p>
             <h1 className="mt-3 text-3xl font-semibold sm:text-4xl">{tContact('title')}</h1>
             <p className="mt-4 max-w-2xl leading-7 text-slate-600">{tContact('subtitle')}</p>
             <ContactForm />
             <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm">
-              <a className="inline-flex items-center gap-2 font-medium text-[#102A43]" href="tel:+251936259142">
+              <a
+                className="inline-flex items-center gap-2 font-medium text-[#102A43]"
+                href="tel:+251936259142"
+              >
                 <Phone size={16} aria-hidden="true" />
                 +251 936 259 142
               </a>
-              <a className="inline-flex items-center gap-2 font-medium text-[#102A43]" href="tel:+251913394404">
+              <a
+                className="inline-flex items-center gap-2 font-medium text-[#102A43]"
+                href="tel:+251913394404"
+              >
                 <Phone size={16} aria-hidden="true" />
                 +251 913 394 404
               </a>
@@ -458,7 +579,9 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
 
         {page === 'pricing' && (
           <section className="mx-auto max-w-7xl px-5 py-14 lg:px-8">
-            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">{tPricing('eyebrow')}</p>
+            <p className="text-xs font-semibold uppercase tracking-[.2em] text-[#102A43]">
+              {tPricing('eyebrow')}
+            </p>
             <h1 className="mt-3 text-3xl font-semibold">{tPricing('title')}</h1>
             <p className="mt-4 max-w-2xl text-slate-600">{tPricing('subtitle')}</p>
             <button className={`${btn} mt-7`} onClick={() => changePage('services')}>

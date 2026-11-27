@@ -99,7 +99,8 @@ const errors = [];
 const missingInAm = enKeys.filter((key) => !catalogs.am.has(key));
 const extraInAm = amKeys.filter((key) => !catalogs.en.has(key));
 if (missingInAm.length) errors.push(`Keys missing in am.json:\n  - ${missingInAm.join('\n  - ')}`);
-if (extraInAm.length) errors.push(`Keys present in am.json but not en.json:\n  - ${extraInAm.join('\n  - ')}`);
+if (extraInAm.length)
+  errors.push(`Keys present in am.json but not en.json:\n  - ${extraInAm.join('\n  - ')}`);
 
 for (const key of enKeys) {
   if (!catalogs.am.has(key)) continue;

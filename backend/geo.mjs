@@ -21,11 +21,12 @@ function isFiniteNumber(value) {
  */
 export function haversineMeters(lat1, lon1, lat2, lon2) {
   if (![lat1, lon1, lat2, lon2].every(isFiniteNumber)) return null;
-  const toRadians = degrees => (Number(degrees) * Math.PI) / 180;
+  const toRadians = (degrees) => (Number(degrees) * Math.PI) / 180;
   const deltaLat = toRadians(Number(lat2) - Number(lat1));
   const deltaLon = toRadians(Number(lon2) - Number(lon1));
-  const a = Math.sin(deltaLat / 2) ** 2
-    + Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(deltaLon / 2) ** 2;
+  const a =
+    Math.sin(deltaLat / 2) ** 2 +
+    Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(deltaLon / 2) ** 2;
   return Math.round(EARTH_RADIUS_METERS * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 }
 
@@ -112,25 +113,33 @@ export function geoapifySearchText(query) {
 }
 
 export function mapGeoapifySearchFeatures(features) {
-  return (features || []).map(feature => {
-    const properties = feature?.properties || {};
-    const latitude = Number(properties.lat);
-    const longitude = Number(properties.lon);
-    return {
-      label: String(properties.formatted || properties.name || '').trim(),
-      latitude,
-      longitude,
-      placeId: properties.place_id || null,
-      area: properties.neighbourhood || properties.suburb || properties.district || properties.city || '',
-      landmark: properties.name || properties.street || '',
-      countryCode: String(properties.country_code || '').toLowerCase(),
-    };
-  }).filter(item => item.label
-    && Number.isFinite(item.latitude) && Number.isFinite(item.longitude)
-    && item.latitude >= -90 && item.latitude <= 90
-    && item.longitude >= -180 && item.longitude <= 180
-    && !(item.latitude === 0 && item.longitude === 0)
-    && (!item.countryCode || item.countryCode === 'et'));
+  return (features || [])
+    .map((feature) => {
+      const properties = feature?.properties || {};
+      const latitude = Number(properties.lat);
+      const longitude = Number(properties.lon);
+      return {
+        label: String(properties.formatted || properties.name || '').trim(),
+        latitude,
+        longitude,
+        placeId: properties.place_id || null,
+        area: properties.neighbourhood || properties.suburb || properties.district || properties.city || '',
+        landmark: properties.name || properties.street || '',
+        countryCode: String(properties.country_code || '').toLowerCase(),
+      };
+    })
+    .filter(
+      (item) =>
+        item.label &&
+        Number.isFinite(item.latitude) &&
+        Number.isFinite(item.longitude) &&
+        item.latitude >= -90 &&
+        item.latitude <= 90 &&
+        item.longitude >= -180 &&
+        item.longitude <= 180 &&
+        !(item.latitude === 0 && item.longitude === 0) &&
+        (!item.countryCode || item.countryCode === 'et'),
+    );
 }
 
 export function mapGeoapifyReverseFeature(feature) {

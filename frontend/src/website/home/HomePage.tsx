@@ -30,20 +30,13 @@ export const HomePage: React.FC<HomePageProps> = ({
   return (
     <div className="w-full">
       {/* Hero: full-width background video (poster-only on small screens, Save-Data, 2G and reduced motion). */}
-      <HeroSection
-        onBookNow={() => onBookNow()}
-        onExploreServices={onExploreServices}
-      />
+      <HeroSection onBookNow={() => onBookNow()} onExploreServices={onExploreServices} />
 
       {/* 1. Why Meraki */}
       <WhyChooseUs />
 
       {/* 2. Featured services */}
-      <PopularServices
-        services={services}
-        servicesState={servicesState}
-        onExploreAll={onExploreServices}
-      />
+      <PopularServices services={services} servicesState={servicesState} onExploreAll={onExploreServices} />
 
       {/* 3. Who we are and existing trust metrics */}
       <WhoWeAre
@@ -64,10 +57,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       <FaqSection onContactClick={onContactClick} />
 
       {/* 6. Final call to action */}
-      <FinalCta
-        onBookNow={() => onBookNow()}
-        onContactUs={onContactClick}
-      />
+      <FinalCta onBookNow={() => onBookNow()} onContactUs={onContactClick} />
     </div>
   );
 };

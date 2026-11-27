@@ -8,7 +8,11 @@ function intlLocale(locale: FormatLocale): string {
 }
 
 /** Locale-aware number formatting for customer-facing UI. */
-export function formatNumber(value: number, locale: FormatLocale = defaultLocale, options?: Intl.NumberFormatOptions): string {
+export function formatNumber(
+  value: number,
+  locale: FormatLocale = defaultLocale,
+  options?: Intl.NumberFormatOptions,
+): string {
   return new Intl.NumberFormat(intlLocale(locale), options).format(value);
 }
 

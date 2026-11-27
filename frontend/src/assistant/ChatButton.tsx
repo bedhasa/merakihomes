@@ -12,21 +12,25 @@ interface ChatButtonProps {
 export const ChatButton: React.FC<ChatButtonProps> = ({ isOpen, onClick, buttonRef }) => {
   const t = useTranslations('assistant');
   return (
-  <motion.button
-    ref={buttonRef}
-    type="button"
-    onClick={onClick}
-    aria-label={isOpen ? t('closeAssistant') : t('openAssistant')}
-    aria-haspopup="dialog"
-    aria-expanded={isOpen}
-    aria-controls="meraki-assistant-window"
-    title={isOpen ? t('closeChat') : t('chatWithMeraki')}
-    whileHover={{ scale: 1.05, y: -2 }}
-    whileTap={{ scale: 0.94 }}
-    transition={{ type: 'spring', stiffness: 420, damping: 24 }}
-    className="fixed bottom-6 right-6 z-[80] grid h-14 w-14 place-items-center rounded-full bg-[#102A43] text-[#D4A853] shadow-xl shadow-[#102A43]/25 ring-1 ring-white/20 transition-colors hover:bg-[#183b5b] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D4A853]/60 sm:bottom-8 sm:right-8 sm:h-16 sm:w-16"
-  >
-    {isOpen ? <X size={25} strokeWidth={2} aria-hidden="true" /> : <MessageCircle size={26} strokeWidth={2} aria-hidden="true" />}
-  </motion.button>
+    <motion.button
+      ref={buttonRef}
+      type="button"
+      onClick={onClick}
+      aria-label={isOpen ? t('closeAssistant') : t('openAssistant')}
+      aria-haspopup="dialog"
+      aria-expanded={isOpen}
+      aria-controls="meraki-assistant-window"
+      title={isOpen ? t('closeChat') : t('chatWithMeraki')}
+      whileHover={{ scale: 1.05, y: -2 }}
+      whileTap={{ scale: 0.94 }}
+      transition={{ type: 'spring', stiffness: 420, damping: 24 }}
+      className="fixed bottom-6 right-6 z-[80] grid h-14 w-14 place-items-center rounded-full bg-[#102A43] text-[#D4A853] shadow-xl shadow-[#102A43]/25 ring-1 ring-white/20 transition-colors hover:bg-[#183b5b] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#D4A853]/60 sm:bottom-8 sm:right-8 sm:h-16 sm:w-16"
+    >
+      {isOpen ? (
+        <X size={25} strokeWidth={2} aria-hidden="true" />
+      ) : (
+        <MessageCircle size={26} strokeWidth={2} aria-hidden="true" />
+      )}
+    </motion.button>
   );
 };
