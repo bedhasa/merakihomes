@@ -227,3 +227,40 @@ Kept deliberately:
 | `npm run build` | exit 0 |
 
 **Not run:** a Metro bundle (`expo export`). The removed files were not reachable from the `expo-router` entry.
+
+### 2026-11-27: Batch 2 (WebM, client-IP diagnostic) and batch 3 (approved behaviour changes)
+
+**Batch 2** (committed as `fcdc30f` and `f91461a`):
+- The hero WebM was re-encoded at VP9 CRF 38 (814 KB, smaller than the 965 KB MP4).
+- `GET /api/debug/client-ip` was added; it is off unless `DEBUG_CLIENT_IP=1`. It waits on one production measurement before the signed client-IP header (1.11) is built.
+
+**Batch 3** (roadmap 1.12–1.16, TD-002/003/006/011/012):
+
+| Change | Where |
+|---|---|
+| Lookup needs reference **and** phone. Phone-only and reference-only modes return 400 `LOOKUP_DETAILS_REQUIRED`; a mismatch returns 404 `LOOKUP_NOT_FOUND`. Response shapes are unchanged. | `backend/index.mjs`, `shared/api.ts`, `frontend/src/booking/RequestStatusLookup.tsx`, `meraki-homes-mobile/app/(tabs)/bookings.tsx` |
+| Receipts (payment, idempotent replay, receipt lookup) no longer return `customerName` / `customerPhone`. | `backend/index.mjs`, `shared/api.ts`, `DemoPaymentStep.tsx` |
+| `DEMO_PAYMENTS_ENABLED` switch: unset means on outside production and **off when `NODE_ENV=production`**. When off, the demo-payment route returns 403 `DEMO_PAYMENTS_DISABLED`. New `GET /api/public-config` returns `{demoPayments}`. Website and mobile hide the payment step and show "our team will confirm payment with you". | `backend/index.mjs`, `RequestFlow.tsx`, `meraki-homes-mobile/app/booking.tsx`, `.env.example` |
+| Cancelling an item cancels its `assigned`/`confirmed` worker assignments (mirrors booking-level cancel). | `backend/index.mjs` |
+| A new price quote withdraws earlier `draft`/`sent` quotes for the item (`withdrawn` already allowed by the CHECK; no migration). | `backend/index.mjs` |
+| Public nearby/profile endpoints round coordinates to 3 decimals (~110 m), report accuracy ≥ 100 m and `locationApproximate: true`, and compute distances from the rounded point. The professional's own endpoints and consented booking sharing stay exact. | `backend/professionals.mjs` |
+| Migration `020_location_sharing_per_worker.sql`: open sharing sessions are unique per (booking, worker). | `backend/migrations/` |
+| New error codes and copy, with Amharic drafts listed for review. | `shared/locales/*.json`, `docs/i18n/amharic-review.md` |
+
+**Tests:** `backend/owner-decisions.test.mjs` has 7 tests. All 7 fail against the pre-batch backend (run from a scratch `git archive HEAD` copy) and pass after the changes.
+
+**Validation:**
+
+| Command | Result |
+|---|---|
+| Root `tsc` | exit 0 |
+| Mobile `tsc` | exit 0 |
+| `npm test` | 60 tests: 59 pass, 0 fail, 1 skipped; `i18n:check` 695 keys |
+| `npm run build:web` | exit 0 |
+
+The lookup page was checked in headless Chrome.
+
+**Deployment notes:**
+1. Run `npm run db:migrate:production` (migration 020) after a backup.
+2. On production, demo payments switch off automatically if Railway sets `NODE_ENV=production`; set `DEMO_PAYMENTS_ENABLED=false` explicitly to be sure.
+3. Installed mobile builds that use phone-only lookup will now receive an error until users update.

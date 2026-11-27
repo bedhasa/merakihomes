@@ -26,17 +26,17 @@ Line numbers refer to `backend/index.mjs` unless another file is named. That fil
 | ID | Title | Severity | Confidence | Status |
 |---|---|---|---|---|
 | TD-001 | Audit log `entity_id` / `reason` swapped for reschedule and assignment | High | Confirmed | Fixed (2026-11-25) |
-| TD-002 | Cancelling an item leaves its worker assignment active | High | Confirmed | Needs approval |
-| TD-003 | A stale (superseded) price proposal can still be accepted | High | Confirmed | Needs approval |
+| TD-002 | Cancelling an item leaves its worker assignment active | High | Confirmed | Fixed (2026-11-27) |
+| TD-003 | A stale (superseded) price proposal can still be accepted | High | Confirmed | Fixed (2026-11-27) |
 | TD-004 | Retrying a verified demo payment falls through after COMMIT | High | Confirmed | Fixed (2026-11-25) |
 | TD-005 | Booking-level transition blocked by any cancelled item | Medium | Confirmed | Needs approval |
-| TD-006 | Location sharing fails with 500 for the second worker on a multi-item booking | High | Confirmed | Needs approval (migration) |
+| TD-006 | Location sharing fails with 500 for the second worker on a multi-item booking | High | Confirmed | Fixed (2026-11-27): migration 020, must be run on production |
 | TD-007 | Availability check wraps past midnight and reports "scheduled" | Medium | Confirmed | Fixed (2026-11-25) |
 | TD-008 | `payments.status` default violates its own CHECK | Low | Confirmed (latent) | Needs approval (migration) |
 | TD-009 | Invalid UUIDs and unique violations return HTTP 500 | Medium | Confirmed | Fixed (2026-11-25) |
 | TD-010 | Rate limiting is ineffective behind the proxy (`trust proxy` unset) | Critical | Confirmed in code; impact depends on topology | Needs approval |
-| TD-011 | Unverified phone lookup exposes bookings; reference + phone enables payments and receipts | Critical | Confirmed | Needs approval |
-| TD-012 | Public professional endpoints expose exact live coordinates | High | Confirmed | Needs approval |
+| TD-011 | Unverified phone lookup exposes bookings; reference + phone enables payments and receipts | Critical | Confirmed | Fixed (2026-11-27): reference + phone only, no PII on receipts, demo payments off in production |
+| TD-012 | Public professional endpoints expose exact live coordinates | High | Confirmed | Fixed (2026-11-27) |
 | TD-013 | Next.js API proxy: header pass-through, no timeout, `content-encoding`, `..` segments | Medium | Confirmed | Partly fixed (2026-11-25): timeout, encoding, `..` segments; header allow-list open |
 | TD-014 | Worker-change proposal can create several proposals per request | Medium | Potential | Open |
 | TD-015 | Idempotency keys are global and replay does not verify the payload | Medium | Confirmed | Open |
