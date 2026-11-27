@@ -1,6 +1,6 @@
 # 0006. ESLint, Prettier and CI as mandatory quality gates
 
-- Status: Proposed
+- Status: Partly accepted (2026-11-27): Prettier adopted; ESLint, CI and the other scripts are still proposed
 - Date: 2026-11-25
 
 ## Context
@@ -32,6 +32,13 @@ There is no active CI. `.github/workflows/ci.yml.proposed` exists but is not ena
    - `npm audit --audit-level=high`.
    - Required for merges to `main`.
 5. **Pre-commit:** none at first. CI is the gate; local hooks are optional for developers. Adding husky and lint-staged can come later if the team wants it.
+
+## Implementation notes (Prettier, 2026-11-27)
+
+- Config: `.prettierrc.json` (printWidth 110, singleQuote, trailingComma all) and `.prettierignore`. Prettier 3.6.2 is pinned as a dev dependency. Scripts: `npm run format` and `npm run format:check`.
+- `endOfLine: "auto"`: the repository is checked out with CRLF on Windows (`core.autocrlf`), so forcing LF would rewrite every working file and fail `format:check` there. Git still stores LF.
+- Markdown is not formatted: Prettier would re-pad every documentation table with no readability gain.
+- The formatting commit (`f746ac5`) is listed in `.git-blame-ignore-revs`. Its behaviour neutrality was checked by comparing the syntax trees of all 132 changed JS/TS/JSON files (identical, ignoring quote style, redundant parentheses and JSX whitespace that renders the same), the parsed YAML values, `tsc`, the test suite and both builds.
 
 ## Alternatives considered
 

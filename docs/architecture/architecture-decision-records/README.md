@@ -9,7 +9,7 @@ Each ADR records one significant decision: its context, the alternatives conside
 | [0003](0003-shared-contracts-package.md) | Shared API contracts with runtime schemas | Proposed |
 | [0004](0004-app-router-real-routes.md) | Use real Next.js App Router routes for the public site | Proposed |
 | [0005](0005-stateless-api-instances.md) | Stateless API instances behind a trusted proxy | Proposed |
-| [0006](0006-quality-gates-and-ci.md) | ESLint, Prettier and CI as mandatory quality gates | Proposed |
+| [0006](0006-quality-gates-and-ci.md) | ESLint, Prettier and CI as mandatory quality gates | Partly accepted (Prettier) |
 | [0007](0007-raw-sql-repositories.md) | Keep `pg` with handwritten SQL in repositories (no ORM) | Proposed |
 
 Status values: `Proposed`, `Accepted`, `Superseded by NNNN`, `Rejected`.

@@ -75,7 +75,7 @@ The project owner made these decisions. They supersede the 🔒 markers on the m
 | # | Task | Objective | Files | Outcome | Depends on | Risk | Validation | Status |
 |---|---|---|---|---|---|---|---|---|
 | 2.1 | Remove dead code (TD-041) | Shrink the surface; free mock data and types | See [proposed-repository-structure.md](proposed-repository-structure.md#files-removed-td-041) | ≈7,500 fewer lines; mobile tsconfig uses globs | Approved 2026-11-25 | Low (zero live importers verified) | `tsc` root and mobile, build, tests | ✅ |
-| 2.2 | Prettier baseline (ADR-0006) | Make the core files reviewable | Whole repo | One behaviour-neutral commit + `.git-blame-ignore-revs` | i18n merge; approval of the dev dependency | Low | Tests + build identical | ⏳🔒 |
+| 2.2 | Prettier baseline (ADR-0006) | Make the core files reviewable | Whole repo | One behaviour-neutral commit + `.git-blame-ignore-revs` | i18n merge; approval of the dev dependency | Low | Tests + build identical | ✅ 2026-11-27 |
 | 2.3 | Extract `backend/src/platform/` | Separate infrastructure from routes | `index.mjs:1-135` → `platform/{db,auth,http,config}` | `createApp` composes; routes unchanged | 2.2, ADR-0002 | Low–Med | Full suite | ⏳ |
 | 2.4 | `withTransaction` + typed errors | One transaction and error pattern (TD-053) | `platform/db`, `platform/http` | No hand-rolled BEGIN/ROLLBACK | 2.3 | Low | Full suite | ⏳ |
 | 2.5 | ESLint with boundary rules | Enforce the dependency rules | `eslint.config.js` | CI fails on boundary violations | 2.2 | Low | `npm run lint` | ⏳🔒 |
@@ -291,3 +291,15 @@ Approved as "I draft, you review". 216 new catalog keys (906 total), every one l
 **Validation:** root `tsc` exit 0. `npm test` runs 66 tests: 65 pass, 0 fail, 1 skipped. `i18n:check` reports 906 keys. `build:web` exits 0. The Amharic home and service detail pages were checked in headless Chrome against a temporary in-memory API, and the assistant error was checked in both languages through the web proxy.
 
 **Found, not changed:** the four "Suggested questions" buttons in the assistant window have no click handler, so they do nothing.
+
+### 2026-11-27: Batch 6, Prettier baseline (roadmap 2.2, ADR-0006)
+
+Approved as "Prettier formatting" only; ESLint, CI and zod stay out of scope.
+
+- `chore: add Prettier config and format scripts`: Prettier 3.6.2 pinned, `.prettierrc.json` (printWidth 110, single quotes, trailing commas, `endOfLine: auto`), `.prettierignore` (lockfiles, build output, static assets, Markdown), `npm run format` / `format:check`.
+- `style: format the repository with Prettier` (`f746ac5`): 135 files, formatting only. The minified-style lines in `backend/index.mjs` and the management files are now readable. Three files needed a second Prettier pass to reach a stable result.
+- `.git-blame-ignore-revs` lists the formatting commit. Run `git config blame.ignoreRevsFile .git-blame-ignore-revs` once locally; GitHub applies it automatically.
+
+**Behaviour neutrality:** a script parsed HEAD and the formatted version of all 132 changed JS/TS/JSON files with the TypeScript compiler and compared the syntax trees. All 132 are identical once quote style, redundant parentheses, CRLF and JSX whitespace that renders the same are ignored. The two docker-compose files parse to the same YAML values. Root and mobile `tsc` exit 0. `npm test` runs 66 tests: 65 pass, 0 fail, 1 skipped. `npm run build` (web and management) succeeds, and a page was checked in headless Chrome.
+
+**For contributors:** run `npm run format` before committing. `format:check` is not yet enforced, because CI (5.2) was not approved.

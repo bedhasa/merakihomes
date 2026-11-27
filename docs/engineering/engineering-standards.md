@@ -170,7 +170,7 @@ Rules:
 | TypeScript | `npm run lint` (root), `npm --prefix meraki-homes-mobile run typecheck` | Active |
 | Locale parity | `npm run i18n:check` (part of `npm test`) | Active |
 | Tests | `npm test` | Active |
-| Prettier | `npm run format:check` | Proposed |
+| Prettier | `npm run format:check` (fix with `npm run format`) | Active (not yet enforced by CI) |
 | ESLint (+ boundaries, react-hooks, import/no-cycle) | `npm run lint` | Proposed |
 | Dependency audit | `npm audit --audit-level=high` | Proposed in CI |
 | CI | `.github/workflows/ci.yml` on Node 22 | Proposed (`ci.yml.proposed` exists) |
