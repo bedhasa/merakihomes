@@ -3,6 +3,7 @@ import { MOCK_SERVICES } from '@shared/data/mockServices';
 import { formatCurrency } from '@shared/utils/formatters';
 import { Clock, Star, Check, ChevronRight } from 'lucide-react';
 import { Currency } from '@shared/types';
+import { serviceImage, serviceImageAlt } from '../../website/imageAssets';
 
 interface Step1Props {
   selectedServiceId: string | null;
@@ -47,8 +48,8 @@ export const Step1_SelectService: React.FC<Step1Props> = ({
               {/* Image */}
               <div className="relative h-40 overflow-hidden bg-slate-100 dark:bg-slate-700">
                 <img
-                  src={s.image}
-                  alt={s.name}
+                  src={serviceImage(s.id, s.image)}
+                  alt={serviceImageAlt(s.id, s.name)}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {/* Selection overlay */}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, ChartNoAxesCombined, Clock3, ShieldCheck, UsersRound } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
+import { PHOTO_PLACEHOLDER } from '../imageAssets';
 
 interface HeroSectionProps {
   onBookNow: () => void;
@@ -104,8 +105,8 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onBookNow, onExploreSe
             className="relative h-[300px] overflow-hidden rounded-[1.6rem] shadow-[0_22px_55px_rgba(16,42,67,0.16)] transition-shadow duration-500 hover:shadow-[0_28px_64px_rgba(16,42,67,0.2)] sm:h-[390px] md:h-[430px] lg:h-[530px] lg:rounded-l-[42%] lg:rounded-r-[22px] xl:h-[555px]"
           >
             <img
-              src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1400&q=85"
-              alt="A bright, welcoming home being professionally cared for"
+              src={PHOTO_PLACEHOLDER}
+              alt="Photo placeholder: an Ethiopian family relaxing together in a clean, modern home"
               className="h-full w-full object-cover object-center"
               loading="eager"
             />

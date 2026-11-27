@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { MOCK_SERVICES, ADDIS_NEIGHBORHOODS, MOCK_REVIEWS, ETB_EXCHANGE_RATE } from '@shared/data/mockServices';
 import { ServiceCategory, Booking, Currency, PaymentMethodType, CustomerSubPage } from '@shared/types';
 import { BookingRequestPayload } from '@shared/api';
+import { serviceImage, serviceImageAlt, PHOTO_PLACEHOLDER } from '../website/imageAssets';
 import { formatCurrency } from '@shared/utils/formatters';
 import { RequestFlow } from './RequestFlow';
 import { RequestStatusLookup } from './RequestStatusLookup';
@@ -218,7 +219,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                   <div className="text-base font-bold text-slate-900 dark:text-white mt-0.5">Bethlehem T.</div>
                   <span className="text-[10px] text-golden-700 dark:text-golden-400 font-bold">★ 4.96 (12 visits)</span>
                 </div>
-                <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=100&q=80" alt="Bethlehem" className="w-10 h-10 rounded-full object-cover border border-golden-400" />
+                <img src={PHOTO_PLACEHOLDER} alt="Photo placeholder: Ethiopian home service professional Bethlehem" loading="lazy" className="w-10 h-10 rounded-full object-cover border border-golden-400" />
               </div>
 
               <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 rounded-2xl flex items-center justify-between shadow-xs">
@@ -278,7 +279,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                     }}
                     className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-golden-400 dark:hover:border-golden-500 rounded-2xl p-5 cursor-pointer transition-all space-y-4 shadow-xs group"
                   >
-                    <img src={s.image} alt={s.name} className="w-full h-36 object-cover rounded-xl group-hover:scale-102 transition-transform" />
+                    <img src={serviceImage(s.id, s.image)} alt={serviceImageAlt(s.id, s.name)} loading="lazy" className="w-full h-36 object-cover rounded-xl group-hover:scale-102 transition-transform" />
                     <div>
                       <div className="flex items-center justify-between mb-1">
                         <h3 className="font-bold text-slate-900 dark:text-white text-base">{s.name}</h3>
@@ -565,7 +566,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-between">
                     <span className="text-slate-800 dark:text-slate-200 font-bold">Chapa Payment Gateway</span>
-                    <span className="text-emerald-600 dark:text-emerald-400 font-bold">✓ Active</span>
+                    <span className="text-amber-700 dark:text-amber-300 font-bold">TEST MODE</span>
                   </div>
                   <div className="p-3 bg-slate-50 dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 flex items-center justify-between">
                     <span className="text-slate-800 dark:text-slate-200 font-bold">Visa ending in **** 8492</span>
@@ -703,7 +704,7 @@ export const CustomerView: React.FC<CustomerViewProps> = ({
               {/* Worker Profile & Details */}
               <div className="lg:col-span-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-6 shadow-xs">
                 <div className="text-center space-y-2 border-b border-slate-100 dark:border-slate-700 pb-5">
-                  <img src={activeTrackedBooking.workerAvatar} alt="Worker" className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-golden-400" />
+                  <img src={activeTrackedBooking.workerAvatar} alt={`Home service professional ${activeTrackedBooking.workerName}`} className="w-20 h-20 rounded-full mx-auto object-cover border-2 border-golden-400" />
                   <div>
                     <h3 className="text-base font-bold text-slate-900 dark:text-white">{activeTrackedBooking.workerName}</h3>
                     <div className="text-xs text-golden-700 dark:text-golden-400 font-bold">Certified Specialist • ★ {activeTrackedBooking.workerRating}</div>

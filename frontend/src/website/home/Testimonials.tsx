@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Star, Quote } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
+import { PHOTO_PLACEHOLDER } from '../imageAssets';
 
 interface Testimonial {
   name: string;
@@ -17,7 +18,7 @@ const testimonials: Testimonial[] = [
     location: 'Bole Atlas, Addis Ababa',
     service: 'Premium Home Cleaning',
     rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
+    avatar: PHOTO_PLACEHOLDER,
     quote:
       'Finding reliable cleaning in Addis used to be stressful. Meraki’s specialist arrived right on time with all supplies, and having her ID verification sent to my phone beforehand gave our family complete peace of mind.',
   },
@@ -26,7 +27,7 @@ const testimonials: Testimonial[] = [
     location: 'Old Airport, Addis Ababa',
     service: 'Elder Companion Care',
     rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
+    avatar: PHOTO_PLACEHOLDER,
     quote:
       'The companion care arranged for my mother has been an incredible blessing. Her caregiver is patient, respectful, and punctual. Meraki’s operations team even calls to check in after visits. Highly recommended!',
   },
@@ -35,7 +36,7 @@ const testimonials: Testimonial[] = [
     location: 'Kazanchis, Addis Ababa',
     service: 'Personal Cooking & Meal Prep',
     rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=200&q=80',
+    avatar: PHOTO_PLACEHOLDER,
     quote:
       'As a working professional, preparing healthy Ethiopian dishes every evening was exhausting. Our Meraki cook prepares fresh, delicious meals for the week right in our kitchen. Impeccable hygiene and incredible taste.',
   },
@@ -44,7 +45,7 @@ const testimonials: Testimonial[] = [
     location: 'Sarbet, Addis Ababa',
     service: 'Plumbing & Handyman Repairs',
     rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
+    avatar: PHOTO_PLACEHOLDER,
     quote:
       'Prompt response when our bathroom plumbing backed up on a weekend. The handyman arrived with proper tools, identified the issue immediately, and fixed it without leaving any mess behind. Transparent pricing with zero surprise charges.',
   },
@@ -53,7 +54,7 @@ const testimonials: Testimonial[] = [
     location: 'CMC, Addis Ababa',
     service: 'Childcare & Babysitting',
     rating: 5,
-    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80',
+    avatar: PHOTO_PLACEHOLDER,
     quote:
       'Our nanny is wonderful with our two young children. She is attentive, gentle, and trustworthy. Being able to book verified, police-cleared caregivers in Addis Ababa has completely transformed our work-life balance.',
   },
@@ -121,7 +122,7 @@ export const Testimonials: React.FC = () => {
               </div>
               <blockquote className="flex-1 text-sm leading-7 text-[#102A43] dark:text-white">“{testimonial.quote}”</blockquote>
               <div className="mt-6 flex items-center gap-3 border-t border-slate-200/80 pt-5 dark:border-slate-700/80">
-                <img src={testimonial.avatar} alt="" className="h-12 w-12 rounded-full border-2 border-[#D4A853] object-cover shadow-sm" loading="lazy" />
+                <img src={testimonial.avatar} alt={`Photo placeholder: portrait of Ethiopian customer ${testimonial.name}`} className="h-12 w-12 rounded-full border-2 border-[#D4A853] object-cover shadow-sm" loading="lazy" />
                 <div className="min-w-0"><h3 className="truncate text-sm font-bold text-[#102A43] dark:text-white">{testimonial.name}</h3><p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400">{testimonial.location}</p></div>
               </div>
               <p className="mt-4 w-fit rounded-full bg-[#102A43]/5 px-3 py-1 text-[11px] font-semibold text-[#102A43] dark:bg-white/10 dark:text-[#D4A853]">{testimonial.service}</p>

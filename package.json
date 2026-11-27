@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "next dev frontend --hostname 0.0.0.0 --port 3000",
+    "dev": "node scripts/dev-web.mjs",
     "dev:web": "npm run dev",
     "start:web": "next start frontend --hostname 0.0.0.0 --port 3000",
     "dev:management": "vite --config management/vite.config.ts --configLoader runner --host=0.0.0.0 --strictPort",
@@ -28,7 +28,7 @@
     "migrate:sqlite": "node backend/migrate-sqlite-to-postgres.mjs",
     "start": "node backend/index.mjs",
     "build": "next build frontend && vite build --config management/vite.config.ts --configLoader runner",
-    "test": "node --import tsx --test frontend/src/booking/request.test.ts backend/*.test.mjs",
+    "test": "node --import tsx --test frontend/src/booking/request.test.ts frontend/src/booking/chapaPayment.test.ts frontend/src/booking/priceProposals.test.ts frontend/src/booking/customerProfile.test.ts backend/*.test.mjs",
     "build:web": "next build frontend",
     "preview": "next start frontend --hostname 0.0.0.0 --port 3000",
     "clean": "node -e \"const fs=require('fs'); ['frontend/.next','dist-management','server.js'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true});}catch(e){}});\"",

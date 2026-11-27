@@ -3,15 +3,13 @@ import { ArrowRight, Clock3, Star, CheckCircle2 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { ServiceCategory } from '@shared/types';
 import { formatDemoEstimate, getDemoEstimate } from '@shared/demoPricing';
+import { serviceImage, serviceImageAlt } from '../imageAssets';
 
 interface PopularServicesProps {
   services: ServiceCategory[];
   servicesState: 'loading' | 'ready' | 'error';
   onExploreAll: () => void;
 }
-
-const imageForService = (id: string, image: string) =>
-  id === 'elder_companion' ? '/elder-companion-care.jpg' : image;
 
 const serviceBadges: Record<string, string> = {
   premium_home_cleaning: 'Most Popular',
@@ -144,8 +142,8 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
                 >
                   <div className="group/image relative h-48 shrink-0 overflow-hidden bg-slate-100 dark:bg-slate-800 sm:h-52">
                     <img
-                      src={imageForService(service.id, service.image)}
-                      alt={service.name}
+                      src={serviceImage(service.id, service.image)}
+                      alt={serviceImageAlt(service.id, service.name)}
                       className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/image:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none"
                       loading="lazy"
                     />

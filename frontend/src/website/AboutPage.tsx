@@ -1,11 +1,12 @@
 import React from 'react';
 import { HeartHandshake, Compass } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
+import { PHOTO_PLACEHOLDER } from './imageAssets';
 
-const heroImage = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1800&q=88';
-const storyImage = 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85';
-const missionImage = 'https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1400&q=85';
-const visionImage = 'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=85';
+const heroImage = PHOTO_PLACEHOLDER;
+const storyImage = PHOTO_PLACEHOLDER;
+const missionImage = PHOTO_PLACEHOLDER;
+const visionImage = PHOTO_PLACEHOLDER;
 
 export const AboutPage: React.FC = () => {
   const reduceMotion = useReducedMotion();
@@ -20,8 +21,8 @@ export const AboutPage: React.FC = () => {
     <div className="overflow-hidden bg-[#F8FAFC] text-[#102A43] dark:bg-[#0b1724]">
       {/* Intro hero follows the same full-width image treatment as Services. */}
       <section aria-labelledby="about-hero-title" className="group relative isolate -mt-20 min-h-[410px] overflow-hidden bg-[#F8FAFC] px-5 pb-14 pt-32 dark:bg-[#102A43] sm:min-h-[460px] sm:pb-16 lg:min-h-[500px] lg:px-8 lg:pb-20">
-        <div aria-hidden="true" className="absolute inset-0 -z-20 overflow-hidden">
-          <img src={heroImage} alt="" className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none" />
+        <div className="absolute inset-0 -z-20 overflow-hidden">
+          <img src={heroImage} alt="Photo placeholder: Ethiopian home professionals collaborating in a modern Addis Ababa home" className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transform-none motion-reduce:transition-none" />
         </div>
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-r from-white/90 via-white/75 to-white/30 dark:from-[#102A43]/90 dark:via-[#102A43]/75 dark:to-[#102A43]/45" />
         <motion.div {...reveal()} className="relative z-10 mx-auto flex min-h-[260px] max-w-7xl items-center sm:min-h-[290px]">
@@ -40,7 +41,7 @@ export const AboutPage: React.FC = () => {
       <section aria-labelledby="about-story-title" className="py-16 sm:py-20 lg:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-9 px-5 lg:grid-cols-[1fr_1.05fr] lg:gap-16 lg:px-8">
           <motion.div {...reveal()} className="group relative overflow-hidden rounded-3xl shadow-xl shadow-[#102A43]/10">
-            <img src={storyImage} alt="A bright, comfortable home cared for by its household" loading="lazy" className="h-[280px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none sm:h-[390px] lg:h-[440px]" />
+            <img src={storyImage} alt="Photo placeholder: a comfortable modern Ethiopian home" loading="lazy" className="h-[280px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none sm:h-[390px] lg:h-[440px]" />
           </motion.div>
           <motion.div {...reveal(0.08)}>
             <p className="text-xs font-bold uppercase tracking-[.2em] text-[#8C6A2F] dark:text-[#D4A853]">Our story</p>
@@ -55,7 +56,7 @@ export const AboutPage: React.FC = () => {
       <section aria-labelledby="about-mission-title" className="bg-white py-16 dark:bg-[#0d1e2e] sm:py-20 lg:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-9 px-5 lg:grid-cols-2 lg:gap-16 lg:px-8">
           <motion.div {...reveal()} className="group order-1 overflow-hidden rounded-3xl shadow-xl shadow-[#102A43]/10">
-            <img src={missionImage} alt="A home professional carefully preparing a living space" loading="lazy" className="h-[280px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none sm:h-[390px] lg:h-[430px]" />
+            <img src={missionImage} alt="Photo placeholder: an Ethiopian home professional preparing a living space" loading="lazy" className="h-[280px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none sm:h-[390px] lg:h-[430px]" />
           </motion.div>
           <motion.div {...reveal(0.08)} className="order-2">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#D4A853]/20 text-[#76571F] dark:text-[#E5C883]"><HeartHandshake size={24} aria-hidden="true" /></div>
@@ -76,7 +77,7 @@ export const AboutPage: React.FC = () => {
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300">We envision a future where every household can find dependable help with confidence, and every home professional can build a respected, sustainable livelihood.</p>
           </motion.div>
           <motion.div {...reveal(0.08)} className="group order-1 overflow-hidden rounded-3xl shadow-xl shadow-[#102A43]/10 lg:order-2">
-            <img src={visionImage} alt="A calm, welcoming home representing a better everyday life" loading="lazy" className="h-[280px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none sm:h-[390px] lg:h-[430px]" />
+            <img src={visionImage} alt="Photo placeholder: a bright, welcoming modern home in Ethiopia" loading="lazy" className="h-[280px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.045] motion-reduce:transform-none motion-reduce:transition-none sm:h-[390px] lg:h-[430px]" />
           </motion.div>
         </div>
       </section>

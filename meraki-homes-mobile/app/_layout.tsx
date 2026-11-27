@@ -11,7 +11,7 @@ import { C } from '../src/components/ui';
 import { BrandHeader } from '../src/components/BrandHeader';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
-const openRoots = new Set(['index', 'welcome', '(auth)', 'professional']);
+const openRoots = new Set(['index', 'welcome', '(auth)', 'professional', 'payment']);
 
 function EntryGate({ children }: { children: React.ReactNode }) {
   const { loading, canBrowse } = useAuth();
@@ -40,6 +40,7 @@ function AppStack() {
     <Stack.Screen name="service/[id]" options={{ title: 'Services' }} />
     <Stack.Screen name="booking" options={{ title: 'Request a service' }} />
     <Stack.Screen name="booking-details/[reference]" options={{ title: 'Booking details' }} />
+    <Stack.Screen name="payment/return" options={{ title: 'Payment status' }} />
     <Stack.Screen name="professional" options={{ title: 'Professional workspace' }} />
     <Stack.Screen name="approvals" options={{ title: 'Your approvals' }} />
     <Stack.Screen name="guest-booking" options={{ title: 'Guest booking lookup' }} />

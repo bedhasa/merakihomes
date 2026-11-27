@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { animate, motion, useInView, useMotionValue, useReducedMotion, useTransform } from 'motion/react';
 import { ArrowRight, Award, Headphones, HeartHandshake, Home, ShieldCheck, Star } from 'lucide-react';
+import { PHOTO_PLACEHOLDER } from '../imageAssets';
 
 interface WhoWeAreProps {
   image?: string;
@@ -44,8 +45,8 @@ export const WhoWeAre: React.FC<WhoWeAreProps> = ({ image, onAboutClick }) => {
           <div aria-hidden="true" className="absolute -bottom-4 -left-4 h-1/2 w-1/2 rounded-[2rem] bg-[#D4A853]/15" />
           <div className="relative overflow-hidden rounded-[1.75rem] shadow-[0_24px_60px_rgba(16,42,67,0.18)]">
             <img
-              src={image || 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1400&q=85'}
-              alt="A Meraki home professional caring for a welcoming home"
+              src={PHOTO_PLACEHOLDER}
+              alt="Photo placeholder: Ethiopian Meraki Homes professionals providing household services"
               loading="lazy"
               className="h-[320px] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transition-none sm:h-[420px] lg:h-[500px]"
             />

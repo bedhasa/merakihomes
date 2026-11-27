@@ -64,6 +64,23 @@ test('customer registration/login uses separate own-booking auth and no staff pr
   const login=await post(base,'/api/customers/login',{email:'one@example.test',password:'CustomerPassword1'});assert.equal(login.status,200);
 });
 
+test('customer can update only their own first and last name through the authenticated profile route',async t=>{
+  const{base,db}=await fixture(t);
+  const register=async(email,name)=>post(base,'/api/customers/register',{name,email,phone:'+251 911 222 333',password:'CustomerPassword1'});
+  const first=await register('profile-one@example.test','Old Customer'),second=await register('profile-two@example.test','Other Customer');
+  const firstCookie=first.headers.get('set-cookie').split(';')[0],secondCookie=second.headers.get('set-cookie').split(';')[0];
+  const input={firstName:'Almaz',lastName:'Tadesse'};
+  assert.equal((await fetch(base+'/api/customers/me/name',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)})).status,401);
+  const saved=await fetch(base+'/api/customers/me/name',{method:'PATCH',headers:{'Content-Type':'application/json',Cookie:firstCookie},body:JSON.stringify(input)});
+  assert.equal(saved.status,200);const result=(await saved.json()).customer;assert.equal(result.name,'Almaz Tadesse');assert.equal(result.firstName,'Almaz');assert.equal(result.lastName,'Tadesse');
+  const me=(await fetch(base+'/api/customers/me',{headers:{Cookie:firstCookie}}).then(r=>r.json())).customer;assert.equal(me.name,'Almaz Tadesse');assert.equal(me.firstName,'Almaz');assert.equal(me.lastName,'Tadesse');
+  const other=(await fetch(base+'/api/customers/me',{headers:{Cookie:secondCookie}}).then(r=>r.json())).customer;assert.equal(other.name,'Other Customer');
+  assert.equal((await db.query("SELECT full_name FROM customers WHERE id=$1",[other.id])).rows[0].full_name,'Other Customer');
+  for(const invalid of [{firstName:'',lastName:'Tadesse'},{firstName:'Almaz',lastName:'  '},{firstName:'A'.repeat(61),lastName:'Tadesse'}]){
+    const response=await fetch(base+'/api/customers/me/name',{method:'PATCH',headers:{'Content-Type':'application/json',Cookie:firstCookie},body:JSON.stringify(invalid)});assert.equal(response.status,400);
+  }
+});
+
 test('staff login is provisioned separately and protected cancellation writes audit history',async t=>{
   const{base,db,password}=await fixture(t);assert.equal((await fetch(base+'/api/management/bookings')).status,401);
   const login=await post(base,'/api/management/auth/login',{email:'admin@example.test',password});assert.equal(login.status,200);const cookie=login.headers.get('set-cookie').split(';')[0];
@@ -150,6 +167,83 @@ test('customer account can approve service item price and schedule proposals',as
   const approvals=await fetch(base+'/api/customers/me/approvals',{headers:{Cookie:customerCookie}}).then(r=>r.json());assert.deepEqual(new Set(approvals.approvals.map(a=>a.kind)),new Set(['price','schedule']));
   for(const [kind,id] of [['price',priceProposal.id],['schedule',scheduleProposal.id]]){const response=await fetch(`${base}/api/customers/me/approvals/${kind}/${id}`,{method:'PATCH',headers:{Cookie:customerCookie,'Content-Type':'application/json'},body:JSON.stringify({decision:'accepted'})});assert.equal(response.status,200);}
   const current=(await db.query('SELECT b.agreed_amount,b.requested_start,i.approved_amount,i.preferred_start_at FROM bookings b JOIN booking_items i ON i.booking_id=b.id WHERE b.id=$1',[created.booking.id])).rows[0];assert.equal(Number(current.agreed_amount),725);assert.equal(Number(current.approved_amount),725);assert.equal(new Date(current.requested_start).toISOString(),'2027-01-06T12:00:00.000Z');assert.equal(new Date(current.preferred_start_at).toISOString(),'2027-01-06T12:00:00.000Z');
+});
+
+test('price proposals are owner-only, decisions are single-use, and accepted prices feed Chapa initialization',async t=>{
+  const{base,db,password}=await fixture(t);
+  const ownerResponse=await post(base,'/api/customers/register',{name:'Proposal Owner',email:'proposal-owner@example.test',phone:'+251 911 222 333',password:'CustomerPassword1'});
+  const otherResponse=await post(base,'/api/customers/register',{name:'Other Customer',email:'proposal-other@example.test',phone:'+251 911 222 444',password:'CustomerPassword1'});
+  const ownerCookie=ownerResponse.headers.get('set-cookie').split(';')[0],otherCookie=otherResponse.headers.get('set-cookie').split(';')[0];
+  const start='2027-01-04T12:00:00.000Z';
+  const createBooking=async(cookie,name,phone)=>{
+    const response=await post(base,'/api/bookings',{serviceId:'handyman_plumbing',name,phone,neighborhood:'Bole',address:'Synthetic test address',requestedStart:start,details:'Test price proposal'},{Cookie:cookie});
+    assert.equal(response.status,201);
+    return(await response.json()).booking;
+  };
+  const ownedBooking=await createBooking(ownerCookie,'Proposal Owner','+251 911 222 333');
+  const rejectedBooking=await createBooking(ownerCookie,'Proposal Owner','+251 911 222 333');
+  const outsiderBooking=await createBooking(otherCookie,'Other Customer','+251 911 222 444');
+  const staffLogin=await post(base,'/api/management/auth/login',{email:'admin@example.test',password});
+  const staffCookie=staffLogin.headers.get('set-cookie').split(';')[0],staffHeaders={Cookie:staffCookie,'Content-Type':'application/json'};
+  const createProposal=async booking=>{
+    const item=(await db.query('SELECT id,currency FROM booking_items WHERE booking_id=$1',[booking.id])).rows[0];
+    const response=await fetch(`${base}/api/management/bookings/${booking.id}/items/${item.id}/price-proposals`,{method:'POST',headers:staffHeaders,body:JSON.stringify({amount:725,currency:item.currency.trim(),reason:'Reviewed scope and materials'})});
+    assert.equal(response.status,201);
+    return(await response.json()).proposal;
+  };
+  const acceptedProposal=await createProposal(ownedBooking);
+  const rejectedProposal=await createProposal(rejectedBooking);
+  const outsiderProposal=await createProposal(outsiderBooking);
+
+  assert.equal((await fetch(base+'/api/customers/me/price-proposals')).status,401);
+  const ownerList=await fetch(base+'/api/customers/me/price-proposals',{headers:{Cookie:ownerCookie}}).then(r=>r.json());
+  assert.equal(ownerList.proposals.length,2);
+  assert.equal(Number(ownerList.proposals.find(p=>p.id===acceptedProposal.id).amount),725);
+  assert.equal((await fetch(base+'/api/customers/me/price-proposals',{headers:{Cookie:otherCookie}}).then(r=>r.json())).proposals.length,1);
+  const decide=async(cookie,id,decision)=>fetch(`${base}/api/customers/me/approvals/price/${id}`,{method:'PATCH',headers:{Cookie:cookie,'Content-Type':'application/json'},body:JSON.stringify({decision})});
+  assert.equal((await decide('',acceptedProposal.id,'accepted')).status,401);
+  assert.equal((await decide(otherCookie,acceptedProposal.id,'accepted')).status,404);
+  assert.equal((await decide(ownerCookie,'not-a-uuid','accepted')).status,404);
+  assert.equal((await decide(ownerCookie,acceptedProposal.id,'approve')).status,400);
+  assert.equal((await decide(ownerCookie,acceptedProposal.id,'accepted')).status,200);
+  assert.equal((await decide(ownerCookie,acceptedProposal.id,'accepted')).status,404);
+  assert.equal((await decide(ownerCookie,rejectedProposal.id,'rejected')).status,200);
+  assert.equal((await decide(ownerCookie,rejectedProposal.id,'accepted')).status,404);
+
+  const finalList=await fetch(base+'/api/customers/me/price-proposals',{headers:{Cookie:ownerCookie}}).then(r=>r.json());
+  assert.equal(finalList.proposals.find(p=>p.id===acceptedProposal.id).status,'accepted');
+  assert.equal(finalList.proposals.find(p=>p.id===rejectedProposal.id).status,'rejected');
+  const acceptedAmounts=(await db.query('SELECT b.agreed_amount,b.currency,i.approved_amount FROM bookings b JOIN booking_items i ON i.booking_id=b.id WHERE b.id=$1',[ownedBooking.id])).rows[0];
+  assert.equal(Number(acceptedAmounts.agreed_amount),725);assert.equal(Number(acceptedAmounts.approved_amount),725);
+  const rejectedAmounts=(await db.query('SELECT b.agreed_amount,i.approved_amount FROM bookings b JOIN booking_items i ON i.booking_id=b.id WHERE b.id=$1',[rejectedBooking.id])).rows[0];
+  assert.equal(rejectedAmounts.agreed_amount,null);assert.equal(rejectedAmounts.approved_amount,null);
+
+  const previousFetch=globalThis.fetch,previousSecret=process.env.CHAPA_SECRET_KEY;
+  let providerCalls=0,providerPayload;
+  process.env.CHAPA_SECRET_KEY='synthetic-chapa-test-key';
+  globalThis.fetch=async(input,init)=>{
+    const url=new URL(String(input));
+    if(url.hostname==='api.chapa.co'&&url.pathname==='/v1/transaction/initialize'){
+      providerCalls++;
+      providerPayload=JSON.parse(init.body);
+      return new Response(JSON.stringify({status:'success',message:'Hosted Link',data:{checkout_url:'https://checkout.chapa.co/checkout/payment/synthetic-test'}}),{status:200,headers:{'Content-Type':'application/json'}});
+    }
+    return previousFetch(input,init);
+  };
+  try{
+    const initialized=await post(base,'/api/payments/chapa/initialize',{bookingReference:ownedBooking.reference,customerName:'Proposal Owner',customerEmail:'proposal-owner@example.test',callbackUrl:'https://example.test/api/payments/chapa/callback',returnUrl:'https://example.test/payment/return'},{Cookie:ownerCookie});
+    const initializedBody=await initialized.json();
+    assert.equal(initialized.status,200,JSON.stringify(initializedBody));
+    assert.equal(initializedBody.checkoutUrl,'https://checkout.chapa.co/checkout/payment/synthetic-test');
+    assert.equal(providerCalls,1);
+    assert.equal(providerPayload.amount,'725.00');assert.equal(providerPayload.currency,acceptedAmounts.currency.trim());
+    const rejectedPayment=await post(base,'/api/payments/chapa/initialize',{bookingReference:rejectedBooking.reference,customerName:'Proposal Owner',customerEmail:'proposal-owner@example.test',callbackUrl:'https://example.test/api/payments/chapa/callback',returnUrl:'https://example.test/payment/return'},{Cookie:ownerCookie});
+    assert.equal(rejectedPayment.status,409);
+    assert.equal(providerCalls,1);
+  }finally{
+    globalThis.fetch=previousFetch;
+    if(previousSecret===undefined)delete process.env.CHAPA_SECRET_KEY;else process.env.CHAPA_SECRET_KEY=previousSecret;
+  }
 });
 
 test('mobile bearer auth can access account, save addresses, submit booking and view private details',async t=>{

@@ -6,6 +6,7 @@ import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { registerProfessionalRoutes } from './professionals.mjs';
+import { getChapaSecretKey, initializeChapaPayment, preparePaymentInitializationPayload, verifyChapaPayment, verifyChapaWebhookSignature } from './chapa.mjs';
 import { geoapifyReverseUrl, geoapifySearchUrl, mapGeoapifyReverseFeature, mapGeoapifySearchFeatures } from './geo.mjs';
 import { agazPublicMessage, classifyGeminiError, generateWithResilience, geminiMaxOutputTokens, geminiModelsFromEnv, truncateHistory } from './agaz-gemini.mjs';
 
@@ -86,9 +87,161 @@ function writeCookie(res,name,value){const secure=process.env.NODE_ENV==='produc
 function clearCookie(res,name){const secure=process.env.NODE_ENV==='production'?'; Secure':'';res.setHeader('Set-Cookie',`${name}=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0${secure}`);}
 function passwordValid(password){return typeof password==='string'&&password.length>=10&&password.length<=200;}
 function normalizedPhone(phone){return String(phone||'').replace(/\D/g,'');}
+function splitCustomerName(value){const parts=String(value||'').trim().split(/\s+/).filter(Boolean);return{firstName:parts.shift()||'',lastName:parts.join(' ')};}
 const addisWeekday={Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
 function addisTimeParts(value){const date=new Date(value);if(!Number.isFinite(date.getTime()))return null;const parts=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',year:'numeric',month:'2-digit',day:'2-digit',weekday:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date).map(p=>[p.type,p.value]));return{date:`${parts.year}-${parts.month}-${parts.day}`,weekday:addisWeekday[parts.weekday],time:`${parts.hour}:${parts.minute}:00`};}
 function distanceKm(lat1,lon1,lat2,lon2){if([lat1,lon1,lat2,lon2].some(v=>v===null||v===undefined||!Number.isFinite(Number(v))))return null;const rad=x=>Number(x)*Math.PI/180;const dLat=rad(lat2-lat1),dLon=rad(lon2-lon1),a=Math.sin(dLat/2)**2+Math.cos(rad(lat1))*Math.cos(rad(lat2))*Math.sin(dLon/2)**2;return Math.round(6371*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))*10)/10;}
+function moneyToCents(value){if(typeof value!=='string'&&typeof value!=='number')return null;const text=String(value).trim();if(!/^\d+(?:\.\d{1,2})?$/.test(text))return null;const amount=Number(text);if(!Number.isFinite(amount)||amount<=0)return null;const cents=Math.round(amount*100);return Number.isSafeInteger(cents)?cents:null;}
+function chapaCheckoutUrl(value){if(typeof value!=='string')return null;try{const url=new URL(value);return url.protocol==='https:'&&url.hostname==='checkout.chapa.co'&&!url.username&&!url.password?value:null;}catch{return null;}}
+function paymentRouteError(status,message){return Object.assign(new Error(message),{httpStatus:status});}
+
+async function createChapaPaymentRecord(pool,bookingReference,customerId,paymentDetails){
+  if(typeof bookingReference!=='string'||!/^MRK-[A-Z0-9]{12}$/i.test(bookingReference.trim()))throw paymentRouteError(400,'Provide a valid booking reference for payment tracking.');
+  const reference=bookingReference.trim().toUpperCase(),client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    const booking=(await client.query('SELECT id,reference,customer_id,status,agreed_amount,currency FROM bookings WHERE reference=$1 AND customer_id=$2 FOR UPDATE',[reference,customerId])).rows[0];
+    if(!booking){await client.query('ROLLBACK');throw paymentRouteError(404,'Booking was not found.');}
+    if(['cancelled','rejected'].includes(booking.status)){await client.query('ROLLBACK');throw paymentRouteError(409,'This booking cannot receive a payment.');}
+    if(booking.agreed_amount===null){await client.query('ROLLBACK');throw paymentRouteError(409,'An approved booking amount is required before payment.');}
+    const currency=String(booking.currency).trim().toUpperCase();
+    if(!['ETB','USD'].includes(currency)){await client.query('ROLLBACK');throw paymentRouteError(409,'The approved booking currency is not supported for Chapa payments.');}
+    const pendingChapa=await client.query(`SELECT p.id,p.status,p.provider_reference,p.transaction_reference,p.amount::numeric AS amount,
+      a.checkout_url,a.provider_reference AS attempt_provider_reference
+      FROM payments p LEFT JOIN payment_attempts a ON a.payment_id=p.id AND a.attempt_number=1
+      WHERE p.booking_id=$1 AND p.provider='chapa' AND p.status IN ('initiated','pending_verification')
+      ORDER BY p.created_at DESC LIMIT 1 FOR UPDATE OF p`,[booking.id]);
+    if(pendingChapa.rows.length){
+      const pending=pendingChapa.rows[0];
+      const verifiedRows=await client.query("SELECT COALESCE(sum(amount),0)::numeric AS paid FROM payments WHERE booking_id=$1 AND status='verified'",[booking.id]);
+      const verifiedCents=Math.round(Number(verifiedRows.rows[0].paid)*100);
+      const approvedCents=moneyToCents(String(booking.agreed_amount));
+      const pendingAmountCents=moneyToCents(String(pending.amount));
+      if(approvedCents===null||pendingAmountCents!==approvedCents-verifiedCents){
+        await client.query('ROLLBACK');
+        throw paymentRouteError(409,'The approved amount changed while a Chapa payment was pending. Refresh the booking before trying again.');
+      }
+      await client.query('COMMIT');
+      return{bookingId:booking.id,existingPending:{
+        paymentId:pending.id,status:pending.status,transactionReference:pending.transaction_reference,
+        providerReference:pending.provider_reference,attemptProviderReference:pending.attempt_provider_reference,
+        amount:pending.amount,checkoutUrl:pending.checkout_url,
+      }};
+    }
+    const reservedRows=await client.query("SELECT COALESCE(sum(amount),0)::numeric AS reserved FROM payments WHERE booking_id=$1 AND status IN ('verified','initiated','pending_verification')",[booking.id]);
+    const totalCents=moneyToCents(String(booking.agreed_amount)),reservedCents=Math.round(Number(reservedRows.rows[0].reserved)*100),amountCents=totalCents===null?null:totalCents-reservedCents;
+    if(amountCents===null||amountCents<=0){await client.query('ROLLBACK');throw paymentRouteError(409,'No approved booking balance remains to be paid.');}
+    const transactionReference=`meraki-${randomUUID()}`;
+    let payload;
+    try{
+      const paymentDetailsWithReference={...paymentDetails};
+      if(paymentDetails.returnUrl!==undefined){
+        const returnUrl=new URL(paymentDetails.returnUrl);
+        returnUrl.searchParams.set('tx_ref',transactionReference);
+        paymentDetailsWithReference.returnUrl=returnUrl.href;
+      }
+      payload=preparePaymentInitializationPayload({...paymentDetailsWithReference,amount:(amountCents/100).toFixed(2),currency,transactionReference});
+    }catch(error){await client.query('ROLLBACK');throw paymentRouteError(400,error.message);}
+    const payment=(await client.query(`INSERT INTO payments(booking_id,amount,currency,payment_stage,status,provider,idempotency_key,is_simulated,transaction_reference)
+      VALUES($1,$2/100.0,$3,'full','initiated','chapa',$4,FALSE,$5) RETURNING id`,[booking.id,amountCents,currency,`chapa:${transactionReference}`,transactionReference])).rows[0];
+    await client.query("INSERT INTO payment_attempts(payment_id,attempt_number,provider_reference,attempt_status) VALUES($1,1,$2,'initiated')",[payment.id,payload.tx_ref]);
+    await client.query('COMMIT');
+    return{paymentId:payment.id,bookingId:booking.id,payload};
+  }catch(error){await client.query('ROLLBACK').catch(()=>{});if(error.code==='23505')throw paymentRouteError(409,'This transaction reference has already been used.');throw error;}
+  finally{client.release();}
+}
+
+async function updateChapaInitializationRecord(pool,paymentId,{status,checkoutUrl=null,providerReference=null}){
+  if(!paymentId)return;
+  const client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    await client.query(`UPDATE payments SET status=$1,provider_reference=COALESCE($2,provider_reference) WHERE id=$3 AND status<>'verified'`,[status,providerReference,paymentId]);
+    await client.query('UPDATE payment_attempts SET attempt_status=$1,checkout_url=COALESCE($2,checkout_url),provider_reference=COALESCE($3,provider_reference),completed_at=CASE WHEN $1 IN (\'failed\',\'expired\') THEN now() ELSE completed_at END WHERE payment_id=$4 AND attempt_number=1',[status==='initiated'?'pending':status==='pending_verification'?'pending':status,checkoutUrl,providerReference,paymentId]);
+    await client.query('COMMIT');
+  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
+}
+
+async function failUninitializedChapaPayment(pool,paymentId){
+  const client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    const pending=(await client.query(`SELECT p.id,p.booking_id,a.checkout_url FROM payments p
+      JOIN payment_attempts a ON a.payment_id=p.id AND a.attempt_number=1
+      WHERE p.id=$1 AND p.provider='chapa' AND p.status IN ('initiated','pending_verification')
+      FOR UPDATE OF p`,[paymentId])).rows[0];
+    if(!pending||pending.checkout_url){await client.query('ROLLBACK');return false;}
+    await client.query("UPDATE payments SET status='failed' WHERE id=$1",[paymentId]);
+    await client.query("UPDATE payment_attempts SET attempt_status='failed',completed_at=COALESCE(completed_at,now()) WHERE payment_id=$1 AND attempt_number=1",[paymentId]);
+    await client.query('COMMIT');
+    return true;
+  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}
+  finally{client.release();}
+}
+
+async function reconcileChapaPayment(pool,transactionReference,verifiedResult=null){
+  const tracked=(await pool.query(`SELECT p.id,p.booking_id,p.amount::numeric AS amount,p.currency,p.status,b.reference AS booking_reference
+    FROM payments p JOIN bookings b ON b.id=p.booking_id
+    WHERE p.transaction_reference=$1 AND p.provider='chapa' AND p.is_simulated=FALSE`,[transactionReference])).rows[0];
+  if(!tracked)throw paymentRouteError(404,'No tracked Chapa payment matches this transaction reference.');
+  const result=verifiedResult??await verifyChapaPayment(transactionReference),data=result?.data;
+  if(!data||data.tx_ref!==transactionReference)throw paymentRouteError(409,'Chapa verification returned a mismatched transaction reference.');
+  const providerAmount=moneyToCents(data.amount),expectedAmount=moneyToCents(String(tracked.amount));
+  if(providerAmount===null||providerAmount!==expectedAmount)throw paymentRouteError(409,'Chapa verification amount does not match the recorded payment.');
+  if(typeof data.currency!=='string'||data.currency.trim().toUpperCase()!==String(tracked.currency).trim().toUpperCase())throw paymentRouteError(409,'Chapa verification currency does not match the recorded payment.');
+  const providerStatus=typeof data.status==='string'?data.status.trim().toLowerCase():'';
+  const targetStatus=providerStatus==='success'?'verified':['failed','cancelled','failed/cancelled'].includes(providerStatus)?'failed':['pending','initiated'].includes(providerStatus)?'pending_verification':null;
+  if(!targetStatus)throw paymentRouteError(409,'Chapa verification returned an unsupported transaction status.');
+
+  const client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    const payment=(await client.query(`SELECT p.id,p.booking_id,p.amount::numeric AS amount,p.currency,p.status,payment_attempts.id AS attempt_id,
+      b.agreed_amount,b.starting_estimate,b.reference AS booking_reference
+      FROM payments p JOIN bookings b ON b.id=p.booking_id JOIN payment_attempts ON payment_attempts.payment_id=p.id AND payment_attempts.attempt_number=1
+      WHERE p.id=$1 FOR UPDATE`,[tracked.id])).rows[0];
+    if(!payment){await client.query('ROLLBACK');throw paymentRouteError(404,'Tracked payment record was not found.');}
+    let nextStatus=payment.status==='verified'?'verified':targetStatus;
+    if(payment.status==='failed'&&targetStatus==='pending_verification')nextStatus='failed';
+    let duplicate=false;
+    if(nextStatus==='verified'&&payment.status!=='verified'){
+      await client.query('SELECT id FROM bookings WHERE id=$1 FOR UPDATE',[payment.booking_id]);
+      const totalCents=moneyToCents(String(payment.agreed_amount??payment.starting_estimate));
+      const otherPaid=await client.query("SELECT COALESCE(sum(amount),0)::numeric AS paid FROM payments WHERE booking_id=$1 AND status='verified' AND id<>$2",[payment.booking_id,payment.id]);
+      const paidCents=Math.round(Number(otherPaid.rows[0].paid)*100),amountCents=moneyToCents(String(payment.amount));
+      if(totalCents===null||paidCents+amountCents>totalCents){await client.query('ROLLBACK');throw paymentRouteError(409,'Verified payment would exceed the approved booking total.');}
+      const items=(await client.query(`SELECT i.id,COALESCE(i.approved_amount,i.estimated_amount) AS item_total,
+        COALESCE((SELECT sum(a.allocated_amount) FROM payment_allocations a JOIN payments paid ON paid.id=a.payment_id WHERE a.booking_item_id=i.id AND paid.status='verified'),0) AS allocated
+        FROM booking_items i WHERE i.booking_id=$1 ORDER BY i.item_number FOR UPDATE`,[payment.booking_id])).rows;
+      let amountLeft=amountCents;
+      for(let index=0;index<items.length&&amountLeft>0;index++){
+        const item=items[index],capacity=item.item_total===null?items.length===1?amountCents:0:Math.max(0,Math.round((Number(item.item_total)-Number(item.allocated))*100));
+        const allocation=Math.min(amountLeft,capacity);
+        if(allocation>0){await client.query('INSERT INTO payment_allocations(booking_id,payment_id,booking_item_id,allocated_amount,currency) VALUES($1,$2,$3,$4/100.0,$5)',[payment.booking_id,payment.id,item.id,allocation,payment.currency]);amountLeft-=allocation;}
+      }
+      if(items.length&&amountLeft>0){await client.query('ROLLBACK');throw paymentRouteError(409,'Approved booking item totals do not cover the verified payment.');}
+    }
+    const finalProviderReference=typeof data.reference==='string'?data.reference:null;
+    await client.query(`UPDATE payments SET status=$1,provider_reference=COALESCE($2,provider_reference),
+      verified_at=CASE WHEN $1='verified' THEN COALESCE(verified_at,now()) ELSE verified_at END
+      WHERE id=$3`,[nextStatus,finalProviderReference,payment.id]);
+    const attemptStatus=nextStatus==='verified'?'succeeded':nextStatus==='failed'?'failed':'pending';
+    await client.query(`UPDATE payment_attempts SET attempt_status=$1,provider_reference=COALESCE($2,provider_reference),
+      completed_at=CASE WHEN $1 IN ('succeeded','failed') THEN COALESCE(completed_at,now()) ELSE completed_at END
+      WHERE id=$3`,[attemptStatus,finalProviderReference,payment.attempt_id]);
+    const eventId=`chapa:${transactionReference}:${providerStatus}`;
+    const inserted=await client.query(`INSERT INTO payment_transactions(payment_attempt_id,provider_event_id,provider_transaction_id,event_type,event_status,amount,currency,raw_payload,verified_at)
+      VALUES($1,$2,$3,'transaction.verification',$4,$5,$6,'{}'::jsonb,now()) ON CONFLICT(provider_event_id) DO NOTHING RETURNING id`,[payment.attempt_id,eventId,finalProviderReference,providerStatus,payment.amount,payment.currency]);
+    duplicate=inserted.rowCount===0;
+    if(nextStatus==='verified'){
+      const totals=(await client.query("SELECT COALESCE(sum(amount),0)::numeric AS paid FROM payments WHERE booking_id=$1 AND status='verified'",[payment.booking_id])).rows[0];
+      const totalCents=moneyToCents(String(payment.agreed_amount??payment.starting_estimate)),paidCents=Math.round(Number(totals.paid)*100);
+      await client.query('UPDATE payments SET total_paid_after=$1/100.0,remaining_balance=$2/100.0 WHERE id=$3',[paidCents,Math.max(0,totalCents-paidCents),payment.id]);
+    }
+    await client.query('COMMIT');
+    return{transactionReference,bookingReference:payment.booking_reference,paymentStatus:nextStatus,duplicate};
+  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error;}finally{client.release();}
+}
 async function eligibleWorkers(pool,{serviceId,requestedStart,durationMinutes,latitude,longitude,excludeBookingId=null}){
   const parts=addisTimeParts(requestedStart);if(!parts)return[];
   const rows=(await pool.query(`SELECT w.id,w.worker_code AS "workerId",w.full_name AS name,w.photo_url AS "photoUrl",w.service_area AS "serviceArea",w.latitude,w.longitude,w.base_rate AS "baseRate",w.rate_currency AS "rateCurrency",w.rating,w.review_count AS "reviewCount",w.is_demo AS "isDemo",array_agg(ws.qualification_name ORDER BY ws.qualification_name) AS skills,
@@ -121,7 +274,7 @@ export function createApp({pool=createPool()}={}){
   });
   const publicLimit=createRateLimit(30,10*60_000),contactLimit=createRateLimit(8,10*60_000),lookupLimit=createRateLimit(12,60_000),authLimit=createRateLimit(8,15*60_000),assistantLimit=createRateLimit(12,60_000);
 
-  const customerAuth=asyncRoute(async(req,res,next)=>{const claims=customerClaims(req);if(!claims)return apiError(res,401,'Please sign in to view your account.');const user=(await pool.query(`SELECT c.id,c.full_name AS name,a.email,(SELECT contact_value FROM customer_contacts WHERE customer_id=c.id AND contact_type='phone' ORDER BY created_at LIMIT 1) AS phone FROM customers c JOIN customer_auth a ON a.customer_id=c.id WHERE c.id=$1 AND c.account_status='active'`,[claims.sub])).rows[0];if(!user)return apiError(res,401,'Customer account is not active.');req.customer=user;next();});
+  const customerAuth=asyncRoute(async(req,res,next)=>{const claims=customerClaims(req);if(!claims)return apiError(res,401,'Please sign in to view your account.');const user=(await pool.query(`SELECT c.id,c.full_name AS name,a.email,(SELECT contact_value FROM customer_contacts WHERE customer_id=c.id AND contact_type='phone' ORDER BY created_at LIMIT 1) AS phone FROM customers c JOIN customer_auth a ON a.customer_id=c.id WHERE c.id=$1 AND c.account_status='active'`,[claims.sub])).rows[0];if(!user)return apiError(res,401,'Customer account is not active.');Object.assign(user,splitCustomerName(user.name));req.customer=user;next();});
   const staffAuth=(permission)=>asyncRoute(async(req,res,next)=>{const claims=verifyToken(cookieValue(req,'meraki_staff_session'),'staff');if(!claims)return apiError(res,401,'Staff sign-in is required.');const user=(await pool.query(`SELECT s.id,s.email,s.full_name AS name,s.role_id AS role FROM staff_users s JOIN staff_role_permissions rp ON rp.role_id=s.role_id WHERE s.id=$1 AND s.is_active=TRUE AND rp.permission_id=$2`,[claims.sub,permission])).rows[0];if(!user)return apiError(res,403,'Your staff account does not have permission for this action.');req.staff=user;next();});
   const staffAuthAny=(permissions)=>asyncRoute(async(req,res,next)=>{const claims=verifyToken(cookieValue(req,'meraki_staff_session'),'staff');if(!claims)return apiError(res,401,'Staff sign-in is required.');const user=(await pool.query(`SELECT s.id,s.email,s.full_name AS name,s.role_id AS role FROM staff_users s JOIN staff_role_permissions rp ON rp.role_id=s.role_id WHERE s.id=$1 AND s.is_active=TRUE AND rp.permission_id=ANY($2::text[])`,[claims.sub,permissions])).rows[0];if(!user)return apiError(res,403,'Your staff account does not have permission for this action.');req.staff=user;next();});
   const publicAssetUrl=(req,url)=>{if(typeof url!=='string'||!url||/^https?:\/\//i.test(url))return url||'';if(url.startsWith('/api/uploads/')){const base=(process.env.PUBLIC_API_URL||`${req.protocol}://${req.get('host')||'localhost'}`).replace(/\/$/,'');return `${base}${url}`;}return url;};
@@ -209,6 +362,15 @@ export function createApp({pool=createPool()}={}){
   app.post('/api/mobile/auth/logout',(_req,res)=>res.status(204).end());
   app.post('/api/customers/logout',(_req,res)=>{clearCookie(res,'meraki_customer_session');res.status(204).end();});
   app.get('/api/customers/me',customerAuth,(req,res)=>res.json({customer:req.customer}));
+  app.patch('/api/customers/me/name',customerAuth,asyncRoute(async(req,res)=>{
+    const body=req.body||{},fields={};
+    for(const field of ['firstName','lastName'])if(typeof body[field]!=='string'||!body[field].trim()||body[field].trim().length>60||/[\p{Cc}\p{Cf}]/u.test(body[field]))fields[field]=`Enter a valid ${field==='firstName'?'first':'last'} name.`;
+    if(Object.keys(fields).length)return apiError(res,400,'Please provide both your first and last name.',fields);
+    const firstName=body.firstName.trim(),lastName=body.lastName.trim(),name=`${firstName} ${lastName}`;
+    const updated=await pool.query('UPDATE customers SET full_name=$1 WHERE id=$2 RETURNING full_name AS name',[name,req.customer.id]);
+    const customer={...req.customer,...splitCustomerName(updated.rows[0].name),name:updated.rows[0].name};
+    res.json({customer});
+  }));
   app.patch('/api/customers/me',customerAuth,asyncRoute(async(req,res)=>{
     const b=req.body||{},fields={};
     if(typeof b.name!=='string'||b.name.trim().length<2||b.name.length>120)fields.name='Enter a name between 2 and 120 characters.';
@@ -282,7 +444,19 @@ export function createApp({pool=createPool()}={}){
   app.post('/api/customers/me/addresses',customerAuth,asyncRoute(async(req,res)=>{const b=req.body||{},fields={};for(const [k,min,max] of [['label',1,60],['city',2,100],['subCity',1,100],['area',1,120],['streetBuilding',2,240],['landmark',0,160],['directions',0,500]])if(typeof b[k]!=='string'||b[k].trim().length<min||b[k].length>max)fields[k]=`Enter a valid ${k}.`;const lat=b.latitude==null||b.latitude===''?null:Number(b.latitude),lon=b.longitude==null||b.longitude===''?null:Number(b.longitude);if((lat===null)!==(lon===null)||lat!==null&&(!Number.isFinite(lat)||lat < -90||lat>90)||lon!==null&&(!Number.isFinite(lon)||lon < -180||lon>180))fields.coordinates='Provide valid latitude and longitude together.';if(b.isDefault!==undefined&&typeof b.isDefault!=='boolean')fields.isDefault='Choose a valid default setting.';if(Object.keys(fields).length)return apiError(res,400,'Please check the address details.',fields);const client=await pool.connect();try{await client.query('BEGIN');const makeDefault=b.isDefault===true||(await client.query('SELECT 1 FROM customer_addresses WHERE customer_id=$1 LIMIT 1',[req.customer.id])).rowCount===0;if(makeDefault)await client.query('UPDATE customer_addresses SET is_default=FALSE WHERE customer_id=$1',[req.customer.id]);const {rows}=await client.query(`INSERT INTO customer_addresses(customer_id,label,city,sub_city,area,street_building,landmark,directions,latitude,longitude,is_default,address_details) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING ${addressSelect}`,[req.customer.id,b.label.trim(),b.city.trim(),b.subCity.trim(),b.area.trim(),b.streetBuilding.trim(),b.landmark.trim(),b.directions.trim(),lat,lon,makeDefault,[b.streetBuilding.trim(),b.area.trim(),b.subCity.trim(),b.city.trim()].filter(Boolean).join(', ')]);await client.query('COMMIT');res.status(201).json({address:rows[0]});}catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}}));
   app.patch('/api/customers/me/addresses/:id',customerAuth,asyncRoute(async(req,res)=>{const b=req.body||{},current=(await pool.query(`SELECT ${addressSelect} FROM customer_addresses WHERE id=$1 AND customer_id=$2`,[req.params.id,req.customer.id])).rows[0];if(!current)return apiError(res,404,'Saved address not found.');const value={...current,...b},limits={label:[1,60],city:[2,100],subCity:[1,100],area:[1,120],streetBuilding:[2,240],landmark:[0,160],directions:[0,500]};for(const [k,[min,max]] of Object.entries(limits))if(typeof value[k]!=='string'||value[k].trim().length<min||value[k].length>max)return apiError(res,400,`Enter a valid ${k}.`,{[k]:`Keep this field between ${min} and ${max} characters.`});if(typeof value.isDefault!=='boolean')return apiError(res,400,'Choose a valid default setting.');const lat=value.latitude==null||value.latitude===''?null:Number(value.latitude),lon=value.longitude==null||value.longitude===''?null:Number(value.longitude);if((lat===null)!==(lon===null)||lat!==null&&(!Number.isFinite(lat)||lat < -90||lat>90)||lon!==null&&(!Number.isFinite(lon)||lon < -180||lon>180))return apiError(res,400,'Provide valid latitude and longitude together.');const client=await pool.connect();try{await client.query('BEGIN');if(value.isDefault)await client.query('UPDATE customer_addresses SET is_default=FALSE WHERE customer_id=$1',[req.customer.id]);const {rows}=await client.query(`UPDATE customer_addresses SET label=$1,city=$2,sub_city=$3,area=$4,street_building=$5,landmark=$6,directions=$7,latitude=$8,longitude=$9,is_default=$10,address_details=$11 WHERE id=$12 AND customer_id=$13 RETURNING ${addressSelect}`,[value.label.trim(),value.city.trim(),value.subCity.trim(),value.area.trim(),value.streetBuilding.trim(),value.landmark.trim(),value.directions.trim(),lat,lon,value.isDefault,[value.streetBuilding.trim(),value.area.trim(),value.subCity.trim(),value.city.trim()].filter(Boolean).join(', '),req.params.id,req.customer.id]);await client.query('COMMIT');res.json({address:rows[0]});}catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}}));
   app.delete('/api/customers/me/addresses/:id',customerAuth,asyncRoute(async(req,res)=>{const removed=await pool.query('DELETE FROM customer_addresses WHERE id=$1 AND customer_id=$2 RETURNING id,is_default',[req.params.id,req.customer.id]);if(!removed.rowCount)return apiError(res,404,'Saved address not found.');if(removed.rows[0].is_default){const next=(await pool.query(`UPDATE customer_addresses SET is_default=TRUE WHERE id=(SELECT id FROM customer_addresses WHERE customer_id=$1 ORDER BY created_at DESC LIMIT 1) RETURNING id`,[req.customer.id])).rowCount;}res.status(204).end();}));
-  app.get('/api/customers/me/bookings',customerAuth,asyncRoute(async(req,res)=>{const {rows}=await pool.query(`SELECT b.reference,b.service_name_snapshot AS service_name,b.status,b.requested_start,b.created_at,b.starting_estimate AS "startingEstimate",b.agreed_amount AS "agreedAmount",b.currency,COALESCE((SELECT sum(p.amount) FROM payments p WHERE p.booking_id=b.id AND p.status='verified'),0)::numeric AS "amountPaid",GREATEST(COALESCE(b.agreed_amount,b.starting_estimate,0)-COALESCE((SELECT sum(p.amount) FROM payments p WHERE p.booking_id=b.id AND p.status='verified'),0),0)::numeric AS "remainingBalance",COALESCE((SELECT json_agg(json_build_object('id',i.id,'serviceName',i.service_name_snapshot,'packageName',i.package_name_snapshot,'status',i.item_status,'requestedStart',i.preferred_start_at,'estimate',i.estimated_amount,'currency',i.currency,'reviewSubmitted',EXISTS(SELECT 1 FROM booking_item_reviews r WHERE r.booking_item_id=i.id AND r.customer_id=b.customer_id)) ORDER BY i.item_number) FROM booking_items i WHERE i.booking_id=b.id),'[]'::json) AS items FROM bookings b WHERE b.customer_id=$1 ORDER BY b.created_at DESC`,[req.customer.id]);res.json({bookings:rows});}));
+  app.get('/api/customers/me/bookings',customerAuth,asyncRoute(async(req,res)=>{
+    const {rows}=await pool.query(`SELECT b.reference,b.service_name_snapshot AS service_name,b.status,b.requested_start,b.created_at,
+      b.starting_estimate AS "startingEstimate",b.agreed_amount AS "agreedAmount",b.currency,
+      verified.amount_paid AS "amountPaid",
+      GREATEST(COALESCE(b.agreed_amount,b.starting_estimate,0)-verified.amount_paid,0)::numeric AS "remainingBalance",
+      CASE WHEN COALESCE(b.agreed_amount,b.starting_estimate,0)>0 AND verified.amount_paid>=COALESCE(b.agreed_amount,b.starting_estimate,0) THEN 'paid'
+        WHEN verified.amount_paid>0 THEN 'partial' ELSE 'unpaid' END AS "paymentStatus",
+      COALESCE((SELECT json_agg(json_build_object('id',i.id,'serviceName',i.service_name_snapshot,'packageName',i.package_name_snapshot,'status',i.item_status,'requestedStart',i.preferred_start_at,'estimate',i.estimated_amount,'currency',i.currency,'reviewSubmitted',EXISTS(SELECT 1 FROM booking_item_reviews r WHERE r.booking_item_id=i.id AND r.customer_id=b.customer_id)) ORDER BY i.item_number) FROM booking_items i WHERE i.booking_id=b.id),'[]'::json) AS items
+      FROM bookings b
+      LEFT JOIN LATERAL (SELECT COALESCE(sum(p.amount),0)::numeric AS amount_paid FROM payments p WHERE p.booking_id=b.id AND p.status='verified') verified ON TRUE
+      WHERE b.customer_id=$1 ORDER BY b.created_at DESC`,[req.customer.id]);
+    res.set('Cache-Control','private, no-store').json({bookings:rows});
+  }));
   app.get('/api/customers/me/bookings/:reference',customerAuth,asyncRoute(async(req,res)=>{const booking=(await pool.query(`SELECT id,reference,service_name_snapshot AS "serviceName",status,requested_start AS "requestedStart",created_at AS "createdAt",address_snapshot AS address,neighborhood,nearby_landmark AS "nearbyLandmark",starting_estimate AS "startingEstimate",agreed_amount AS "agreedAmount",currency,COALESCE((SELECT sum(amount) FROM payments p WHERE p.booking_id=b.id AND p.status='verified'),0)::numeric AS "amountPaid" FROM bookings b WHERE reference=$1 AND customer_id=$2`,[req.params.reference.toUpperCase(),req.customer.id])).rows[0];if(!booking)return apiError(res,404,'Booking not found.');const items=(await pool.query(`SELECT i.id,i.item_number AS "itemNumber",i.service_name_snapshot AS "serviceName",i.package_name_snapshot AS "packageName",i.item_status AS status,i.preferred_start_at AS "requestedStart",i.confirmed_start_at AS "confirmedStart",i.estimated_amount AS estimate,i.approved_amount AS "approvedAmount",i.currency,i.scope_notes AS notes,i.answers_snapshot AS answers,COALESCE((SELECT json_agg(json_build_object('workerId',w.id,'name',w.full_name,'photoUrl',w.photo_url,'isDemo',w.is_demo,'rating',w.rating,'reviewCount',w.review_count,'skills',COALESCE((SELECT array_agg(ws.qualification_name ORDER BY ws.qualification_name) FROM worker_services ws WHERE ws.worker_id=w.id AND ws.qualification_status='verified' AND ws.qualification_name<>''),'{}'),'status',a.assignment_status,'startsAt',a.assignment_start) ORDER BY a.created_at) FROM booking_assignments a JOIN workers w ON w.id=a.worker_id WHERE a.booking_item_id=i.id AND a.assignment_status IN ('assigned','confirmed','in_progress','completed')), (SELECT json_agg(json_build_object('workerId',w.id,'name',w.full_name,'photoUrl',w.photo_url,'isDemo',w.is_demo,'rating',w.rating,'reviewCount',w.review_count,'skills',COALESCE((SELECT array_agg(ws.qualification_name ORDER BY ws.qualification_name) FROM worker_services ws WHERE ws.worker_id=w.id AND ws.qualification_status='verified' AND ws.qualification_name<>''),'{}'),'status','preferred','startsAt',NULL)) FROM workers w WHERE w.id=COALESCE(i.preferred_worker_id,i.suggested_worker_id) AND NOT EXISTS(SELECT 1 FROM booking_assignments a WHERE a.booking_item_id=i.id AND a.assignment_status IN ('assigned','confirmed','in_progress','completed'))),'[]'::json) AS workers,EXISTS(SELECT 1 FROM booking_item_reviews r WHERE r.booking_item_id=i.id AND r.customer_id=$2) AS "reviewSubmitted" FROM booking_items i WHERE i.booking_id=$1 ORDER BY i.item_number`,[booking.id,req.customer.id])).rows;const history=(await pool.query('SELECT old_status AS "oldStatus",new_status AS "newStatus",reason,created_at AS "createdAt" FROM booking_status_history WHERE booking_id=$1 ORDER BY created_at',[booking.id])).rows;const payments=(await pool.query(`SELECT provider AS "paymentMethod",payment_stage AS "paymentType",transaction_reference AS "receiptNumber",amount::numeric,created_at AS "paidAt" FROM payments WHERE booking_id=$1 AND status='verified' AND is_simulated=TRUE ORDER BY created_at DESC`,[booking.id])).rows;const amountPaid=Number(booking.amountPaid),total=Number(booking.agreedAmount??booking.startingEstimate??0);res.json({booking,items,history,payments,payment:{amountPaid,balance:Math.max(0,total-amountPaid),status:amountPaid>=total&&total>0?'paid':amountPaid>0?'partial':'unpaid',onlinePaymentEnabled:false}});}));
 
   app.post('/api/bookings',publicLimit,asyncRoute(async(req,res,next)=>{
@@ -404,6 +578,94 @@ export function createApp({pool=createPool()}={}){
       res.status(201).json({receipt:{receiptNumber:transactionReference,bookingReference:booking.reference,customerName:booking.customer_name_snapshot,customerPhone:booking.customer_phone_snapshot,serviceName:booking.service_name_snapshot,packageName:booking.package_name_snapshot||'Approved quote',bookingTotal:totalCents/100,currency:booking.currency.trim(),paymentMethod:provider,transactionReference,amountPaid:amountCents/100,totalPaid:newPaid/100,remainingBalance:remaining/100,paymentStatus:remaining?'partially_paid':'paid',paidAt:payment.created_at,simulated:true},paymentStatus:remaining?'partially_paid':'paid',message:'Demo payment simulation succeeded. No real money was charged.'});
     }catch(e){await client.query('ROLLBACK').catch(()=>{});if(e.code==='23505'&&key){const prior=(await pool.query('SELECT transaction_reference,status FROM payments WHERE idempotency_key=$1',[key])).rows[0];if(prior?.status==='verified')return apiError(res,409,'This demo payment was already processed. Look up the receipt.');}throw e;}finally{client.release();}
   }));
+  app.post('/api/payments/chapa/initialize',publicLimit,customerAuth,asyncRoute(async(req,res)=>{
+    const body=req.body;
+    if(!body||typeof body!=='object'||Array.isArray(body))return apiError(res,400,'Provide payment details as a JSON object.');
+    if(body.bookingReference===undefined)return apiError(res,400,'Provide a booking reference for payment tracking.');
+    if(!req.customer.firstName||!req.customer.lastName)return apiError(res,409,'Add both your first and last name in your profile before starting checkout.');
+    try{getChapaSecretKey();}catch{return apiError(res,503,'Chapa payments are not configured on this server.');}
+    let paymentRecord;
+    try{paymentRecord=await createChapaPaymentRecord(pool,body.bookingReference,req.customer.id,{...body,customerName:req.customer.name,customerEmail:req.customer.email});}
+    catch(error){return apiError(res,error.httpStatus||500,error.httpStatus?error.message:'Unable to prepare the payment record.');}
+    if(paymentRecord.existingPending){
+      let existing=paymentRecord.existingPending;
+      const savedCheckout=chapaCheckoutUrl(existing.checkoutUrl);
+      if(savedCheckout)return res.json({checkoutUrl:savedCheckout,transactionReference:existing.transactionReference,message:'Resuming your pending Chapa checkout.',status:'success',data:{checkout_url:savedCheckout}});
+      if(existing.status==='initiated')return apiError(res,409,'Chapa is still preparing this checkout. Wait briefly, then refresh payment status.');
+      if(!existing.transactionReference)return apiError(res,409,'A Chapa payment is still pending. Refresh payment status or contact support before trying again.');
+      try{
+        const verification=await verifyChapaPayment(existing.transactionReference);
+        const data=verification?.data;
+        if(!data||data.tx_ref!==existing.transactionReference)return apiError(res,502,'Chapa could not confirm the earlier payment attempt. Refresh payment status before trying again.','', 'CHAPA_VERIFICATION_FAILED');
+        const reconciled=await reconcileChapaPayment(pool,existing.transactionReference,verification);
+        if(reconciled.paymentStatus==='verified')return apiError(res,409,'This Chapa payment is already verified. Refresh the booking status.');
+        if(reconciled.paymentStatus!=='failed')return apiError(res,409,'A Chapa checkout is still pending. Refresh payment status and try again after it completes.');
+      }catch(error){
+        if(error.code==='CHAPA_VERIFICATION_FAILED'&&error.details?.reason==='transaction_not_found'){
+          const retired=await failUninitializedChapaPayment(pool,existing.paymentId).catch(()=>false);
+          if(!retired)return apiError(res,409,'The earlier Chapa attempt changed while it was being checked. Refresh payment status before trying again.');
+        }else if(error.code==='CHAPA_VERIFICATION_FAILED'&&error.details?.reason==='payment_not_complete'){
+          return apiError(res,409,'A Chapa checkout is still pending. Refresh payment status and try again after it completes.');
+        }else{
+          console.error('Chapa pending payment recovery failed:',error.details||{reason:'provider_or_network_error'});
+          return apiError(res,502,'We could not confirm the earlier Chapa attempt. Refresh payment status before trying again.','', 'CHAPA_VERIFICATION_FAILED');
+        }
+      }
+      try{paymentRecord=await createChapaPaymentRecord(pool,body.bookingReference,req.customer.id,{...body,customerName:req.customer.name,customerEmail:req.customer.email});}
+      catch(error){return apiError(res,error.httpStatus||500,error.httpStatus?error.message:'Unable to prepare the payment record.');}
+      if(paymentRecord.existingPending){
+        existing=paymentRecord.existingPending;
+        const concurrentCheckout=chapaCheckoutUrl(existing.checkoutUrl);
+        if(concurrentCheckout)return res.json({checkoutUrl:concurrentCheckout,transactionReference:existing.transactionReference,message:'Resuming your pending Chapa checkout.',status:'success',data:{checkout_url:concurrentCheckout}});
+        return apiError(res,409,'A Chapa checkout is still being prepared. Refresh payment status before trying again.');
+      }
+    }
+    const payload=paymentRecord.payload;
+    let result;
+    try{result=await initializeChapaPayment(payload);}
+    catch(error){
+      const definitiveFailure=error.code==='CHAPA_INITIALIZATION_FAILED'&&error.details?.httpStatus>=400&&error.details?.httpStatus<500&&error.details?.providerStatus==='failed';
+      await updateChapaInitializationRecord(pool,paymentRecord?.paymentId,{status:definitiveFailure?'failed':'pending_verification'}).catch(()=>{});
+      if(error.code==='CHAPA_INITIALIZATION_FAILED'){
+        console.error('Chapa payment initialization rejected:',error.details||{reason:'network_or_response_error'});
+        const frontendMessage=['network_error','timeout','invalid_json_response'].includes(error.details?.reason)
+          ?'We could not confirm whether Chapa started checkout. Refresh payment status before trying again.'
+          :'Chapa could not start checkout. Please review your booking details or contact support.';
+        return apiError(res,502,frontendMessage,undefined,'CHAPA_INITIALIZATION_FAILED');
+      }
+      throw error;
+    }
+    const checkoutUrl=chapaCheckoutUrl(result?.data?.checkout_url);
+    if(!checkoutUrl){
+      await updateChapaInitializationRecord(pool,paymentRecord?.paymentId,{status:'pending_verification'}).catch(()=>{});
+      return apiError(res,502,'Chapa did not return a valid checkout URL.',undefined,'CHAPA_INITIALIZATION_FAILED');
+    }
+    await updateChapaInitializationRecord(pool,paymentRecord?.paymentId,{status:'initiated',checkoutUrl,providerReference:typeof result.data.reference==='string'?result.data.reference:null});
+    res.json({checkoutUrl,transactionReference:payload.tx_ref,message:result.message,status:result.status,data:{checkout_url:checkoutUrl}});
+  }));
+  const reconcileChapaRequest=async(res,transactionReference)=>{
+    if(typeof transactionReference!=='string'||!/^[-A-Za-z0-9_]{1,100}$/.test(transactionReference))return apiError(res,400,'Provide a valid Chapa transaction reference.');
+    try{return res.json(await reconcileChapaPayment(pool,transactionReference));}
+    catch(error){
+      if(error.httpStatus)return apiError(res,error.httpStatus,error.message);
+      if(error.code==='CHAPA_VERIFICATION_FAILED'){
+        console.error('Chapa transaction verification failed:',error.details||{reason:'provider_or_network_error'});
+        return apiError(res,502,'Chapa could not verify this transaction.','', 'CHAPA_VERIFICATION_FAILED');
+      }
+      throw error;
+    }
+  };
+  app.get('/api/payments/chapa/callback',publicLimit,asyncRoute(async(req,res)=>{
+    const transactionReference=req.query.trx_ref??req.query.tx_ref??req.body?.trx_ref??req.body?.tx_ref;
+    return reconcileChapaRequest(res,transactionReference);
+  }));
+  app.post('/api/payments/chapa/webhook',asyncRoute(async(req,res)=>{
+    const webhookSecret=process.env.CHAPA_WEBHOOK_SECRET?.trim();
+    if(!webhookSecret)return apiError(res,503,'Chapa webhook verification is not configured.');
+    if(!req.body||typeof req.body!=='object'||Array.isArray(req.body))return apiError(res,400,'Provide a Chapa webhook event as a JSON object.');
+    if(!verifyChapaWebhookSignature(req.body,req.headers,webhookSecret))return apiError(res,401,'Chapa webhook signature is invalid.');
+    return reconcileChapaRequest(res,req.body.tx_ref);
+  }));
   app.post('/api/payments/receipt-lookup',lookupLimit,asyncRoute(async(req,res)=>{const {reference,phone}=req.body||{};if(typeof reference!=='string'||typeof phone!=='string'||!phonePattern.test(phone.trim()))return apiError(res,400,'Enter the booking reference and contact phone.');const rows=(await pool.query(`SELECT p.transaction_reference AS "receiptNumber",b.reference AS "bookingReference",b.customer_name_snapshot AS "customerName",b.customer_phone_snapshot AS "customerPhone",b.service_name_snapshot AS "serviceName",COALESCE(b.package_name_snapshot,'Approved quote') AS "packageName",COALESCE(b.agreed_amount,b.starting_estimate)::numeric AS "bookingTotal",b.currency,p.provider AS "paymentMethod",p.transaction_reference AS "transactionReference",p.amount::numeric AS "amountPaid",p.total_paid_after::numeric AS "totalPaid",p.remaining_balance::numeric AS "remainingBalance",CASE WHEN p.remaining_balance=0 THEN 'paid' ELSE 'partially_paid' END AS "paymentStatus",p.created_at AS "paidAt",TRUE AS simulated FROM payments p JOIN bookings b ON b.id=p.booking_id WHERE b.reference=$1 AND regexp_replace(b.customer_phone_snapshot,'[^0-9]','','g')=$2 AND p.status='verified' AND p.is_simulated=TRUE ORDER BY p.created_at DESC LIMIT 1`,[reference.trim().toUpperCase(),normalizedPhone(phone)])).rows[0];if(!rows)return apiError(res,404,'No successful demo payment receipt matches those details.');res.json({receipt:rows});}));
   app.get('/api/bookings/:reference',asyncRoute(async(req,res)=>{const claims=customerClaims(req);if(!claims)return apiError(res,401,'Sign in or use guest booking lookup.');const booking=(await pool.query('SELECT id,reference,status FROM bookings WHERE reference=$1 AND customer_id=$2',[req.params.reference,claims.sub])).rows[0];if(!booking)return apiError(res,404,'Booking not found.');res.json({booking});}));
 
@@ -486,6 +748,13 @@ export function createApp({pool=createPool()}={}){
     res.status(201).json({proposal:result.rows[0]});
   }));
 
+  app.get('/api/customers/me/price-proposals',customerAuth,asyncRoute(async(req,res)=>{
+    const {rows}=await pool.query(`SELECT p.id,p.booking_item_id AS "itemId",b.reference AS "bookingReference",i.service_name_snapshot AS "serviceName",p.amount,p.currency,p.reason,p.proposal_status AS status,p.created_at AS "createdAt",p.customer_decided_at AS "decidedAt"
+      FROM booking_price_proposals p JOIN booking_items i ON i.id=p.booking_item_id JOIN bookings b ON b.id=i.booking_id
+      WHERE b.customer_id=$1 AND p.proposal_status<>'draft' ORDER BY p.created_at DESC`,[req.customer.id]);
+    res.json({proposals:rows});
+  }));
+
   app.get('/api/customers/me/approvals',customerAuth,asyncRoute(async(req,res)=>{
     const approvals=(await pool.query(`SELECT p.id,'worker' AS kind,b.reference AS "bookingReference",i.service_name_snapshot AS "serviceName",w.full_name AS "workerName",p.reason,p.created_at AS "createdAt",NULL::timestamptz AS "proposedStart",NULL::numeric AS "proposedAmount",NULL::text AS currency
       FROM booking_change_proposals p JOIN booking_items i ON i.id=p.booking_item_id JOIN bookings b ON b.id=i.booking_id LEFT JOIN workers w ON w.id=(p.proposed_values->>'workerId')::uuid
@@ -501,6 +770,7 @@ export function createApp({pool=createPool()}={}){
   }));
   app.patch('/api/customers/me/approvals/:kind/:id',customerAuth,asyncRoute(async(req,res)=>{
     const {decision}=req.body||{};if(!['accepted','rejected'].includes(decision)||!['worker','schedule','price'].includes(req.params.kind))return apiError(res,400,'Choose a valid approval decision.');
+    if(req.params.kind==='price'&&!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(req.params.id))return apiError(res,404,'No pending price change matches this account.');
     const client=await pool.connect();try{
       await client.query('BEGIN');let entityId,action,metadata={};
       if(req.params.kind==='worker'){

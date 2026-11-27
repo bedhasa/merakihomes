@@ -9,6 +9,7 @@ import { getServices, postBooking, BookingRequestPayload } from '@shared/api';
 import { MarketingView } from './website/MarketingView';
 import { CustomerAuthPage, CustomerAccountPage } from './booking/CustomerAccountPage';
 import { RequestStatusLookup } from './booking/RequestStatusLookup';
+import { ChapaPaymentReturnPage } from './booking/ChapaPaymentReturnPage';
 import { useTheme } from './contexts/ThemeContext';
 import { ChatWidget } from './assistant/ChatWidget';
 
@@ -36,6 +37,7 @@ export default function App({initialPath='/',initialQuery=''}:{initialPath?:stri
  else if(path==='/track-booking'||bookingRoute)content=<RequestStatusLookup initialReference={bookingRoute?decodeURIComponent(bookingRoute[1]):''}/>;
  else if(path==='/login'||path==='/register')content=<CustomerAuthPage mode={path==='/register'?'register':'login'} onSignedIn={()=>navigate('/my-account')}/>;
  else if(path==='/my-account'||path==='/my-account/bookings')content=<CustomerAccountPage bookings={path.endsWith('/bookings')} onSignOut={()=>navigate('/login')}/>;
+ else if(path==='/payment/return')content=<ChapaPaymentReturnPage/>;
  else content=<main className="mx-auto max-w-2xl px-5 py-16"><h1 className="text-2xl font-semibold text-[#102A43]">Page not found</h1><a className="mt-4 inline-block underline" href="/">Return home</a></main>;
  return <><div id="customer-portal" className="min-h-screen bg-[#F7F8FA] text-[#334155]">{Header}<main>{content}</main><footer className="mt-10 border-t border-slate-200 bg-white px-5 py-5 text-center text-xs text-slate-500">{staffPortalUrl?<><a href={staffPortalUrl} className="text-[#102A43] underline">Staff sign in</a><span className="mx-3" aria-hidden="true">&middot;</span></>:null}<a href="/" className="text-[#102A43] underline">Meraki Homes</a></footer></div><ChatWidget/></>;
 }
