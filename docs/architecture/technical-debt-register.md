@@ -73,7 +73,7 @@ Line numbers refer to `backend/index.mjs` unless another file is named. That fil
 | TD-046 | No structured logging, request ids or metrics | Medium | Confirmed | Open |
 | TD-047 | Mobile dependency and configuration hygiene | Low | Confirmed | Open |
 | TD-048 | Mobile duplicates API types and formatting; second fetch wrapper | Medium | Confirmed | Open |
-| TD-049 | Hard-coded English in a bilingual product | Low | Confirmed | Open |
+| TD-049 | Hard-coded English in a bilingual product | Low | Confirmed | Mostly fixed (2026-11-27): customer-facing web text and API errors in en/am; Amharic pending native review |
 | TD-050 | Template leftovers and stale docs | Low | Confirmed | Open |
 | TD-051 | PII written into the audit `actor` column | Low | Confirmed | Open |
 | TD-052 | Unbounded in-memory maps (rate limiter, geocode cache) | Medium | Confirmed | Partly fixed (2026-11-25): limiter keys pruned. Geocode cache uncapped |
@@ -397,6 +397,7 @@ Line numbers refer to `backend/index.mjs` unless another file is named. That fil
 ### TD-049: Hard-coded English
 - **Problem:** Hard-coded English in the assistant UI (`ChatHeader.tsx`, `ChatFooter.tsx`, `ChatBody.tsx`, `assistant/types.ts:59`, `useChat.ts:80-94`), `Footer.tsx:16-32`, `website/serviceDetails.ts`, and `app/error.tsx`, `not-found.tsx`, `loading.tsx`. Backend API messages support en/am, but Agaz also supports `om`.
 - **Severity:** Low. This is the scope of the in-progress i18n branch.
+- **Status (2026-11-27, batch 5):** Moved to the catalogs with Amharic drafts: the assistant window, footer, service detail copy (`serviceCopy`, replacing `website/serviceDetails.ts` data), and a translated `app/[locale]/error.tsx`. The root `error.tsx`, `not-found.tsx` and `loading.tsx` render before a locale exists, so they are bilingual. Service names and descriptions from the database are translated by the API (`localizeService`, catalog `serviceCatalog`) only while the database English equals the catalog English. 110 customer- and professional-facing API errors that had no code are now translated by matching their exact English text (`codeForMessage` in `backend/i18n.mjs`); the response also gains the matching `code`. `backend/api-messages.test.mjs` fails if a catalog error is no longer referenced by code or text. **Still English:** the staff portal and staff-only API errors (by design), the mobile apps (no i18n yet), API errors that interpolate values (for example ``Choose a current package for ${service.name}.``), and package names entered by staff. All drafts are listed in `docs/i18n/amharic-review.md`.
 
 ### TD-050: Template leftovers and stale docs
 - **Problem:**

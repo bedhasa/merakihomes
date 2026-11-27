@@ -278,3 +278,16 @@ Approved as "Database 'from' price".
 **Validation:** root, mobile and management `tsc` exit 0. `npm test` runs 62 tests: 61 pass, 0 fail, 1 skipped. `build:web` exits 0. The new `backend/pricing.test.mjs` fails on the pre-batch backend. The home, services and detail pages were checked in headless Chrome against a temporary in-memory API, in English and Amharic.
 
 **Product note:** live services with no packages now show "Price after review" instead of the old illustrative ETB figures. To show a "from" price, add a package in the staff portal.
+
+### 2026-11-27: Batch 5, Amharic drafts for the remaining English text (TD-049)
+
+Approved as "I draft, you review". 216 new catalog keys (906 total), every one listed in `docs/i18n/amharic-review.md` for native-speaker review.
+
+- **API errors without a code (110):** instead of editing ~110 call sites, `apiError` looks the English message up in `errors.*`. An exact match returns the Amharic text for Amharic requests and adds the matching `code`. English responses are unchanged apart from the extra `code` field. Staff-only messages were left out on purpose. The Agaz error codes (`busy`, `timeout`…) keep their existing `code` values.
+- **Service names and descriptions:** `/api/services` and `/api/services/:id` translate them for Amharic requests (and send `Vary: Accept-Language`). A name edited by staff keeps the database text rather than a stale translation. The web app refetches services when the language changes.
+- **Web text:** the assistant window (labels, starter messages, client-side errors; chat requests now send the page language), the footer, the service detail copy, and a translated error page under `[locale]`. The global error, 404 and loading pages are bilingual.
+- **Tests:** `backend/api-messages.test.mjs` covers message matching, field messages, Amharic and English responses, service-name localization including staff edits, and a drift guard. On the pre-batch backend the file fails, because the new exports do not exist there.
+
+**Validation:** root `tsc` exit 0. `npm test` runs 66 tests: 65 pass, 0 fail, 1 skipped. `i18n:check` reports 906 keys. `build:web` exits 0. The Amharic home and service detail pages were checked in headless Chrome against a temporary in-memory API, and the assistant error was checked in both languages through the web proxy.
+
+**Found, not changed:** the four "Suggested questions" buttons in the assistant window have no click handler, so they do nothing.
