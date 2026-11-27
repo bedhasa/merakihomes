@@ -323,7 +323,8 @@
       "manualAddress": "Your manual address will receive an Operations review.",
       "noPayment": "No payment or worker assignment has been recorded.",
       "reference": "Reference {id} · Status: requested",
-      "track": "Track request"
+      "track": "Track request",
+      "paymentByTeam": "No payment is taken online. Our team will confirm the final price and payment with you."
     },
     "blurbs": {
       "premium_home_cleaning": "A fresh, cared-for home.",
@@ -448,7 +449,7 @@
     "track": {
       "eyebrow": "Booking status",
       "title": "Check a service request",
-      "intro": "Search using one detail at a time. Phone search shows limited summaries and does not verify identity.",
+      "intro": "Enter your booking reference and the phone number used for the request. Both must match.",
       "byReference": "By reference",
       "byPhone": "By phone",
       "referenceLabel": "Booking reference",
@@ -486,7 +487,14 @@
     "BOOKING_SERVICE_UNAVAILABLE": "This service is unavailable. Browse the current service catalogue.",
     "NETWORK_UNREACHABLE": "Could not reach Meraki Homes. Check that the API server is running and try again.",
     "RATE_LIMITED": "Too many requests. Please wait and try again.",
-    "UNKNOWN": "Something went wrong. Please try again."
+    "UNKNOWN": "Something went wrong. Please try again.",
+    "INVALID_IDENTIFIER": "The request contains an invalid identifier or value.",
+    "CONFLICT": "This change conflicts with an existing record. Refresh and try again.",
+    "NOT_FOUND": "Not found.",
+    "UPSTREAM_TIMEOUT": "Meraki Homes took too long to respond. Please try again.",
+    "LOOKUP_DETAILS_REQUIRED": "Enter your booking reference and the phone number used for the request.",
+    "LOOKUP_NOT_FOUND": "No request matches that reference and phone number.",
+    "DEMO_PAYMENTS_DISABLED": "Online payment is not available yet. Our team will confirm payment with you."
   },
   "validation": {
     "nameRequired": "Enter your name.",

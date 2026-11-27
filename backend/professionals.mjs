@@ -21,6 +21,9 @@ const TRACKABLE_BOOKING_STATUSES = ['confirmed', 'in_progress'];
 const NEARBY_DEFAULT_RADIUS_KM = 10;
 const NEARBY_MAX_RADIUS_KM = 50;
 const NEARBY_RESULT_LIMIT = 60;
+/** Public endpoints round coordinates to 3 decimals (~110 m) and never claim better accuracy than this. */
+const PUBLIC_COORDINATE_DECIMALS = 3;
+const PUBLIC_MIN_ACCURACY_METERS = 100;
 const ADDIS_WEEKDAY = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
 
 function addisTimeParts(value) {
@@ -118,6 +121,25 @@ export function registerProfessionalRoutes(app, deps) {
       locationVisible: visible,
       locationFreshness: freshness,
       locationUpdatedAt: professional.locationUpdatedAt ?? null,
+    };
+  }
+
+  /**
+   * Position for unauthenticated listings (nearby search, public profile). Coordinates are
+   * rounded to 3 decimals (~110 m) so a professional's exact live position is never public;
+   * exact positions stay limited to the professional themself and consented booking sharing.
+   * Distances on public endpoints must be computed from this rounded position, otherwise
+   * exact distances from a few points would reveal the precise location again.
+   */
+  function publicListingPosition(professional) {
+    const position = publicProfessional(professional);
+    if (!position.locationVisible) return position;
+    return {
+      ...position,
+      latitude: Number(position.latitude.toFixed(PUBLIC_COORDINATE_DECIMALS)),
+      longitude: Number(position.longitude.toFixed(PUBLIC_COORDINATE_DECIMALS)),
+      accuracyMeters: Math.max(position.accuracyMeters ?? 0, PUBLIC_MIN_ACCURACY_METERS),
+      locationApproximate: true,
     };
   }
 
@@ -378,11 +400,12 @@ export function registerProfessionalRoutes(app, deps) {
       const availability = availabilityOf(row);
       const rating = row.rating === null ? null : Number(row.rating);
       const baseRate = row.baseRate === null ? null : Number(row.baseRate);
-      const position = publicProfessional(row);
+      const position = publicListingPosition(row);
       // Discovery is distance based, so only professionals who explicitly share a
       // recent, usable position can be included in the selected radius.
       if (filters.hasLocationFilter && !position.locationVisible) continue;
-      const meters = filters.hasLocationFilter ? haversineMeters(filters.latitude, filters.longitude, row.latitude, row.longitude) : null;
+      // Distance from the rounded public position, never the exact one (see publicListingPosition).
+      const meters = filters.hasLocationFilter ? haversineMeters(filters.latitude, filters.longitude, position.latitude, position.longitude) : null;
       const distance = distancePayload(meters);
       if (filters.hasLocationFilter && (meters === null || meters > filters.radiusKm * 1000)) continue;
       if (filters.availableOnly && availability !== 'available') continue;
@@ -461,11 +484,12 @@ export function registerProfessionalRoutes(app, deps) {
     const row = rows[0];
     if (!row) return apiError(res, 404, 'Professional not found.');
 
-    const position = publicProfessional(row);
+    const position = publicListingPosition(row);
     const latitude = req.query.latitude === undefined ? null : Number(req.query.latitude);
     const longitude = req.query.longitude === undefined ? null : Number(req.query.longitude);
-    const meters = coordinateError(req.query.latitude, req.query.longitude) === null && latitude !== null && longitude !== null
-      ? haversineMeters(latitude, longitude, row.latitude, row.longitude)
+    // Distance from the rounded public position only; null when the position is not shared.
+    const meters = coordinateError(req.query.latitude, req.query.longitude) === null && latitude !== null && longitude !== null && position.locationVisible
+      ? haversineMeters(latitude, longitude, position.latitude, position.longitude)
       : null;
     const distance = distancePayload(position.locationFreshness === 'stale' ? null : meters);
 

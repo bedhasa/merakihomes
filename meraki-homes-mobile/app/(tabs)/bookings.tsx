@@ -10,32 +10,28 @@ import { useAuth } from '../../src/context/AuthContext';
 
 type BookingTab = 'new' | 'track';
 type LookupBooking = { reference: string; status: string; serviceName: string; requestedStart: string; createdAt: string; totalAmount: number | string | null; currency: string; amountPaid: number | string; remainingBalance: number | string };
-type LookupResponse = { booking?: LookupBooking; bookings?: LookupBooking[]; demoVerificationNotice?: string };
+type LookupResponse = { booking?: LookupBooking };
 
 export default function BookingsScreen() {
   const { customer } = useAuth();
   const router = useRouter();
   const [tab, setTab] = useState<BookingTab>('new');
-  const [lookupMode, setLookupMode] = useState<'reference' | 'phone'>('reference');
   const [reference, setReference] = useState('');
   const [phone, setPhone] = useState('');
   const [results, setResults] = useState<LookupBooking[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
-  const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [looking, setLooking] = useState(false);
   const q = useQuery({ queryKey: ['bookings'], queryFn: () => api<{ bookings: Booking[] }>('/customers/me/bookings'), enabled: !!customer && tab === 'track' });
 
+  // Guest lookup needs both the booking reference and the phone used for the request (phone-only search was removed).
   const lookup = async () => {
-    setError(''); setNotice(''); setResults([]); setSelected(null); setLooking(true);
+    setError(''); setResults([]); setSelected(null); setLooking(true);
     try {
-      const data = await api<LookupResponse>('/bookings/lookup', postJson(lookupMode === 'reference'
-        ? { mode: 'reference', reference: reference.trim().toUpperCase() }
-        : { mode: 'phone', phone: phone.trim() }), false);
-      const found = data.bookings || (data.booking ? [data.booking] : []);
-      setResults(found); setNotice(data.demoVerificationNotice || '');
-      if (!found.length) setError(lookupMode === 'phone' ? 'No bookings were found for that phone number.' : 'No booking matches that reference.');
-    } catch (e) { setError(e instanceof ApiError ? e.message : 'Could not look up bookings. Check the number or reference and try again.'); }
+      const data = await api<LookupResponse>('/bookings/lookup', postJson({ mode: 'reference', reference: reference.trim().toUpperCase(), phone: phone.trim() }), false);
+      if (data.booking) setResults([data.booking]);
+      else setError('No booking matches that reference and phone number.');
+    } catch (e) { setError(e instanceof ApiError ? e.message : 'Could not look up the booking. Check the reference and phone number and try again.'); }
     finally { setLooking(false); }
   };
 
@@ -51,21 +47,15 @@ export default function BookingsScreen() {
         <Text style={{ color: C.slate, fontSize: 13, lineHeight: 20 }}>Choose a service, tell us what you need, pick a preferred specialist, and send your request. You can choose a full or partial demo payment after submission.</Text>
         <Button title="Start a new booking" onPress={() => router.push({ pathname: '/booking', params: { source: 'bookings' } })} />
       </Card>
-      {customer ? <Button title="View my booking history" variant="outline" onPress={() => setTab('track')} /> : <><Text style={{ color: C.muted, fontSize: 12, lineHeight: 18 }}>Already submitted a request? Open Track booking to find it by reference or phone number.</Text><Button title="Guest lookup screen" variant="outline" onPress={() => router.push('/guest-booking')} /></>}
+      {customer ? <Button title="View my booking history" variant="outline" onPress={() => setTab('track')} /> : <><Text style={{ color: C.muted, fontSize: 12, lineHeight: 18 }}>Already submitted a request? Open Track booking to find it with your booking reference and phone number.</Text><Button title="Guest lookup screen" variant="outline" onPress={() => router.push('/guest-booking')} /></>}
     </> : <>
       <Card>
         <Text style={{ color: C.navy, fontWeight: '900', fontSize: 15 }}>Find your booking</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <Chip title="Reference number" active={lookupMode === 'reference'} onPress={() => { setLookupMode('reference'); setResults([]); setError(''); }} />
-          <Chip title="Phone number" active={lookupMode === 'phone'} onPress={() => { setLookupMode('phone'); setResults([]); setError(''); }} />
-        </View>
-        {lookupMode === 'reference'
-          ? <Field label="Booking reference" value={reference} onChangeText={v => setReference(v.toUpperCase())} autoCapitalize="characters" placeholder="MRK-XXXXXXXXXXXX" />
-          : <Field label="Phone number used when booking" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="+251…" />}
-        <Button title={lookupMode === 'phone' ? 'Show bookings' : 'Track booking'} onPress={() => void lookup()} loading={looking} />
+        <Field label="Booking reference" value={reference} onChangeText={v => setReference(v.toUpperCase())} autoCapitalize="characters" placeholder="MRK-XXXXXXXXXXXX" />
+        <Field label="Phone number used when booking" value={phone} onChangeText={setPhone} keyboardType="phone-pad" placeholder="+251…" />
+        <Button title="Track booking" onPress={() => void lookup()} loading={looking} />
         {error ? <ErrorBanner message={error} /> : null}
       </Card>
-      {notice ? <Text style={{ color: C.muted, fontSize: 11, lineHeight: 17 }}>{notice}</Text> : null}
       {customer ? <>
         <Text style={{ color: C.navy, fontWeight: '900', fontSize: 16 }}>My bookings</Text>
         {q.isLoading ? <Loading /> : q.isError ? <Empty title="Bookings could not load" body="Sign in again or check your connection." action={<Button title="Retry" variant="outline" onPress={() => void q.refetch()} />} /> : null}

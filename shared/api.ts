@@ -86,7 +86,7 @@ export async function postBooking(payload: BookingRequestPayload, idempotencyKey
   };
 }
 
-export type DemoPaymentReceipt={receiptNumber:string;bookingReference:string;customerName:string;customerPhone:string;serviceName:string;packageName:string;bookingTotal:number;currency:'ETB'|'USD';paymentMethod:'telebirr'|'cbe';transactionReference:string;amountPaid:number;totalPaid:number;remainingBalance:number;paymentStatus:string;paidAt:string;simulated:true};
+export type DemoPaymentReceipt={receiptNumber:string;bookingReference:string;serviceName:string;packageName:string;bookingTotal:number;currency:'ETB'|'USD';paymentMethod:'telebirr'|'cbe';transactionReference:string;amountPaid:number;totalPaid:number;remainingBalance:number;paymentStatus:string;paidAt:string;simulated:true};
 export async function simulateDemoPayment(input:{reference:string;phone:string;provider:'telebirr'|'cbe';amount:number;outcome:'success'|'failed'|'cancelled';paymentType:'full'|'partial';idempotencyKey:string}):Promise<{receipt:DemoPaymentReceipt|null;paymentStatus:string;message:string}>{return request(`/api/bookings/${encodeURIComponent(input.reference)}/demo-payment`,{method:'POST',headers:{'Idempotency-Key':input.idempotencyKey},body:JSON.stringify(input)});}
 export async function lookupDemoReceipt(reference:string,phone:string):Promise<DemoPaymentReceipt>{return(await request<{receipt:DemoPaymentReceipt}>('/api/payments/receipt-lookup',{method:'POST',body:JSON.stringify({reference,phone})})).receipt;}
 
@@ -106,8 +106,12 @@ export async function addBookingNote(id:string,note:string):Promise<void>{await 
 export async function proposeBookingReschedule(id:string,requestedStart:string,reason:string):Promise<void>{await request(`/api/management/bookings/${encodeURIComponent(id)}/reschedule-proposals`,{method:'POST',body:JSON.stringify({requestedStart,reason})});}
 export async function postContact(payload:{name:string;phone:string;email?:string;message:string}):Promise<void>{ await request('/api/contact',{method:'POST',body:JSON.stringify(payload)}); }
 export type PublicBookingStatus={reference:string;status:string;serviceName:string;requestedStart:string;createdAt:string;paymentStatus?:string;amountPaid?:number;remainingBalance?:number};
-export type PublicBookingLookup={mode:'reference';booking:PublicBookingStatus}|{mode:'phone';bookings:PublicBookingStatus[];demoVerificationNotice:string};
-export async function lookupBooking(input:{mode:'reference';reference:string}|{mode:'phone';phone:string}):Promise<PublicBookingLookup>{return request('/api/bookings/lookup',{method:'POST',body:JSON.stringify(input)});}
+export type PublicBookingLookup={mode:'reference';booking:PublicBookingStatus};
+/** Guest lookup needs both the booking reference and the phone number used for the request. */
+export async function lookupBooking(input:{reference:string;phone:string}):Promise<PublicBookingLookup>{return request('/api/bookings/lookup',{method:'POST',body:JSON.stringify({mode:'reference',reference:input.reference.trim().toUpperCase(),phone:input.phone.trim()})});}
+/** Public, non-secret feature switches served by the API. */
+export type PublicConfig={demoPayments:boolean};
+export async function getPublicConfig():Promise<PublicConfig>{return request('/api/public-config');}
 export type ContactSubmission={id:string;name:string;phone:string;email:string|null;message:string;status:string;createdAt:string};
 export async function getContactSubmissions(_legacyToken?:string):Promise<ContactSubmission[]>{return (await request<{submissions:ContactSubmission[]}>('/api/management/contact-submissions')).submissions;}
 export async function updateContactSubmission(id:string,input:{status:'new'|'in_progress'|'responded'|'closed';note?:string}):Promise<void>{await request(`/api/management/contact-submissions/${encodeURIComponent(id)}`,{method:'PATCH',body:JSON.stringify(input)});}
