@@ -34,6 +34,8 @@
     "preview": "node scripts/run-next.mjs start --hostname 0.0.0.0 --port 3000",
     "clean": "node -e \"const fs=require('fs'); ['frontend/.next','dist-management','server.js'].forEach(p=>{try{fs.rmSync(p,{recursive:true,force:true});}catch(e){}});\"",
     "lint": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "db:migrate:production": "node backend/migrate.mjs"
   },
   "dependencies": {
@@ -64,6 +66,7 @@
     "@types/react-dom": "^19.2.4",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "prettier": "3.6.2",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
