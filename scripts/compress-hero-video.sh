@@ -8,10 +8,15 @@
 #
 #   output-dir defaults to frontend/public/media (served as /media/* by Next.js).
 #   Set FFMPEG=/path/to/ffmpeg to use a binary that is not on PATH.
+#   Set VP9_CRF / H264_CRF to override the quality levels (higher = smaller file).
 #
 # Produces:
-#   hero.webm         VP9, <=720p, 24 fps, no audio, CRF 34
-#   hero.mp4          H.264, <=720p, 24 fps, no audio, CRF 28, +faststart
+#   hero.webm         VP9, <=720p, 24 fps, no audio, CRF 38 (default)
+#   hero.mp4          H.264, <=720p, 24 fps, no audio, CRF 28 (default), +faststart
+#
+# Why VP9 CRF 38: browsers try the WebM first, so it must be the smaller file. On the
+# launch footage VP9 CRF 34 came out larger than H.264 CRF 28 (1,177 KB vs 965 KB);
+# CRF 38 gave 814 KB with no visible difference. Check both sizes after re-encoding.
 #   hero-poster.webp  first frame, <=720p, WebP quality 75 (target < 100 KB)
 #
 set -euo pipefail
@@ -25,6 +30,8 @@ input=$1
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 out_dir=${2:-"$repo_root/frontend/public/media"}
 ffmpeg_bin=${FFMPEG:-ffmpeg}
+vp9_crf=${VP9_CRF:-38}
+h264_crf=${H264_CRF:-28}
 
 if [[ ! -f $input ]]; then
   echo "Input file not found: $input" >&2
@@ -43,12 +50,12 @@ common=(-hide_banner -loglevel error -y -i "$input" -map 0:v:0 -an -map_metadata
 
 echo "Encoding hero.webm (VP9)..."
 "$ffmpeg_bin" "${common[@]}" \
-  -c:v libvpx-vp9 -crf 34 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 \
+  -c:v libvpx-vp9 -crf "$vp9_crf" -b:v 0 -row-mt 1 -deadline good -cpu-used 2 \
   "$out_dir/hero.webm"
 
 echo "Encoding hero.mp4 (H.264)..."
 "$ffmpeg_bin" "${common[@]}" \
-  -c:v libx264 -crf 28 -preset slow -profile:v high -movflags +faststart \
+  -c:v libx264 -crf "$h264_crf" -preset slow -profile:v high -movflags +faststart \
   "$out_dir/hero.mp4"
 
 echo "Extracting hero-poster.webp (first frame)..."
