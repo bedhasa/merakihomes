@@ -29,7 +29,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 }) => {
   return (
     <div className="w-full">
-      {/* Hero: keep the established design unchanged. */}
+      {/* Hero: full-width background video (poster-only on small screens, Save-Data, 2G and reduced motion). */}
       <HeroSection
         onBookNow={() => onBookNow()}
         onExploreServices={onExploreServices}
