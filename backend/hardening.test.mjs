@@ -141,3 +141,25 @@ test('TD-023: a deactivated professional credential cannot sign in', async t => 
   assert.equal(denied.status, 401);
   assert.equal((await denied.json()).accessToken, undefined);
 });
+
+test('TD-010 diagnostic: client-ip endpoint is off by default and never echoes credentials', async t => {
+  const { base } = await fixture(t);
+  const previous = process.env.DEBUG_CLIENT_IP;
+  t.after(() => { if (previous === undefined) delete process.env.DEBUG_CLIENT_IP; else process.env.DEBUG_CLIENT_IP = previous; });
+
+  delete process.env.DEBUG_CLIENT_IP;
+  assert.equal((await fetch(`${base}/api/debug/client-ip`)).status, 404);
+
+  process.env.DEBUG_CLIENT_IP = '1';
+  const response = await fetch(`${base}/api/debug/client-ip`, {
+    headers: { 'X-Forwarded-For': '203.0.113.7, 198.51.100.2', 'X-Real-IP': '203.0.113.7', Cookie: 'meraki_staff_session=secret', Authorization: 'Bearer secret' },
+  });
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get('cache-control'), 'no-store');
+  const body = await response.json();
+  assert.equal(body.headers['x-forwarded-for'], '203.0.113.7, 198.51.100.2');
+  assert.equal(body.headers['x-real-ip'], '203.0.113.7');
+  assert.equal(body.trustProxy, false);
+  assert.ok(body.socketAddress);
+  assert.equal(JSON.stringify(body).includes('secret'), false);
+});

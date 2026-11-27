@@ -141,6 +141,15 @@ export function createApp({pool=createPool()}={}){
   const publicAssetUrl=(req,url)=>{if(typeof url!=='string'||!url||/^https?:\/\//i.test(url))return url||'';if(url.startsWith('/api/uploads/')){const base=(process.env.PUBLIC_API_URL||`${req.protocol}://${req.get('host')||'localhost'}`).replace(/\/$/,'');return `${base}${url}`;}return url;};
 
   app.get('/api/health',asyncRoute(async(_req,res)=>{await pool.query('SELECT 1');res.json({status:'ok',database:'postgresql'});}));
+  // TEMPORARY diagnostic (TD-010): shows the caller their own proxy/forwarding headers so we can
+  // configure client-IP detection for Railway and the Vercel proxy. Off unless DEBUG_CLIENT_IP=1.
+  // Nothing is logged; each caller only sees headers from their own request. Remove after TD-010.
+  app.get('/api/debug/client-ip',(req,res)=>{
+    if(process.env.DEBUG_CLIENT_IP!=='1')return apiError(res,404,'Not found.',null,'NOT_FOUND');
+    const forwarding=Object.fromEntries(Object.entries(req.headers).filter(([name])=>/forward|real-ip|client-ip|true-client|vercel|envoy|railway|^cf-|^via$|^fly-/i.test(name)));
+    res.set('Cache-Control','no-store');
+    res.json({socketAddress:req.socket.remoteAddress||null,expressIp:req.ip||null,trustProxy:app.get('trust proxy')??false,host:req.get('host')||null,headers:forwarding});
+  });
   app.get('/api/home-promotions',asyncRoute(async(req,res)=>{const {rows}=await pool.query('SELECT id,title,body,code,image_url AS "imageUrl",mobile_image_url AS "mobileImageUrl",display_order AS "displayOrder" FROM home_promotions WHERE is_active=TRUE ORDER BY display_order,id');res.json({promotions:rows.map(row=>({...row,imageUrl:publicAssetUrl(req,row.imageUrl),mobileImageUrl:publicAssetUrl(req,row.mobileImageUrl)}))});}));
   app.get('/api/management/home-promotions',staffAuth('promotions.manage'),asyncRoute(async(_req,res)=>{const {rows}=await pool.query('SELECT id,title,body,code,image_url AS "imageUrl",mobile_image_url AS "mobileImageUrl",is_active AS "isActive",display_order AS "displayOrder",updated_at AS "updatedAt" FROM home_promotions ORDER BY display_order,id');res.json({promotions:rows});}));
   app.patch('/api/management/home-promotions/:id',staffAuth('promotions.manage'),asyncRoute(async(req,res)=>{
