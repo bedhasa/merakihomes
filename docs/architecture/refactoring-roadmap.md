@@ -26,6 +26,27 @@
 
 ---
 
+## Decision log (2026-11-27)
+
+The project owner made these decisions. They supersede the 🔒 markers on the matching rows below.
+
+| Topic | Decision | Roadmap / TD |
+|---|---|---|
+| Production build | **Done:** catch-all page set to `force-dynamic`. Every page returned 500 under `next start` before this. | — |
+| Hero WebM | Re-encode VP9 at a higher CRF (about 38) so the WebM is smaller than the MP4. | — |
+| Client IP for rate limits | **Approved:** the website proxy passes the visitor IP in a header signed with a shared secret; the API trusts Railway's single hop for direct (mobile) traffic. **First step:** temporary header logging, deployed once to confirm Railway's forwarding headers. | 1.11, 6.6 / TD-010 |
+| Booking lookup | **Approved:** reference + phone only. Phone-only lookup is removed, and receipts no longer include the customer's name or phone. | 1.12 / TD-011 |
+| Demo payments | **Approved:** `DEMO_PAYMENTS_ENABLED`, off by default in production. The live site shows "our team will confirm payment with you" instead. | 1.12 / TD-011 |
+| Professional location | **Approved:** public endpoints return coordinates rounded to about 100 m plus distance. Exact location stays limited to consented booking sharing. | 1.13 / TD-012 |
+| Item cancellation | **Approved:** cancelling an item also cancels its active worker assignments. | 1.14 / TD-002 |
+| Price quotes | **Approved:** a new quote withdraws earlier open quotes for that item. | 1.15 / TD-003 |
+| Displayed prices | **Approved:** show "From ETB X" from the lowest active package; "Price after review" when there is none. Remove the hard-coded demo table and the ×120 conversion. | 4.10 / TD-030 |
+| Migrations | **Approved:** location-sharing index per (booking, worker) (1.16 / TD-006). **Not now:** integrity CHECKs (4.2, 4.3), performance indexes (4.4), audit-row repair. | |
+| Tooling | **Approved:** Prettier, as one formatting-only commit. **Not now:** ESLint (2.5), CI (5.2), zod contracts (2.6). | 2.2 |
+| Amharic gaps | **Approved:** move the remaining text into the catalogs with Amharic drafts, marked for native-speaker review before launch. | TD-049 |
+
+---
+
 ## Phase 1: Critical security and reliability issues
 
 | # | Task | Objective | Files | Expected outcome | Depends on | Risk | Validation | Status |
