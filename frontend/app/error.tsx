@@ -18,7 +18,7 @@ export default function ErrorPage({ reset }: { error: Error & { digest?: string 
         <div lang="am">
           <h2 className="mt-5 text-lg font-semibold text-[#102A43] dark:text-white">ይህ ገጽ ሊጫን አልቻለም</h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-            የቦታ ማስያዝ እና የመለያ መዝገቦችዎ አልተጎዱም። እባክዎ እንደገና ይሞክሩ።
+            የቦታ ማስያዝ እና የመለያ መዝገቦችዎ አልተነኩም። እባክዎ እንደገና ይሞክሩ።
           </p>
         </div>
         <button className="meraki-button mt-5" onClick={reset}>
