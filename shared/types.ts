@@ -9,13 +9,18 @@ export interface ServiceAddon {
   icon: string;
 }
 
+export type PublicPrice = { amount: number; currency: Currency | string };
+
 export interface ServiceCategory {
   id: string;
   name: string;
   iconName: string;
   description: string;
   popularBadge?: string;
-  basePrice: number; // in USD, converted to ETB
+  /** Legacy service-level price in the service's own currency; not shown to customers. Use `fromPrice`. */
+  basePrice: number;
+  /** Cheapest bookable package price (from the API), or null when the price is set after review. */
+  fromPrice?: PublicPrice | null;
   pricingType?: 'fixed' | 'quotation';
   unit: string;
   rating: number;
@@ -50,8 +55,7 @@ export interface Booking {
   durationHours: number;
   cleanersCount: number;
   addonsSelected: string[];
-  totalPrice: number; // in USD
-  totalPriceETB: number; // in ETB
+  totalPrice: number; // starting estimate, in the booking currency (0 when priced after review)
   status: 'draft' | 'requested' | 'awaiting_assignment' | 'assigned' | 'confirmed' | 'en_route' | 'arrived' | 'in_progress' | 'completed' | 'cancelled' | 'payment_pending' | 'payment_failed' | 'disputed';
   paymentMethod: PaymentMethodType;
   paymentStatus: 'pending' | 'processing' | 'paid' | 'failed' | 'refunded' | 'requires_verification';

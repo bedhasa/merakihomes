@@ -1,12 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Currency, ServiceCategory } from '@shared/types';
+import { ServiceCategory } from '@shared/types';
 import { ArrowRight, Search, Clock3, ChevronDown, BadgeCheck, ShieldCheck, KeyRound, IdCard, Award, UserRoundCheck, Phone } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ContactForm } from './ContactForm';
 import { getServiceDetails } from '@shared/api';
 import { ServicePackage } from '@shared/types';
 import { serviceDetailsCopy } from './serviceDetails';
-import { getDemoEstimate } from '@shared/demoPricing';
 import { Navbar } from './home/Navbar';
 import { HomePage } from './home/HomePage';
 import { Footer } from './home/Footer';
@@ -14,7 +13,6 @@ import AboutPage from './AboutPage';
 import { useFormatters } from '../i18n/useFormatters';
 
 interface MarketingViewProps {
-  currency: Currency;
   services: ServiceCategory[];
   servicesState: 'loading' | 'ready' | 'error';
   onBookService: (serviceId?: string, packageId?: string) => void;
@@ -28,7 +26,6 @@ const photo = 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto
 const imageForService = (id: string, image: string) => (id === 'elder_companion' ? '/elder-companion-care.jpg' : image);
 
 export const MarketingView: React.FC<MarketingViewProps> = ({
-  currency: _currency,
   services: allServices,
   servicesState,
   onBookService,
@@ -46,7 +43,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
   const tFaq = useTranslations('faqPage');
   const tContact = useTranslations('contact');
   const tPricing = useTranslations('pricingPage');
-  const { formatDemoEstimate, formatMoney } = useFormatters();
+  const { formatFromPrice, formatMoney } = useFormatters();
 
   const [page, setPage] = useState(initialSubPage);
   const [query, setQuery] = useState('');
@@ -120,10 +117,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
         ))}
       </ul>
       <p className="mt-3 border-t border-slate-100 pt-3 text-sm font-semibold text-[#102A43]">
-        {tDetail('demoEstimateUnit', {
-          amount: formatDemoEstimate(service.id),
-          unit: getDemoEstimate(service.id)?.unit || tDetail('unitRequest'),
-        })}
+        {service.fromPrice ? tDetail('fromPrice', { amount: formatFromPrice(service.fromPrice) ?? '' }) : tDetail('priceAfterReview')}
       </p>
       {showPrototypeNote && <p className="mt-2 text-xs leading-5 text-slate-500">{tDetail('prototypeNote')}</p>}
       <button onClick={() => onBookService(service.id)} className="meraki-button mt-4 w-full">
@@ -203,10 +197,7 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                         </div>
                         <p className="mt-4 text-sm leading-6 text-slate-600">{s.description}</p>
                         <p className="mt-5 text-sm font-semibold">
-                          {tServices('demoEstimate', {
-                            amount: formatDemoEstimate(s.id),
-                            unit: getDemoEstimate(s.id)?.unit || tServices('scopeReview'),
-                          })}
+                          {s.fromPrice ? tServices('fromPrice', { amount: formatFromPrice(s.fromPrice) ?? '' }) : tServices('priceAfterReview')}
                         </p>
                       </div>
                     </button>
@@ -265,10 +256,10 @@ export const MarketingView: React.FC<MarketingViewProps> = ({
                       <h1 className="mt-3 text-3xl font-semibold leading-tight text-[#102A43] sm:text-4xl">{service.name}</h1>
                       <p className="mt-4 text-base leading-7 text-slate-600">{service.description}</p>
                       <p className="mt-4 text-sm font-semibold text-[#102A43]">
-                        {detailPackages.length ? tDetail('selectPackage') : tDetail('demoEstimateLabel', { amount: formatDemoEstimate(service.id) })}
+                        {detailPackages.length ? tDetail('selectPackage') : service.fromPrice ? tDetail('fromPrice', { amount: formatFromPrice(service.fromPrice) ?? '' }) : tDetail('priceAfterReview')}
                         <span className="mt-1 block font-normal text-slate-600">
                           {detailPackages.length === 0
-                            ? tDetail('demoNote', { unit: getDemoEstimate(service.id)?.unit || tDetail('unitFallback') })
+                            ? tDetail('afterReviewNote')
                             : tDetail('packageReviewNote')}
                         </span>
                       </p>

@@ -17,8 +17,7 @@ import {
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
-import { getDemoEstimate } from '@shared/demoPricing';
-import { Currency, ServiceCategory, ServicePackage } from '@shared/types';
+import { ServiceCategory, ServicePackage } from '@shared/types';
 import { translateDynamic } from './translateDynamic';
 import { useFormatters } from '../i18n/useFormatters';
 
@@ -33,7 +32,6 @@ type Props = {
   onPackageChange: (packageId: string) => void;
   packageMessage: string;
   onRetry: () => void;
-  currency: Currency;
   details: string;
   onDetailsChange: (value: string) => void;
 };
@@ -62,13 +60,12 @@ export const ServicePackageSelector: React.FC<Props> = ({
   onPackageChange,
   packageMessage,
   onRetry,
-  currency,
   details,
   onDetailsChange,
 }) => {
   const t = useTranslations('booking');
   const tCommon = useTranslations('common');
-  const { formatCurrency, formatDemoEstimate, formatMoney } = useFormatters();
+  const { formatFromPrice, formatMoney } = useFormatters();
   return (
   <div aria-label={t('package.ariaLabel')}>
     <fieldset>
@@ -116,7 +113,7 @@ export const ServicePackageSelector: React.FC<Props> = ({
                   </span>
                   <span className="mt-4 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 text-xs">
                     <span className="inline-flex items-center gap-1.5 text-slate-500"><Clock3 size={13} aria-hidden="true" />{t('package.minutes', { count: item.durationMinutes })}</span>
-                    <span className="font-semibold text-[#8C6A2F]">{item.pricingType === 'fixed' ? t('package.from', { price: formatCurrency(item.basePrice, currency) }) : t('package.customQuote')}</span>
+                    <span className="font-semibold text-[#8C6A2F]">{item.fromPrice ? t('package.from', { price: formatFromPrice(item.fromPrice) ?? '' }) : t('package.customQuote')}</span>
                   </span>
                 </button>
 
@@ -173,7 +170,7 @@ export const ServicePackageSelector: React.FC<Props> = ({
                           {packageMessage && <span role="alert" className="text-amber-800">{packageMessage}</span>}
                           {!packageMessage && <span role="alert">{t('package.verifyFailed')}</span>}
                           <button type="button" onClick={onRetry} className="font-semibold text-[#102A43] underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4A853]">{tCommon('retry')}</button>
-                          <span>{t('package.estimate', { amount: formatDemoEstimate(item.id), unit: getDemoEstimate(item.id)?.unit || t('package.unitFallback') })}</span>
+                          <span>{item.fromPrice ? t('package.from', { price: formatFromPrice(item.fromPrice) ?? '' }) : t('estimateAfterReview')}</span>
                         </div>
                       )}
 

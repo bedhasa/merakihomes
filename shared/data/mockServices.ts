@@ -1,10 +1,6 @@
-// Despite the file name, these two values are used in production: ADDIS_NEIGHBORHOODS by the booking
-// flow (frontend/src/booking/RequestFlow.tsx) and ETB_EXCHANGE_RATE by shared/utils/formatters.ts.
-// The prototype mock data that used to live here was removed with the dead prototype screens.
-// Planned: move these to shared/reference/ and stop converting prices client-side
-// (refactoring roadmap 2.7 and 4.10, technical-debt register TD-030 and TD-038).
-
-export const ETB_EXCHANGE_RATE = 120; // 1 USD = 120 ETB
+// Despite the file name, ADDIS_NEIGHBORHOODS is production reference data used by the booking flow
+// (frontend/src/booking/RequestFlow.tsx). Planned: move it to shared/reference/ (roadmap 2.7, TD-038).
+// Prices are never converted client-side; they come from the API (TD-030).
 
 export const ADDIS_NEIGHBORHOODS = [
   'Bole Atlas',

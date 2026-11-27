@@ -3,7 +3,6 @@ import { ArrowRight, Clock3, Star, CheckCircle2 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { useTranslations } from 'next-intl';
 import { ServiceCategory } from '@shared/types';
-import { getDemoEstimate } from '@shared/demoPricing';
 import { useFormatters } from '../../i18n/useFormatters';
 
 interface PopularServicesProps {
@@ -43,7 +42,7 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
   onExploreAll,
 }) => {
   const t = useTranslations('featured');
-  const { formatDemoEstimate } = useFormatters();
+  const { formatFromPrice } = useFormatters();
   const [selectedFilter, setSelectedFilter] = useState<'all' | 'cleaning' | 'care' | 'repairs'>('all');
   const reduceMotion = useReducedMotion();
 
@@ -137,7 +136,7 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
               const badgeKey = serviceBadgeKeys[service.id];
               const badge = badgeKey ? t(badgeKey) : t('badgeDefault');
               const ratingData = serviceRatings[service.id] || { rating: 4.9, reviews: 95 };
-              const estimate = getDemoEstimate(service.id);
+              const fromPrice = formatFromPrice(service.fromPrice);
               return (
                 <motion.article
                   key={service.id}
@@ -177,10 +176,11 @@ export const PopularServices: React.FC<PopularServicesProps> = ({
 
                     <div className="mt-6 flex flex-wrap items-end justify-between gap-4 border-t border-slate-200 pt-5 dark:border-slate-700">
                       <div>
-                        <span className="block text-[11px] font-semibold uppercase tracking-[.15em] text-slate-500 dark:text-slate-400">{t('startingFrom')}</span>
-                        <span className="mt-1 block text-xl font-extrabold tracking-tight text-[#102A43] dark:text-white">{formatDemoEstimate(service.id)}</span>
+                        {fromPrice ? <>
+                          <span className="block text-[11px] font-semibold uppercase tracking-[.15em] text-slate-500 dark:text-slate-400">{t('startingFrom')}</span>
+                          <span className="mt-1 block text-xl font-extrabold tracking-tight text-[#102A43] dark:text-white">{fromPrice}</span>
+                        </> : <span className="block text-base font-bold tracking-tight text-[#102A43] dark:text-white">{t('priceAfterReview')}</span>}
                       </div>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">{estimate?.unit || t('perSession')}</span>
                     </div>
 
                   </div>

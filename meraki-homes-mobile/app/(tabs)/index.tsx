@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { API_BASE_URL, api, ApiError } from '../../src/lib/api';
 import type { Address, Booking, Service } from '../../src/lib/types';
+import { fromPriceLabel } from '../../src/lib/price';
 import { Button, C, Card, Empty, Loading, Page } from '../../src/components/ui';
 import { useAuth } from '../../src/context/AuthContext';
 import { loadWorkerDirectory } from '../../src/lib/workerDirectory';
@@ -22,8 +23,7 @@ function serviceIcon(name: string): ComponentProps<typeof Feather>['name'] {
 }
 
 function servicePrice(service: Service) {
-  if (service.pricing_type === 'quotation') return 'Quote';
-  return `${service.basePrice.toLocaleString()} ${service.currency}`;
+  return fromPriceLabel(service, 'Price after review');
 }
 
 const teamPromo = require('../../assets/meraki-team-promo.jpg');

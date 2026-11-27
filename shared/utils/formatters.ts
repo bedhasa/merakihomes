@@ -1,5 +1,4 @@
 import { Currency } from '../types';
-import { ETB_EXCHANGE_RATE } from '../data/mockServices';
 import { defaultLocale, toIntlLocale } from '../locales/config';
 
 export type FormatLocale = string | undefined | null;
@@ -53,22 +52,6 @@ export function formatMoney(
   } catch {
     return `${formatNumber(amount, locale)} ${code}`;
   }
-}
-
-/**
- * Legacy helper: `amountInUSD` is converted to ETB when `currency === 'ETB'`.
- * Prefer `formatMoney` for amounts already in the display currency.
- */
-export function formatCurrency(
-  amountInUSD: number,
-  currency: Currency,
-  locale: FormatLocale = defaultLocale,
-): string {
-  if (currency === 'ETB') {
-    const etb = Math.round(amountInUSD * ETB_EXCHANGE_RATE);
-    return formatMoney(etb, 'ETB', locale);
-  }
-  return formatMoney(amountInUSD, 'USD', locale);
 }
 
 export function formatETBOnly(etbAmount: number, locale: FormatLocale = defaultLocale): string {

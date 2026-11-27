@@ -305,7 +305,6 @@
       "reviewAddress": "አድራሻ",
       "reviewTime": "የሚመርጡት ሰዓት",
       "quoteBased": "በዋጋ ግምት የሚሰጥ አገልግሎት",
-      "demoEstimate": "{amount} (የማሳያ ግምት)",
       "confirmedAfterScope": "ከክልል ግምገማ በኋላ ይረጋገጣል",
       "noDetails": "ተጨማሪ ዝርዝሮች የሉም",
       "requestOnly": "ጥያቄ ብቻ · ተገኝነት እና ዋጋ ይረጋገጣሉ።"
@@ -342,7 +341,7 @@
       "hint": "አንድ አገልግሎት ይምረጡ። አስፈላጊ ነው።",
       "loadingServices": "አገልግሎቶች በመጫን ላይ…",
       "servicesError": "የአሁኑን የአገልግሎት ዝርዝር መጫን አልቻልንም። እባክዎ ገጹን ያድሱ እና እንደገና ይሞክሩ።",
-      "from": "ከ{price}",
+      "from": "ከ{price} ጀምሮ",
       "customQuote": "ብጁ የዋጋ ግምት",
       "choosePackage": "ጥቅል ይምረጡ",
       "required": "አስፈላጊ",
@@ -350,8 +349,6 @@
       "packageOptions": "የጥቅል አማራጮች",
       "loadingPackages": "ጥቅሎች በመጫን ላይ…",
       "verifyFailed": "ወቅታዊ ጥቅሎችን ማረጋገጥ አልተቻለም። የዋጋ ግምት ጥያቄዎች አሁንም ይገኛሉ።",
-      "estimate": "ግምት፡ {amount} / {unit}።",
-      "unitFallback": "ጥያቄ",
       "descriptionPlaceholder": "በምን እንርዳዎት?",
       "minutes": "~{count} ደቂቃ"
     },
@@ -529,6 +526,7 @@
     "emptyCategory": "በዚህ ምድብ አሁን የሚገኝ አገልግሎት የለም።",
     "viewDetails": "ዝርዝር ይመልከቱ",
     "startingFrom": "ከዚህ ጀምሮ",
+    "priceAfterReview": "ዋጋ ከግምገማ በኋላ",
     "verifiedTeam": "የተረጋገጠ ቡድን",
     "reviewsLabel": "({count} ግምገማዎች)",
     "badgeDefault": "የተረጋገጠ ባለሙያ",
@@ -540,8 +538,7 @@
     "badgeOffice": "የንግድ ደረጃ",
     "badgeGarden": "የወቅት እንክብካቤ",
     "badgeLaundry": "የቤተሰብ ምርጫ",
-    "minutes": "{count} ደቂቃ",
-    "perSession": "በአንድ ክፍለ ጊዜ"
+    "minutes": "{count} ደቂቃ"
   },
   "whoWeAre": {
     "eyebrow": "እኛ ማን ነን",
@@ -686,9 +683,9 @@
     "emptySearch": "ከዚያ ፍለጋ ጋር የሚዛመድ አገልግሎት የለም። ሌላ ቃል ይሞክሩ።",
     "viewDetails": "ዝርዝር ይመልከቱ",
     "minutes": "{count} ደቂቃ",
-    "demoEstimate": "የሙከራ ግምት፦ {amount} / {unit}",
-    "scopeReview": "የክልል ግምገማ",
-    "serviceAlt": "የ{name} አገልግሎት"
+    "serviceAlt": "የ{name} አገልግሎት",
+    "fromPrice": "ከ{amount} ጀምሮ",
+    "priceAfterReview": "ዋጋ ከግምገማ በኋላ"
   },
   "serviceDetail": {
     "eyebrow": "የአገልግሎት ዝርዝር",
@@ -699,9 +696,6 @@
     "breadcrumb": "የመንገድ አመልካች",
     "brandEyebrow": "የMeraki የቤት አገልግሎቶች",
     "selectPackage": "ከታች ከሚገኙት ጥቅሎች ይምረጡ",
-    "demoEstimateLabel": "የሙከራ ግምት፦ {amount}",
-    "unitFallback": "በአንድ ጥያቄ",
-    "demoNote": "{unit}። ለማሳያ የሚያገለግል ግምት፤ የመጨረሻ ዋጋ ከክልል ግምገማ በኋላ ከእርስዎ ጋር ይስማማል።",
     "packageReviewNote": "የሚታየው የጥቅል ዋጋ ለቦታ ማስያዝ ግምገማ ተገዢ ነው።",
     "typicalDuration": "መደበኛ ጊዜ፦ {count} ደቂቃ። ክልል እና መርሃ ግብር ከእርስዎ ጋር ይረጋገጣሉ።",
     "durationReview": "ጊዜ ከክልል ግምገማ በኋላ ይረጋገጣል።",
@@ -717,15 +711,16 @@
     "retryPackages": "የጥቅል አማራጮችን እንደገና ሞክር",
     "demoPackage": "ለማሳያ የሚያገለግል የሙከራ ጥቅል",
     "requestSuffix": "የ{name} ጥያቄ",
-    "demoEstimateUnit": "የሙከራ ግምት፦ {amount} / {unit}",
-    "unitRequest": "ጥያቄ",
-    "prototypeNote": "የሙከራ ግምት ብቻ። ተገኝነት እና የመጨረሻ ክልል ግምገማ ይፈልጋሉ፤ ጥያቄ ቀጠሮ አያረጋግጥም።",
+    "prototypeNote": "የሚታዩት ዋጋዎች መነሻ ዋጋዎች ናቸው። ተገኝነት እና የመጨረሻ ክልል ግምገማ ይፈልጋሉ፤ ጥያቄ ቀጠሮ አያረጋግጥም።",
     "requestService": "ይህን አገልግሎት ይጠይቁ",
     "configuredPrice": "የተዋቀረ ዋጋ፦ {price} / {unit}",
     "requestQuoteBody": "ግምት ይጠይቁ። ቡድናችን ሥራውን ይገመግማል እና ዋጋውን ከእርስዎ ጋር ይወያያል።",
     "bookThis": "ይህን አገልግሎት ያስይዙ",
     "requestQuote": "ግምት ይጠይቁ",
-    "choosePackage": "ጥቅል ይምረጡ"
+    "choosePackage": "ጥቅል ይምረጡ",
+    "fromPrice": "ከ{amount} ጀምሮ",
+    "priceAfterReview": "ዋጋ ከግምገማ በኋላ",
+    "afterReviewNote": "የመጨረሻ ዋጋ ከክልል ግምገማ በኋላ ከእርስዎ ጋር ይስማማል።"
   },
   "trustPage": {
     "eyebrow": "እምነት እና ደህንነት",

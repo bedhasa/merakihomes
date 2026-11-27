@@ -80,7 +80,7 @@ export async function postBooking(payload: BookingRequestPayload, idempotencyKey
     customerName:payload.name, customerPhone:payload.phone, customerEmail:payload.email,
     address:payload.address, neighborhood:payload.neighborhood, date:formatDate(at, defaultLocale),
     timeSlot:formatDate(at, defaultLocale, {hour:'numeric',minute:'2-digit'}), durationHours:(booking.durationMinutes ?? booking.items?.reduce((sum,item)=>sum+item.durationMinutes,0) ?? service?.durationMinutes ?? 60)/60,
-    cleanersCount:1, addonsSelected:[], totalPrice:estimate, totalPriceETB:estimate*120,
+    cleanersCount:1, addonsSelected:[], totalPrice:estimate,
     status:'requested', paymentMethod:'not_selected', paymentStatus:'pending', workerPreference:payload.workerPreference,
     notes:payload.details, createdAt:booking.createdAt||booking.created_at||new Date().toISOString(),
   };

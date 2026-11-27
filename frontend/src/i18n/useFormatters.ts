@@ -1,10 +1,8 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { formatDemoEstimate } from '@shared/demoPricing';
-import { Currency } from '@shared/types';
+import { Currency, type PublicPrice } from '@shared/types';
 import {
-  formatCurrency,
   formatDate,
   formatDateTime,
   formatMoney,
@@ -21,7 +19,7 @@ export function useFormatters() {
     formatDate: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => formatDate(value, locale, options),
     formatDateTime: (value: Date | number | string, options?: Intl.DateTimeFormatOptions) => formatDateTime(value, locale, options),
     formatMoney: (amount: number, currency: Currency | string) => formatMoney(amount, currency, locale),
-    formatCurrency: (amountInUSD: number, currency: Currency) => formatCurrency(amountInUSD, currency, locale),
-    formatDemoEstimate: (serviceId?: string) => formatDemoEstimate(serviceId, locale),
+    /** Formats an API "from" price; null when the service is priced after review. */
+    formatFromPrice: (price?: PublicPrice | null) => (price ? formatMoney(price.amount, price.currency, locale) : null),
   };
 }

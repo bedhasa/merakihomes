@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, LogIn, Moon, Sun } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Currency } from '@shared/types';
 import { getServices, postBooking, BookingRequestPayload, setApiLocale } from '@shared/api';
 import { MarketingView } from './website/MarketingView';
 import { CustomerAuthPage, CustomerAccountPage } from './booking/CustomerAccountPage';
@@ -65,7 +64,6 @@ export default function App({
   const tCommon = useTranslations('common');
   const locale = useLocale();
   const router = useRouter();
-  const [currency] = useState<Currency>('ETB');
 
   useEffect(() => {
     setApiLocale(locale);
@@ -155,7 +153,6 @@ export default function App({
     return (
       <>
         <MarketingView
-          currency={currency}
           services={services}
           servicesState={servicesState}
           selectedServiceId={serviceRoute ? decodeURIComponent(serviceRoute[1]) : undefined}
@@ -179,7 +176,6 @@ export default function App({
   if (path === '/booking') {
     content = (
       <RequestFlow
-        currency={currency}
         services={services}
         servicesState={servicesState}
         presetServiceId={bookingSelection.serviceId}

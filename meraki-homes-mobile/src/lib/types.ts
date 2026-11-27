@@ -1,5 +1,5 @@
 export type Customer = { id: string; name: string; email: string; phone?: string };
-export type Service = { id: string; name: string; description: string; pricing_type: 'fixed' | 'quotation'; basePrice: number; currency: string; unit: string; durationMinutes: number; image: string | null; rating?: number; reviewsCount?: number };
+export type Service = { id: string; name: string; description: string; pricing_type: 'fixed' | 'quotation'; basePrice: number; currency: string; unit: string; durationMinutes: number; image: string | null; rating?: number; reviewsCount?: number; fromPrice?: { amount: number; currency: string } | null };
 export type ServicePackage = { id: string; name: string; description: string; basePrice: number; currency: string; durationMinutes: number };
 export type Worker = { id: string; workerId: string; name: string; photoUrl?: string; isDemo?: boolean; serviceArea: string; skills: string[]; baseRate: number | null; rateCurrency: string; rating: number | null; reviewCount: number; availability: 'available' | 'busy' | 'needs_confirmation'; distanceKm: number | null };
 export type BookingItem = { id: string; serviceName: string; packageName?: string; status: string; requestedStart: string; estimate: number | null; currency: string; reviewSubmitted: boolean };

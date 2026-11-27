@@ -305,7 +305,6 @@
       "reviewAddress": "Address",
       "reviewTime": "Preferred time",
       "quoteBased": "Quote-based service",
-      "demoEstimate": "{amount} (demo estimate)",
       "confirmedAfterScope": "To be confirmed after scope review",
       "noDetails": "No additional details",
       "requestOnly": "Request only · Availability and price will be confirmed."
@@ -350,8 +349,6 @@
       "packageOptions": "Package options",
       "loadingPackages": "Loading packages…",
       "verifyFailed": "Live packages couldn’t be verified. Quote requests are still available.",
-      "estimate": "Estimate: {amount} / {unit}.",
-      "unitFallback": "request",
       "descriptionPlaceholder": "What would you like help with?",
       "minutes": "~{count} min"
     },
@@ -529,6 +526,7 @@
     "emptyCategory": "No services are currently available in this category.",
     "viewDetails": "View Details",
     "startingFrom": "Starting from",
+    "priceAfterReview": "Price after review",
     "verifiedTeam": "Verified Team",
     "reviewsLabel": "({count} reviews)",
     "badgeDefault": "Verified Pro",
@@ -540,8 +538,7 @@
     "badgeOffice": "Commercial Grade",
     "badgeGarden": "Seasonal Care",
     "badgeLaundry": "Household Favorite",
-    "minutes": "{count} min",
-    "perSession": "per session"
+    "minutes": "{count} min"
   },
   "whoWeAre": {
     "eyebrow": "Who We Are",
@@ -686,9 +683,9 @@
     "emptySearch": "No services match that search. Try another term.",
     "viewDetails": "View details",
     "minutes": "{count} min",
-    "demoEstimate": "Demo estimate: {amount} / {unit}",
-    "scopeReview": "scope review",
-    "serviceAlt": "{name} service"
+    "serviceAlt": "{name} service",
+    "fromPrice": "From {amount}",
+    "priceAfterReview": "Price after review"
   },
   "serviceDetail": {
     "eyebrow": "Service details",
@@ -699,9 +696,6 @@
     "breadcrumb": "Breadcrumb",
     "brandEyebrow": "Meraki home services",
     "selectPackage": "Select an available package below",
-    "demoEstimateLabel": "Demo estimate: {amount}",
-    "unitFallback": "per request",
-    "demoNote": "{unit}. Illustrative prototype estimate; final price is agreed with you after scope review.",
     "packageReviewNote": "Package price shown is subject to booking review.",
     "typicalDuration": "Typical duration: {count} minutes. Scope and schedule are confirmed with you.",
     "durationReview": "Duration is confirmed after scope review.",
@@ -717,15 +711,16 @@
     "retryPackages": "Retry package options",
     "demoPackage": "Illustrative demo package",
     "requestSuffix": "{name} request",
-    "demoEstimateUnit": "Demo estimate: {amount} / {unit}",
-    "unitRequest": "request",
-    "prototypeNote": "Prototype estimate only. Availability and final scope require review; a request does not confirm an appointment.",
+    "prototypeNote": "Prices shown are starting prices. Availability and final scope require review; a request does not confirm an appointment.",
     "requestService": "Request this service",
     "configuredPrice": "Configured price: {price} / {unit}",
     "requestQuoteBody": "Request a quote. Our team will review the work and discuss pricing with you.",
     "bookThis": "Book This Service",
     "requestQuote": "Request a Quote",
-    "choosePackage": "Choose a package"
+    "choosePackage": "Choose a package",
+    "fromPrice": "From {amount}",
+    "priceAfterReview": "Price after review",
+    "afterReviewNote": "The final price is agreed with you after scope review."
   },
   "trustPage": {
     "eyebrow": "Trust & Safety",
