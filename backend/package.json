@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node init && node index.mjs",
-    "start": "node init && node index.mjs",
+    "dev": "node index.mjs",
+    "start": "node index.mjs",
     "db:migrate": "node migrate.mjs",
     "db:verify": "node verify-db.mjs"
   }
