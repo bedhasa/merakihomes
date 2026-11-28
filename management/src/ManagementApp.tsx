@@ -1,55 +1,1242 @@
-import React,{useEffect,useState} from 'react';
-import { ArrowRight, BriefcaseBusiness, CalendarDays, CircleDollarSign, Home, LogOut, MessageSquareText, RefreshCw, Users, Wrench, Menu, X, ShieldCheck, ClipboardList, History, Megaphone, Search, ChevronDown, TrendingUp } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  CalendarDays,
+  CircleDollarSign,
+  Home,
+  LogOut,
+  MessageSquareText,
+  RefreshCw,
+  Users,
+  Wrench,
+  Menu,
+  X,
+  ShieldCheck,
+  ClipboardList,
+  History,
+  Megaphone,
+  Search,
+  ChevronDown,
+  TrendingUp,
+} from 'lucide-react';
 import { WorkersWorkspace } from './WorkersWorkspace';
 import { CustomersWorkspace } from './CustomersWorkspace';
 import { PromotionsWorkspace } from './PromotionsWorkspace';
 import { ServicesWorkspace } from './ServicesWorkspace';
 import { BookingDetailModal } from './BookingDetailModal';
-import { ApiError, cancelManagementBooking, ContactSubmission, getContactSubmissions, getManagementBookings, getManagementCustomers, getManagementServices, getStaffAccount, ManagementBooking, ManagementCustomer, ManagementService, loginStaff, logoutStaff, saveManagementService, getManagementBooking, addBookingNote, proposeBookingReschedule, reviewBookingLocation, getManagementWorkers, ManagementWorker, ManagementBookingItem, ManagementWorkerProposal, updateManagementBookingItemStatus, proposeManagementWorkerChange, proposeManagementPriceChange, getManagementPayments, ManagementPayment, getAuditRecords, AuditRecord, getStaffAccounts, StaffAccount, createStaffAccount, setStaffAccountActive, updateContactSubmission, assignManagementBooking, updateManagementBookingStatus, createManagementService, getManagementHomePromotions, saveManagementHomePromotion, HomePromotion, setManagementProfessionalAccount } from '@shared/api';
+import {
+  ApiError,
+  cancelManagementBooking,
+  ContactSubmission,
+  getContactSubmissions,
+  getManagementBookings,
+  getManagementCustomers,
+  getManagementServices,
+  getStaffAccount,
+  ManagementBooking,
+  ManagementCustomer,
+  ManagementService,
+  loginStaff,
+  logoutStaff,
+  saveManagementService,
+  getManagementBooking,
+  addBookingNote,
+  proposeBookingReschedule,
+  reviewBookingLocation,
+  getManagementWorkers,
+  ManagementWorker,
+  ManagementBookingItem,
+  ManagementWorkerProposal,
+  updateManagementBookingItemStatus,
+  proposeManagementWorkerChange,
+  proposeManagementPriceChange,
+  getManagementPayments,
+  ManagementPayment,
+  getAuditRecords,
+  AuditRecord,
+  getStaffAccounts,
+  StaffAccount,
+  createStaffAccount,
+  setStaffAccountActive,
+  updateContactSubmission,
+  assignManagementBooking,
+  updateManagementBookingStatus,
+  createManagementService,
+  getManagementHomePromotions,
+  saveManagementHomePromotion,
+  HomePromotion,
+  setManagementProfessionalAccount,
+} from '@shared/api';
 
-type Staff={id:string;name:string;email:string;role:string};
-const nav=[['/dashboard','Overview',Home],['/bookings','Bookings',CalendarDays],['/workers','Workers',BriefcaseBusiness],['/payments','Payments',CircleDollarSign],['/customers','Customers',Users],['/services','Services & packages',Wrench],['/promotions','Mobile carousel',Megaphone],['/contact-submissions','Contact inbox',MessageSquareText],['/admins','Staff access',ShieldCheck],['/activity','Activity log',History]] as const;
-const BrandMark:React.FC<{onNavy?:boolean}>=({onNavy})=> <span className="flex min-w-0 items-center gap-2"><img src="/meraki-skyline-logo.png" alt="Meraki Homes logo" className="h-[49px] w-[52px] shrink-0 object-contain"/><span className="min-w-0"><span className="flex items-center gap-1.5"><span className={`text-[14px] font-black tracking-[0.1px] ${onNavy?'text-white':'text-[#142B4A]'}`}>MERAKI</span><span className="text-[14px] font-black tracking-[0.1px] text-[#B27A13]">HOMES</span><span className="h-[5px] w-[5px] rounded-full bg-[#8B5E00]"/></span><span className={`block text-[9px] ${onNavy?'text-white/70':'text-slate-500'}`}>Home Services, Made Easy.</span></span></span>;
-const errorText=(e:unknown)=>e instanceof ApiError?e.message:'The API could not be reached. Check the server and try again.';
+type Staff = { id: string; name: string; email: string; role: string };
+const nav = [
+  ['/dashboard', 'Overview', Home],
+  ['/bookings', 'Bookings', CalendarDays],
+  ['/workers', 'Workers', BriefcaseBusiness],
+  ['/payments', 'Payments', CircleDollarSign],
+  ['/customers', 'Customers', Users],
+  ['/services', 'Services & packages', Wrench],
+  ['/promotions', 'Mobile carousel', Megaphone],
+  ['/contact-submissions', 'Contact inbox', MessageSquareText],
+  ['/admins', 'Staff access', ShieldCheck],
+  ['/activity', 'Activity log', History],
+] as const;
+const BrandMark: React.FC<{ onNavy?: boolean }> = ({ onNavy }) => (
+  <span className="flex min-w-0 items-center gap-2">
+    <img
+      src="/meraki-skyline-logo.png"
+      alt="Meraki Homes logo"
+      className="h-[60px] w-[64px] shrink-0 object-contain"
+    />
+    <span className="min-w-0">
+      <span className="flex items-center gap-1.5">
+        <span
+          className={`text-[14px] font-black tracking-[0.1px] ${onNavy ? 'text-white' : 'text-[#142B4A]'}`}
+        >
+          MERAKI
+        </span>
+        <span className="text-[14px] font-black tracking-[0.1px] text-[#B27A13]">HOMES</span>
+        <span className="h-[5px] w-[5px] rounded-full bg-[#8B5E00]" />
+      </span>
+      <span className={`block text-[9px] ${onNavy ? 'text-white/70' : 'text-slate-500'}`}>
+        Home Services, Made Easy.
+      </span>
+    </span>
+  </span>
+);
+const errorText = (e: unknown) =>
+  e instanceof ApiError ? e.message : 'The API could not be reached. Check the server and try again.';
 
-export const ManagementApp:React.FC=()=>{
- const [path,setPath]=useState(location.pathname);const [staff,setStaff]=useState<Staff|null>(null);const [checking,setChecking]=useState(true);const [loginError,setLoginError]=useState('');const[mobileNavOpen,setMobileNavOpen]=useState(false);
- useEffect(()=>{const pop=()=>setPath(location.pathname);addEventListener('popstate',pop);getStaffAccount().then(setStaff).catch(()=>setStaff(null)).finally(()=>setChecking(false));return()=>removeEventListener('popstate',pop);},[]);
- const navigate=(to:string)=>{history.pushState({},'',to);setPath(to);};
- const onLogin=async(email:string,password:string)=>{setLoginError('');try{const user=await loginStaff(email,password);setStaff(user);navigate('/dashboard');}catch(e){setLoginError(errorText(e));}};
- const signOut=async()=>{try{await logoutStaff();}finally{setStaff(null);navigate('/login');}};
- if(checking)return <div className="grid min-h-screen place-items-center text-sm text-slate-600">Checking staff session...</div>;
- if(!staff)return <StaffLogin error={loginError} onSubmit={onLogin}/>;
- const selected=path==='/'?'/dashboard':path;
- return <div className="min-h-screen bg-[#F5F6F8] text-slate-700 md:flex"><aside className={`${mobileNavOpen?'fixed inset-y-0 left-0 z-50 flex':'hidden'} w-[248px] shrink-0 flex-col bg-[#102A43] text-white md:sticky md:top-0 md:flex md:h-screen`}><a href="/dashboard" onClick={e=>{e.preventDefault();navigate('/dashboard');setMobileNavOpen(false)}} className="flex h-[76px] items-center border-b border-white/10 px-4"><BrandMark onNavy/></a><nav className="flex-1 overflow-y-auto px-3 py-5"><p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[.18em] text-white/40">Workspace</p>{nav.map(([url,label,Icon])=><a key={url} href={url} onClick={e=>{e.preventDefault();navigate(url);setMobileNavOpen(false)}} className={`mb-1 flex min-h-11 items-center gap-3 rounded-lg px-3 text-[13px] transition ${selected===url?'bg-[#D4A853] font-semibold text-[#102A43] shadow-sm':'text-white/75 hover:bg-white/10 hover:text-white'}`}><Icon size={17}/>{label}</a>)}</nav><div className="border-t border-white/10 p-3"><button onClick={()=>void signOut()} className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm text-white/70 hover:bg-white/10 hover:text-white"><LogOut size={17}/>Sign out</button></div></aside><div className="min-w-0 flex-1"><header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-[#EEF0F2] bg-white px-4 sm:px-7"><div className="flex min-w-0 items-center gap-3"><button onClick={()=>setMobileNavOpen(v=>!v)} aria-expanded={mobileNavOpen} aria-label={mobileNavOpen?'Close navigation':'Open navigation'} className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-[#102A43] md:hidden">{mobileNavOpen?<X size={18}/>:<Menu size={18}/>}</button><BrandMark/></div><div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-full bg-[#E8EDF2] text-sm font-bold text-[#102A43]">{staff.name.trim().split(/\s+/).map(x=>x[0]).slice(0,2).join('').toUpperCase()}</span><span className="hidden sm:block"><span className="block text-xs font-semibold text-slate-800">{staff.name}</span><span className="block text-[10px] capitalize text-slate-500">{staff.role}</span></span><ChevronDown size={15} className="hidden text-slate-400 sm:block"/></div></header><main className="mx-auto min-h-[calc(100vh-120px)] max-w-[1500px] px-4 py-6 sm:px-7 lg:px-9">{path==='/dashboard'||path==='/'?<Dashboard navigate={navigate}/>:path==='/bookings'?<BookingsPage navigate={navigate}/>:path==='/customers'?<CustomersWorkspace/>:path==='/services'?<ServicesWorkspace/>:path==='/promotions'?<PromotionsWorkspace/>:path==='/contact-submissions'?<ContactsPage/>:path==='/workers'?<WorkersWorkspace/>:path==='/payments'?<PaymentsPage/>:path==='/admins'?<AdminsPage staff={staff}/>:path==='/activity'?<ActivityPage/>:<section className="rounded-xl border border-slate-200 bg-white p-6"><h1 className="text-xl font-semibold text-[#102A43]">Page not found</h1><button onClick={()=>navigate('/dashboard')} className="mt-4 text-sm underline">Return to overview</button></section>}</main><footer className="border-t border-slate-200 bg-white px-5 py-4 text-center text-xs text-slate-500">Private staff workspace  ·  Permissions are checked by the API</footer></div></div>;
+export const ManagementApp: React.FC = () => {
+  const [path, setPath] = useState(location.pathname);
+  const [staff, setStaff] = useState<Staff | null>(null);
+  const [checking, setChecking] = useState(true);
+  const [loginError, setLoginError] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  useEffect(() => {
+    const pop = () => setPath(location.pathname);
+    addEventListener('popstate', pop);
+    getStaffAccount()
+      .then(setStaff)
+      .catch(() => setStaff(null))
+      .finally(() => setChecking(false));
+    return () => removeEventListener('popstate', pop);
+  }, []);
+  const navigate = (to: string) => {
+    history.pushState({}, '', to);
+    setPath(to);
+  };
+  const onLogin = async (email: string, password: string) => {
+    setLoginError('');
+    try {
+      const user = await loginStaff(email, password);
+      setStaff(user);
+      navigate('/dashboard');
+    } catch (e) {
+      setLoginError(errorText(e));
+    }
+  };
+  const signOut = async () => {
+    try {
+      await logoutStaff();
+    } finally {
+      setStaff(null);
+      navigate('/login');
+    }
+  };
+  if (checking)
+    return (
+      <div className="grid min-h-screen place-items-center text-sm text-slate-600">
+        Checking staff session...
+      </div>
+    );
+  if (!staff) return <StaffLogin error={loginError} onSubmit={onLogin} />;
+  const selected = path === '/' ? '/dashboard' : path;
+  return (
+    <div className="min-h-screen bg-[#F5F6F8] text-slate-700 md:flex">
+      <aside
+        className={`${mobileNavOpen ? 'fixed inset-y-0 left-0 z-50 flex' : 'hidden'} w-[248px] shrink-0 flex-col bg-[#102A43] text-white md:sticky md:top-0 md:flex md:h-screen`}
+      >
+        <a
+          href="/dashboard"
+          onClick={(e) => {
+            e.preventDefault();
+            navigate('/dashboard');
+            setMobileNavOpen(false);
+          }}
+          className="flex h-[76px] items-center border-b border-white/10 px-4"
+        >
+          <BrandMark onNavy />
+        </a>
+        <nav className="flex-1 overflow-y-auto px-3 py-5">
+          <p className="px-3 pb-3 text-[10px] font-bold uppercase tracking-[.18em] text-white/40">
+            Workspace
+          </p>
+          {nav.map(([url, label, Icon]) => (
+            <a
+              key={url}
+              href={url}
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(url);
+                setMobileNavOpen(false);
+              }}
+              className={`mb-1 flex min-h-11 items-center gap-3 rounded-lg px-3 text-[13px] transition ${selected === url ? 'bg-[#D4A853] font-semibold text-[#102A43] shadow-sm' : 'text-white/75 hover:bg-white/10 hover:text-white'}`}
+            >
+              <Icon size={17} />
+              {label}
+            </a>
+          ))}
+        </nav>
+        <div className="border-t border-white/10 p-3">
+          <button
+            onClick={() => void signOut()}
+            className="flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm text-white/70 hover:bg-white/10 hover:text-white"
+          >
+            <LogOut size={17} />
+            Sign out
+          </button>
+        </div>
+      </aside>
+      <div className="min-w-0 flex-1">
+        <header className="sticky top-0 z-30 flex h-[72px] items-center justify-between border-b border-[#EEF0F2] bg-white px-4 sm:px-7">
+          <div className="flex min-w-0 items-center gap-3">
+            <button
+              onClick={() => setMobileNavOpen((v) => !v)}
+              aria-expanded={mobileNavOpen}
+              aria-label={mobileNavOpen ? 'Close navigation' : 'Open navigation'}
+              className="grid h-10 w-10 place-items-center rounded-lg border border-slate-200 text-[#102A43] md:hidden"
+            >
+              {mobileNavOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+            <BrandMark />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-[#E8EDF2] text-sm font-bold text-[#102A43]">
+              {staff.name
+                .trim()
+                .split(/\s+/)
+                .map((x) => x[0])
+                .slice(0, 2)
+                .join('')
+                .toUpperCase()}
+            </span>
+            <span className="hidden sm:block">
+              <span className="block text-xs font-semibold text-slate-800">{staff.name}</span>
+              <span className="block text-[10px] capitalize text-slate-500">{staff.role}</span>
+            </span>
+            <ChevronDown size={15} className="hidden text-slate-400 sm:block" />
+          </div>
+        </header>
+        <main className="mx-auto min-h-[calc(100vh-120px)] max-w-[1500px] px-4 py-6 sm:px-7 lg:px-9">
+          {path === '/dashboard' || path === '/' ? (
+            <Dashboard navigate={navigate} />
+          ) : path === '/bookings' ? (
+            <BookingsPage navigate={navigate} />
+          ) : path === '/customers' ? (
+            <CustomersWorkspace />
+          ) : path === '/services' ? (
+            <ServicesWorkspace />
+          ) : path === '/promotions' ? (
+            <PromotionsWorkspace />
+          ) : path === '/contact-submissions' ? (
+            <ContactsPage />
+          ) : path === '/workers' ? (
+            <WorkersWorkspace />
+          ) : path === '/payments' ? (
+            <PaymentsPage />
+          ) : path === '/admins' ? (
+            <AdminsPage staff={staff} />
+          ) : path === '/activity' ? (
+            <ActivityPage />
+          ) : (
+            <section className="rounded-xl border border-slate-200 bg-white p-6">
+              <h1 className="text-xl font-semibold text-[#102A43]">Page not found</h1>
+              <button onClick={() => navigate('/dashboard')} className="mt-4 text-sm underline">
+                Return to overview
+              </button>
+            </section>
+          )}
+        </main>
+        <footer className="border-t border-slate-200 bg-white px-5 py-4 text-center text-xs text-slate-500">
+          Private staff workspace · Permissions are checked by the API
+        </footer>
+      </div>
+    </div>
+  );
 };
 
-const StaffLogin:React.FC<{error:string;onSubmit:(email:string,password:string)=>Promise<void>}>=({error,onSubmit})=>{const[email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false);return <main className="grid min-h-screen place-items-center bg-[#102A43] px-5 py-10"><section className="w-full max-w-md rounded-md bg-white p-7 shadow-xl"><BrandMark/><p className="mt-5 text-xs font-semibold uppercase tracking-[.16em] text-[#8C6A2F]">Staff access</p><h1 className="mt-2 text-2xl font-semibold text-[#102A43]">Operations sign in</h1><p className="mt-2 text-sm leading-6 text-slate-600">Staff access is provisioned by an administrator. There is no public staff registration.</p>{error&&<p role="alert" className="mt-4 rounded-sm bg-red-50 p-3 text-sm text-red-800">{error}</p>}<form onSubmit={async e=>{e.preventDefault();setBusy(true);try{await onSubmit(email,password)}finally{setBusy(false)}}} className="mt-6 space-y-4"><label className="block text-sm font-medium">Work email<input type="email" required autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} className="mt-2 h-12 w-full rounded-sm border border-slate-300 px-3"/></label><label className="block text-sm font-medium">Password<input type="password" required autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} className="mt-2 h-12 w-full rounded-sm border border-slate-300 px-3"/></label><button disabled={busy} className="meraki-button w-full">{busy?'Signing in...':'Sign in to Operations'} <ArrowRight size={16}/></button></form><a href="http://localhost:3000/" className="mt-5 block text-center text-xs text-slate-500 underline">Return to Meraki Homes website</a></section></main>};
-
-const PageHead:React.FC<{eyebrow:string;title:string;description:string;refresh?:()=>void;busy?:boolean}>=({eyebrow,title,description,refresh,busy})=><div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#8C6A2F]">{eyebrow}</p><h1 className="mt-1 text-[26px] font-bold tracking-tight text-[#102A43]">{title}</h1><p className="mt-1.5 text-sm text-slate-500">{description}</p></div>{refresh&&<button onClick={refresh} disabled={busy} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-medium shadow-sm hover:bg-slate-50"><RefreshCw size={15}/>{busy?'Loading...':'Refresh'}</button>}</div>;
-const Dashboard:React.FC<{navigate:(to:string)=>void}>=({navigate})=>{const [rows,setRows]=useState<ManagementBooking[]>([]),[payments,setPayments]=useState<ManagementPayment[]>([]),[busy,setBusy]=useState(true),[error,setError]=useState('');const load=()=>{setBusy(true);Promise.all([getManagementBookings(),getManagementPayments()]).then(([bookings,paymentRows])=>{setRows(bookings);setPayments(paymentRows);}).catch(e=>setError(errorText(e))).finally(()=>setBusy(false));};useEffect(load,[]);const pending=rows.filter(x=>x.status==='pending').length;const confirmed=rows.filter(x=>x.status==='confirmed'||x.status==='in_progress').length;const collected=payments.filter(x=>x.status==='paid'||x.status==='succeeded').reduce((sum,x)=>sum+Number(x.amount||0),0);const money=new Intl.NumberFormat('en-ET',{maximumFractionDigits:0}).format(collected);return <><PageHead eyebrow="Operations" title="Overview" description="A clear view of today's service activity and customer requests." refresh={load} busy={busy}/>{error&&<ErrorMessage message={error}/>}<div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><Metric label="Total bookings" value={busy?'...':rows.length} icon={CalendarDays} tint="navy"/><Metric label="Awaiting review" value={busy?'...':pending} icon={ClipboardList} tint="gold"/><Metric label="Active bookings" value={busy?'...':confirmed} icon={BriefcaseBusiness} tint="green"/><Metric label="Payments recorded" value={busy?'...':`${money} ETB`} icon={CircleDollarSign} tint="gold"/></div><section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_2px_10px_rgba(15,23,42,.035)]"><div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6"><div><h2 className="text-base font-bold text-[#102A43]">Recent bookings</h2><p className="mt-1 text-xs text-slate-500">Latest requests from customers, with current status.</p></div><button onClick={()=>navigate('/bookings')} className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-[#102A43] hover:border-[#D4A853]">All bookings <ArrowRight size={14}/></button></div><div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="bg-[#F8F9FB] text-[11px] font-semibold uppercase tracking-wide text-slate-500"><tr>{['Booking / customer','Service','Preferred time','Status',''].map((label,index)=><th key={label||index} className="px-5 py-3">{label}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{rows.slice(0,6).map(b=><tr key={b.id} className="hover:bg-slate-50/70"><td className="px-5 py-3.5"><p className="font-mono text-[11px] font-bold text-[#102A43]">{b.reference}</p><p className="mt-1 text-xs text-slate-600">{b.customerName}</p></td><td className="px-5 py-3.5 text-xs text-slate-700">{b.serviceName}{b.packageName&&<span className="block pt-1 text-[10px] text-slate-400">{b.packageName}</span>}</td><td className="px-5 py-3.5 text-xs text-slate-600">{new Date(b.requestedStart).toLocaleString()}</td><td className="px-5 py-3.5"><StatusPill status={b.status}/></td><td className="px-5 py-3.5 text-right"><button onClick={()=>navigate('/bookings')} className="rounded-lg px-3 py-2 text-xs font-semibold text-[#8C6A2F] hover:bg-[#D4A853]/10">Review</button></td></tr>)}{!busy&&!rows.length&&<tr><td colSpan={5} className="px-5 py-12 text-center text-sm text-slate-500">No booking requests yet.</td></tr>}</tbody></table></div><div className="flex items-center justify-between border-t border-slate-100 px-5 py-3 text-xs text-slate-500"><span>Showing {Math.min(rows.length,6)} of {rows.length} requests</span><button onClick={()=>navigate('/bookings')} className="font-semibold text-[#102A43]">Open booking manager â†’</button></div></section></>};
-const Metric:React.FC<{label:string;value:string|number;icon:typeof CalendarDays;tint?:'navy'|'gold'|'green'}>=({label,value,icon:Icon,tint='navy'})=>{const styles={navy:'bg-[#E9EFF5] text-[#102A43]',gold:'bg-[#FBF3E1] text-[#8C6A2F]',green:'bg-[#E8F4EE] text-[#347454]'};return <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,.035)]"><div className="flex items-center justify-between gap-2"><p className="text-xs font-medium text-slate-500">{label}</p><span className={`grid h-9 w-9 place-items-center rounded-lg ${styles[tint]}`}><Icon size={17}/></span></div><p className="mt-3 text-[25px] font-bold leading-none text-[#102A43]">{value}</p><p className="mt-2 flex items-center gap-1 text-[10px] text-slate-400"><TrendingUp size={12} className="text-[#8C6A2F]"/> Live database</p></article>};
-const StatusPill:React.FC<{status:string}>=({status})=>{const styles:Record<string,string>={pending:'bg-[#FFF5DC] text-[#8C6A2F]',confirmed:'bg-[#E8F4EE] text-[#347454]',in_progress:'bg-[#E9EFF5] text-[#102A43]',completed:'bg-[#E8F4EE] text-[#347454]',cancelled:'bg-[#FDECEC] text-[#A43B3B]',rejected:'bg-[#FDECEC] text-[#A43B3B]'};return <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ${styles[status]||'bg-slate-100 text-slate-600'}`}><span className="h-1.5 w-1.5 rounded-full bg-current"/>{status.replaceAll('_',' ')}</span>};
-const ErrorMessage:React.FC<{message:string}>=({message})=><p role="alert" className="mb-4 rounded-sm bg-red-50 p-3 text-sm text-red-800">{message}</p>;
-
-const BookingsPage:React.FC<{navigate:(to:string)=>void}>=({navigate})=>{
- const[rows,setRows]=useState<ManagementBooking[]>([]),[busy,setBusy]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState(''),[query,setQuery]=useState(''),[status,setStatus]=useState('all'),[serviceFilter,setServiceFilter]=useState('all'),[dateFilter,setDateFilter]=useState(''),[dateField,setDateField]=useState<'submitted'|'preferred'>('preferred'),[page,setPage]=useState(0),[locationOnly,setLocationOnly]=useState(false),[selected,setSelected]=useState<ManagementBooking|null>(null),[history,setHistory]=useState<Array<{oldStatus:string|null;newStatus:string;actor:string;reason:string;createdAt:string}>>([]),[proposals,setProposals]=useState<Array<{id:string;proposedStart:string;reason:string;status:string}>>([]),[activity,setActivity]=useState<Array<{actor:string;action:string;reason:string;createdAt:string}>>([]),[items,setItems]=useState<ManagementBookingItem[]>([]),[workerProposals,setWorkerProposals]=useState<ManagementWorkerProposal[]>([]),[busyAction,setBusyAction]=useState(false),[tab,setTab]=useState<'requests'|'needs-review'>('requests'),[cancelTarget,setCancelTarget]=useState<ManagementBooking|null>(null),[cancelReason,setCancelReason]=useState(''),[noteText,setNoteText]=useState(''),[assignmentFilter,setAssignmentFilter]=useState<'all'|'assigned'|'unassigned'>('all');
- const load=()=>{setBusy(true);setError('');getManagementBookings().then(setRows).catch(e=>setError(errorText(e))).finally(()=>setBusy(false));};useEffect(load,[]);
- const filtered=rows.filter(b=>(tab==='requests'||b.status==='pending'||b.locationReviewStatus==='pending')&&(status==='all'||b.status===status)&&(serviceFilter==='all'||b.serviceId===serviceFilter)&&(assignmentFilter==='all'||(assignmentFilter==='assigned'?Boolean(b.assignedWorker):!b.assignedWorker))&&(!locationOnly||b.locationReviewStatus==='pending')&&(!dateFilter||new Date(dateField==='submitted'?b.createdAt:b.requestedStart).toLocaleDateString('en-CA',{timeZone:'Africa/Addis_Ababa'})===dateFilter)&&(!query||`${b.reference} ${b.customerName} ${b.customerPhone} ${b.serviceName} ${b.address} ${b.neighborhood}`.toLowerCase().includes(query.toLowerCase())));const pages=Math.max(1,Math.ceil(filtered.length/20)),pageRows=filtered.slice(page*20,page*20+20);
- const open=async(b:ManagementBooking)=>{setSelected(b);setHistory([]);try{const full=await getManagementBooking(b.id);setSelected(full.booking);setItems(full.items);setWorkerProposals(full.workerProposals);setHistory(full.history);setProposals(full.proposals);setActivity(full.activity);}catch(e){setError(errorText(e));}};
- const act=async(run:()=>Promise<unknown>,message:string)=>{setBusyAction(true);setError('');try{await run();setNotice(message);load();if(selected)await open(selected);}catch(e){setError(errorText(e));}finally{setBusyAction(false);}};
- const cancel=async()=>{if(!cancelTarget||cancelReason.trim().length<3)return;await act(()=>cancelManagementBooking(cancelTarget.id,cancelReason.trim()),`${cancelTarget.reference} was cancelled and logged.`);setCancelTarget(null);setCancelReason('');};
- const note=async()=>{if(!selected||noteText.trim().length<3)return;await act(()=>addBookingNote(selected.id,noteText.trim()),'Internal note saved.');setNoteText('');};
- const reschedule=async()=>{if(!selected)return;const when=prompt('Enter proposed date and time (ISO format, e.g. 2026-11-05T10:00:00+03:00):');if(!when)return;const reason=prompt('Reason for proposing this change:');if(reason)await act(()=>proposeBookingReschedule(selected.id,new Date(when).toISOString(),reason),'Schedule proposal recorded pending customer approval.');};
- const saveLocation=async()=>{if(!selected)return;const reason=prompt('Explain how this address/location was verified:');if(!reason)return;await act(()=>reviewBookingLocation(selected.id,{address:selected.address,neighborhood:selected.neighborhood,nearbyLandmark:selected.nearbyLandmark||'',latitude:selected.latitude,longitude:selected.longitude,reason}),'Location review recorded.');};
- return <><PageHead eyebrow="Operations" title="Booking requests" description="Open a request to review the customer, service, payment, and status history in one place." refresh={load} busy={busy}/>{error&&<ErrorMessage message={error}/ >}{notice&&<p role="status" className="mb-4 rounded-sm bg-emerald-50 p-3 text-sm text-emerald-900">{notice}</p>}<div className="mb-4 flex gap-2"><button onClick={()=>{setTab('needs-review');setPage(0)}} className={`min-h-10 rounded px-4 text-sm font-semibold ${tab==='needs-review'?'bg-[#102A43] text-white':'border bg-white text-slate-700'}`}>Needs review ({rows.filter(b=>b.status==='pending'||b.locationReviewStatus==='pending').length})</button><button onClick={()=>{setTab('requests');setPage(0)}} className={`min-h-10 rounded px-4 text-sm font-semibold ${tab==='requests'?'bg-[#102A43] text-white':'border bg-white text-slate-700'}`}>All requests ({rows.length})</button></div>
- <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-6"><input value={query} onChange={e=>{setQuery(e.target.value);setPage(0)}} placeholder="Search ref, name, or phone" className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm lg:col-span-2"/><select value={status} onChange={e=>{setStatus(e.target.value);setPage(0)}} className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"><option value="all">All statuses</option>{['pending','pending_confirmation','confirmed','in_progress','completed','cancelled'].map(s=><option key={s} value={s}>{s.replaceAll('_',' ')}</option>)}</select><select value={serviceFilter} onChange={e=>{setServiceFilter(e.target.value);setPage(0)}} className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"><option value="all">All services</option>{Array.from(new Map(rows.map(b=>[b.serviceId,b.serviceName])).entries()).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select><select value={assignmentFilter} onChange={e=>{setAssignmentFilter(e.target.value as 'all'|'assigned'|'unassigned');setPage(0)}} className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"><option value="all">Any assignment</option><option value="assigned">Assigned</option><option value="unassigned">Unassigned</option></select><div className="flex gap-2"><select aria-label="Date filter" value={dateField} onChange={e=>setDateField(e.target.value as 'submitted'|'preferred')} className="h-11 min-w-0 rounded-md border border-slate-300 bg-white px-2 text-xs"><option value="preferred">Preferred date</option><option value="submitted">Submitted date</option></select><input aria-label="Filter by date" type="date" value={dateFilter} onChange={e=>{setDateFilter(e.target.value);setPage(0)}} className="h-11 min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-2 text-xs"/></div><label className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm lg:col-span-2"><input type="checkbox" checked={locationOnly} onChange={e=>{setLocationOnly(e.target.checked);setPage(0)}}/>Needs location review</label></div>
- <div className="overflow-x-auto rounded-md border border-slate-200 bg-white"><table className="w-full min-w-[980px] text-left text-sm"><thead className="border-b border-slate-200 bg-[#F7F8FA] text-xs text-slate-600"><tr>{['Reference / customer','Service / date','Professional','Payment','Status',''].map(h=><th key={h||'open'} className="px-4 py-3">{h}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{pageRows.map(b=><tr key={b.id} className="align-top"><td className="px-4 py-3"><p className="font-mono text-xs font-semibold">{b.reference}</p><p className="mt-1 font-medium">{b.customerName}</p><a href={`tel:${b.customerPhone}`} className="text-xs text-blue-800 underline">{b.customerPhone}</a></td><td className="px-4 py-3">{b.serviceName}{b.packageName&&<p className="mt-1 text-xs text-[#8C6A2F]">{b.packageName}</p>}<p className="mt-1 text-xs text-slate-500">Requested {new Date(b.requestedStart).toLocaleString()}<span className="block">Submitted {new Date(b.createdAt).toLocaleDateString()}</span></p></td><td className="px-4 py-3 text-xs">{b.assignedWorker||'Unassigned'}</td><td className="px-4 py-3 text-xs">{b.startingEstimate===null?'Estimate pending':`${b.startingEstimate} ${b.currency}`}<p className="text-slate-500">{Number(b.amountPaid||0)>0?`Paid ${b.amountPaid}`:'No verified payment'}</p></td><td className="px-4 py-3"><StatusPill status={b.status}/></td><td className="px-4 py-3"><button onClick={()=>void open(b)} className="font-semibold text-[#102A43] underline">Open</button></td></tr>)}{!busy&&!filtered.length&&<tr><td colSpan={6} className="px-4 py-10 text-center text-slate-500">No requests match these filters.</td></tr>}</tbody></table><div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-xs"><span>{filtered.length?`${page*20+1}-${Math.min((page+1)*20,filtered.length)} of ${filtered.length}`:'0 requests'}</span><div className="flex gap-2"><button disabled={page===0} onClick={()=>setPage(p=>Math.max(0,p-1))} className="min-h-9 rounded border px-3 disabled:opacity-40">Previous</button><button disabled={page+1>=pages} onClick={()=>setPage(p=>Math.min(pages-1,p+1))} className="min-h-9 rounded border px-3 disabled:opacity-40">Next</button></div></div></div>
- {selected?<BookingDetailModal booking={selected} detail={{booking:selected,items,workerProposals,history,proposals,activity}} loading={busyAction} error={error} onClose={()=>setSelected(null)} onRefresh={async()=>{load();if(selected)await open(selected);}} onOpenCustomers={()=>navigate('/customers')}/>:null}
- </>;
+const StaffLogin: React.FC<{
+  error: string;
+  onSubmit: (email: string, password: string) => Promise<void>;
+}> = ({ error, onSubmit }) => {
+  const [email, setEmail] = useState(''),
+    [password, setPassword] = useState(''),
+    [busy, setBusy] = useState(false);
+  return (
+    <main className="grid min-h-screen place-items-center bg-[#102A43] px-5 py-10">
+      <section className="w-full max-w-md rounded-md bg-white p-7 shadow-xl">
+        <BrandMark />
+        <p className="mt-5 text-xs font-semibold uppercase tracking-[.16em] text-[#8C6A2F]">Staff access</p>
+        <h1 className="mt-2 text-2xl font-semibold text-[#102A43]">Operations sign in</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-600">
+          Staff access is provisioned by an administrator. There is no public staff registration.
+        </p>
+        {error && (
+          <p role="alert" className="mt-4 rounded-sm bg-red-50 p-3 text-sm text-red-800">
+            {error}
+          </p>
+        )}
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setBusy(true);
+            try {
+              await onSubmit(email, password);
+            } finally {
+              setBusy(false);
+            }
+          }}
+          className="mt-6 space-y-4"
+        >
+          <label className="block text-sm font-medium">
+            Work email
+            <input
+              type="email"
+              required
+              autoComplete="username"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-2 h-12 w-full rounded-sm border border-slate-300 px-3"
+            />
+          </label>
+          <label className="block text-sm font-medium">
+            Password
+            <input
+              type="password"
+              required
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-2 h-12 w-full rounded-sm border border-slate-300 px-3"
+            />
+          </label>
+          <button disabled={busy} className="meraki-button w-full">
+            {busy ? 'Signing in...' : 'Sign in to Operations'} <ArrowRight size={16} />
+          </button>
+        </form>
+        <a href="http://localhost:3000/" className="mt-5 block text-center text-xs text-slate-500 underline">
+          Return to Meraki Homes website
+        </a>
+      </section>
+    </main>
+  );
 };
 
-const PaymentsPage:React.FC=()=>{const[rows,setRows]=useState<ManagementPayment[]>([]),[busy,setBusy]=useState(true),[error,setError]=useState('');const load=()=>{setBusy(true);getManagementPayments().then(setRows).catch(e=>setError(errorText(e))).finally(()=>setBusy(false));};useEffect(load,[]);return <><PageHead eyebrow="Finance" title="Payments" description="Payment records from PostgreSQL. Simulated demo transactions are labeled clearly." refresh={load} busy={busy}/>{error&&<ErrorMessage message={error}/>}<div className="overflow-x-auto rounded-md border border-slate-200 bg-white"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-[#F7F8FA] text-xs"><tr>{['Date','Booking','Customer','Method','Amount','Status','Balance'].map(x=><th key={x} className="px-4 py-3">{x}</th>)}</tr></thead><tbody className="divide-y">{rows.map(p=><tr key={p.id}><td className="px-4 py-3">{new Date(p.createdAt).toLocaleString()}</td><td className="px-4 py-3 font-mono">{p.bookingReference}</td><td className="px-4 py-3">{p.customerName}</td><td className="px-4 py-3 uppercase">{p.method}{p.simulated?'  ·  DEMO':''}</td><td className="px-4 py-3">{p.amount} {p.currency}</td><td className="px-4 py-3 capitalize">{p.status}</td><td className="px-4 py-3">{p.remainingBalance??'-'} {p.currency}</td></tr>)}{!busy&&!rows.length&&<tr><td colSpan={7} className="p-8 text-center text-slate-500">No payment records yet. No payments are represented as received.</td></tr>}</tbody></table></div></>};
-const AdminsPage:React.FC<{staff:Staff}>=({staff})=>{const[rows,setRows]=useState<StaffAccount[]>([]),[busy,setBusy]=useState(true),[error,setError]=useState(''),[notice,setNotice]=useState('');const[name,setName]=useState(''),[email,setEmail]=useState(''),[password,setPassword]=useState(''),[roleId,setRoleId]=useState<'admin'|'operations'>('operations');const load=()=>{setBusy(true);getStaffAccounts().then(setRows).catch(e=>setError(errorText(e))).finally(()=>setBusy(false));};useEffect(()=>{if(staff.role==='admin')load();else setBusy(false);},[staff.role]);if(staff.role!=='admin')return <><PageHead eyebrow="Administration" title="Staff access" description="Administrator permission is required to view staff accounts."/><p className="rounded border border-slate-200 bg-white p-5 text-sm">Your role does not have permission to manage staff accounts.</p></>;return <><PageHead eyebrow="Administration" title="Staff access" description="Provision staff accounts. Passwords are used once for creation and are never displayed." refresh={load} busy={busy}/>{error&&<ErrorMessage message={error}/ >}{notice&&<p role="status" className="mb-4 text-sm text-emerald-800">{notice}</p>}<form className="mb-5 grid gap-3 rounded border border-slate-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-5" onSubmit={async e=>{e.preventDefault();setError('');try{await createStaffAccount({name,email,password,roleId});setNotice('Staff account created. Share credentials through a secure channel.');setName('');setEmail('');setPassword('');load();}catch(err){setError(errorText(err));}}}><input aria-label="Full name" required minLength={2} value={name} onChange={e=>setName(e.target.value)} placeholder="Full name" className="h-10 rounded border px-3 text-sm"/><input aria-label="Work email" required type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="Work email" className="h-10 rounded border px-3 text-sm"/><input aria-label="Temporary password" required minLength={10} type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Initial password (10+ chars)" className="h-10 rounded border px-3 text-sm"/><select aria-label="Staff role" value={roleId} onChange={e=>setRoleId(e.target.value as 'admin'|'operations')} className="h-10 rounded border px-3 text-sm"><option value="operations">Operations</option><option value="admin">Administrator</option></select><button className="meraki-button min-h-10">Create staff account</button></form><div className="divide-y rounded border border-slate-200 bg-white">{rows.map(a=><div key={a.id} className="flex flex-wrap items-center justify-between gap-3 p-4"><div><p className="font-medium">{a.name} <span className="ml-2 text-xs capitalize text-slate-500">{a.role}</span></p><p className="text-sm text-slate-600">{a.email}  ·  added {new Date(a.createdAt).toLocaleDateString()}</p></div><button disabled={a.id===staff.id&&!a.isActive} onClick={async()=>{try{await setStaffAccountActive(a.id,!a.isActive);load();}catch(err){setError(errorText(err));}}} className="min-h-10 rounded border px-3 text-sm">{a.isActive?'Deactivate':'Activate'}</button></div>)}{!busy&&!rows.length&&<p className="p-6 text-center text-sm text-slate-500">No staff accounts available.</p>}</div></>};
-const ActivityPage:React.FC=()=>{const[rows,setRows]=useState<AuditRecord[]>([]),[busy,setBusy]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState('');const load=()=>{setBusy(true);getAuditRecords(query).then(setRows).catch(e=>setError(errorText(e))).finally(()=>setBusy(false));};useEffect(load,[]);return <><PageHead eyebrow="Governance" title="Activity log" description="Append-only operational and administrative audit events." refresh={load} busy={busy}/>{error&&<ErrorMessage message={error}/>}<form onSubmit={e=>{e.preventDefault();load();}} className="mb-4 flex gap-2"><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search actor, action, reference or note" className="h-11 min-w-0 flex-1 rounded border px-3 text-sm"/><button className="min-h-11 rounded bg-[#102A43] px-4 text-sm font-semibold text-white">Search</button></form><ol className="divide-y rounded border border-slate-200 bg-white">{rows.map(a=><li key={a.id} className="p-4"><div className="flex flex-wrap justify-between gap-2"><strong className="text-sm text-[#102A43]">{a.action.replaceAll('.',' ')}</strong><time className="text-xs text-slate-500">{new Date(a.createdAt).toLocaleString()}</time></div><p className="mt-1 text-xs text-slate-600">{a.actor}  ·  {a.entityType}  ·  {a.entityId}</p>{a.reason&&<p className="mt-2 text-sm">{a.reason}</p>}</li>)}{!busy&&!rows.length&&<li className="p-8 text-center text-sm text-slate-500">No audit events found.</li>}</ol></>};
-const ContactsPage:React.FC=()=>{const[rows,setRows]=useState<ContactSubmission[]>([]),[busy,setBusy]=useState(true),[error,setError]=useState(''),[query,setQuery]=useState(''),[notice,setNotice]=useState('');const load=()=>{setBusy(true);getContactSubmissions().then(setRows).catch(e=>setError(errorText(e))).finally(()=>setBusy(false));};useEffect(load,[]);const save=async(c:ContactSubmission,status:string)=>{try{await updateContactSubmission(c.id,{status:status as 'new'|'in_progress'|'responded'|'closed',note:prompt('Internal handling note (optional):')||undefined});setNotice('Contact status updated and audited.');load();}catch(e){setError(errorText(e));}};const filtered=rows.filter(c=>`${c.name} ${c.phone} ${c.email||''} ${c.message} ${c.status}`.toLowerCase().includes(query.toLowerCase()));return <><PageHead eyebrow="Customer care" title="Contact inbox" description="Search and manage public website submissions. Status changes are audited." refresh={load} busy={busy}/>{error&&<ErrorMessage message={error}/ >}{notice&&<p role="status" className="mb-3 text-sm text-emerald-800">{notice}</p>}<input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search messages, names or contact details" className="mb-4 h-11 w-full rounded border px-3 text-sm"/><section className="divide-y divide-slate-200 rounded-md border border-slate-200 bg-white px-5">{filtered.map(c=><article key={c.id} className="py-5"><div className="flex flex-wrap items-center justify-between gap-2"><div><h2 className="font-semibold text-[#102A43]">{c.name}<span className="ml-2 text-sm font-normal text-slate-500">{c.phone}{c.email?`  ·  ${c.email}`:''}</span></h2><time className="text-xs text-slate-500">{new Date(c.createdAt).toLocaleString()}</time></div><div className="flex items-center gap-2"><span className="text-xs capitalize">{c.status.replace('_',' ')}</span><select aria-label={`Update status for ${c.name}`} defaultValue={c.status} onChange={e=>void save(c,e.target.value)} className="h-9 rounded border px-2 text-xs">{['new','in_progress','responded','closed'].map(s=><option key={s} value={s}>{s.replace('_',' ')}</option>)}</select></div></div><p className="mt-3 whitespace-pre-wrap text-sm leading-6">{c.message}</p></article>)}{!busy&&!filtered.length&&<p className="py-10 text-center text-sm text-slate-500">No messages match.</p>}</section></>};
+const PageHead: React.FC<{
+  eyebrow: string;
+  title: string;
+  description: string;
+  refresh?: () => void;
+  busy?: boolean;
+}> = ({ eyebrow, title, description, refresh, busy }) => (
+  <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-[.16em] text-[#8C6A2F]">{eyebrow}</p>
+      <h1 className="mt-1 text-[26px] font-bold tracking-tight text-[#102A43]">{title}</h1>
+      <p className="mt-1.5 text-sm text-slate-500">{description}</p>
+    </div>
+    {refresh && (
+      <button
+        onClick={refresh}
+        disabled={busy}
+        className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-medium shadow-sm hover:bg-slate-50"
+      >
+        <RefreshCw size={15} />
+        {busy ? 'Loading...' : 'Refresh'}
+      </button>
+    )}
+  </div>
+);
+const Dashboard: React.FC<{ navigate: (to: string) => void }> = ({ navigate }) => {
+  const [rows, setRows] = useState<ManagementBooking[]>([]),
+    [payments, setPayments] = useState<ManagementPayment[]>([]),
+    [busy, setBusy] = useState(true),
+    [error, setError] = useState('');
+  const load = () => {
+    setBusy(true);
+    Promise.all([getManagementBookings(), getManagementPayments()])
+      .then(([bookings, paymentRows]) => {
+        setRows(bookings);
+        setPayments(paymentRows);
+      })
+      .catch((e) => setError(errorText(e)))
+      .finally(() => setBusy(false));
+  };
+  useEffect(load, []);
+  const pending = rows.filter((x) => x.status === 'pending').length;
+  const confirmed = rows.filter((x) => x.status === 'confirmed' || x.status === 'in_progress').length;
+  const collected = payments
+    .filter((x) => x.status === 'paid' || x.status === 'succeeded')
+    .reduce((sum, x) => sum + Number(x.amount || 0), 0);
+  const money = new Intl.NumberFormat('en-ET', { maximumFractionDigits: 0 }).format(collected);
+  return (
+    <>
+      <PageHead
+        eyebrow="Operations"
+        title="Overview"
+        description="A clear view of today's service activity and customer requests."
+        refresh={load}
+        busy={busy}
+      />
+      {error && <ErrorMessage message={error} />}
+      <div className="mb-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Metric label="Total bookings" value={busy ? '...' : rows.length} icon={CalendarDays} tint="navy" />
+        <Metric label="Awaiting review" value={busy ? '...' : pending} icon={ClipboardList} tint="gold" />
+        <Metric
+          label="Active bookings"
+          value={busy ? '...' : confirmed}
+          icon={BriefcaseBusiness}
+          tint="green"
+        />
+        <Metric
+          label="Payments recorded"
+          value={busy ? '...' : `${money} ETB`}
+          icon={CircleDollarSign}
+          tint="gold"
+        />
+      </div>
+      <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-[0_2px_10px_rgba(15,23,42,.035)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6">
+          <div>
+            <h2 className="text-base font-bold text-[#102A43]">Recent bookings</h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Latest requests from customers, with current status.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate('/bookings')}
+            className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-[#102A43] hover:border-[#D4A853]"
+          >
+            All bookings <ArrowRight size={14} />
+          </button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[680px] text-left text-sm">
+            <thead className="bg-[#F8F9FB] text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              <tr>
+                {['Booking / customer', 'Service', 'Preferred time', 'Status', ''].map((label, index) => (
+                  <th key={label || index} className="px-5 py-3">
+                    {label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {rows.slice(0, 6).map((b) => (
+                <tr key={b.id} className="hover:bg-slate-50/70">
+                  <td className="px-5 py-3.5">
+                    <p className="font-mono text-[11px] font-bold text-[#102A43]">{b.reference}</p>
+                    <p className="mt-1 text-xs text-slate-600">{b.customerName}</p>
+                  </td>
+                  <td className="px-5 py-3.5 text-xs text-slate-700">
+                    {b.serviceName}
+                    {b.packageName && (
+                      <span className="block pt-1 text-[10px] text-slate-400">{b.packageName}</span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5 text-xs text-slate-600">
+                    {new Date(b.requestedStart).toLocaleString()}
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <StatusPill status={b.status} />
+                  </td>
+                  <td className="px-5 py-3.5 text-right">
+                    <button
+                      onClick={() => navigate('/bookings')}
+                      className="rounded-lg px-3 py-2 text-xs font-semibold text-[#8C6A2F] hover:bg-[#D4A853]/10"
+                    >
+                      Review
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {!busy && !rows.length && (
+                <tr>
+                  <td colSpan={5} className="px-5 py-12 text-center text-sm text-slate-500">
+                    No booking requests yet.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+          <span>
+            Showing {Math.min(rows.length, 6)} of {rows.length} requests
+          </span>
+          <button onClick={() => navigate('/bookings')} className="font-semibold text-[#102A43]">
+            Open booking manager â†’
+          </button>
+        </div>
+      </section>
+    </>
+  );
+};
+const Metric: React.FC<{
+  label: string;
+  value: string | number;
+  icon: typeof CalendarDays;
+  tint?: 'navy' | 'gold' | 'green';
+}> = ({ label, value, icon: Icon, tint = 'navy' }) => {
+  const styles = {
+    navy: 'bg-[#E9EFF5] text-[#102A43]',
+    gold: 'bg-[#FBF3E1] text-[#8C6A2F]',
+    green: 'bg-[#E8F4EE] text-[#347454]',
+  };
+  return (
+    <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,.035)]">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-medium text-slate-500">{label}</p>
+        <span className={`grid h-9 w-9 place-items-center rounded-lg ${styles[tint]}`}>
+          <Icon size={17} />
+        </span>
+      </div>
+      <p className="mt-3 text-[25px] font-bold leading-none text-[#102A43]">{value}</p>
+      <p className="mt-2 flex items-center gap-1 text-[10px] text-slate-400">
+        <TrendingUp size={12} className="text-[#8C6A2F]" /> Live database
+      </p>
+    </article>
+  );
+};
+const StatusPill: React.FC<{ status: string }> = ({ status }) => {
+  const styles: Record<string, string> = {
+    pending: 'bg-[#FFF5DC] text-[#8C6A2F]',
+    confirmed: 'bg-[#E8F4EE] text-[#347454]',
+    in_progress: 'bg-[#E9EFF5] text-[#102A43]',
+    completed: 'bg-[#E8F4EE] text-[#347454]',
+    cancelled: 'bg-[#FDECEC] text-[#A43B3B]',
+    rejected: 'bg-[#FDECEC] text-[#A43B3B]',
+  };
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold capitalize ${styles[status] || 'bg-slate-100 text-slate-600'}`}
+    >
+      <span className="h-1.5 w-1.5 rounded-full bg-current" />
+      {status.replaceAll('_', ' ')}
+    </span>
+  );
+};
+const ErrorMessage: React.FC<{ message: string }> = ({ message }) => (
+  <p role="alert" className="mb-4 rounded-sm bg-red-50 p-3 text-sm text-red-800">
+    {message}
+  </p>
+);
+
+const BookingsPage: React.FC<{ navigate: (to: string) => void }> = ({ navigate }) => {
+  const [rows, setRows] = useState<ManagementBooking[]>([]),
+    [busy, setBusy] = useState(true),
+    [error, setError] = useState(''),
+    [notice, setNotice] = useState(''),
+    [query, setQuery] = useState(''),
+    [status, setStatus] = useState('all'),
+    [serviceFilter, setServiceFilter] = useState('all'),
+    [dateFilter, setDateFilter] = useState(''),
+    [dateField, setDateField] = useState<'submitted' | 'preferred'>('preferred'),
+    [page, setPage] = useState(0),
+    [locationOnly, setLocationOnly] = useState(false),
+    [selected, setSelected] = useState<ManagementBooking | null>(null),
+    [history, setHistory] = useState<
+      Array<{ oldStatus: string | null; newStatus: string; actor: string; reason: string; createdAt: string }>
+    >([]),
+    [proposals, setProposals] = useState<
+      Array<{ id: string; proposedStart: string; reason: string; status: string }>
+    >([]),
+    [activity, setActivity] = useState<
+      Array<{ actor: string; action: string; reason: string; createdAt: string }>
+    >([]),
+    [items, setItems] = useState<ManagementBookingItem[]>([]),
+    [workerProposals, setWorkerProposals] = useState<ManagementWorkerProposal[]>([]),
+    [busyAction, setBusyAction] = useState(false),
+    [tab, setTab] = useState<'requests' | 'needs-review'>('requests'),
+    [cancelTarget, setCancelTarget] = useState<ManagementBooking | null>(null),
+    [cancelReason, setCancelReason] = useState(''),
+    [noteText, setNoteText] = useState(''),
+    [assignmentFilter, setAssignmentFilter] = useState<'all' | 'assigned' | 'unassigned'>('all');
+  const load = () => {
+    setBusy(true);
+    setError('');
+    getManagementBookings()
+      .then(setRows)
+      .catch((e) => setError(errorText(e)))
+      .finally(() => setBusy(false));
+  };
+  useEffect(load, []);
+  const filtered = rows.filter(
+    (b) =>
+      (tab === 'requests' || b.status === 'pending' || b.locationReviewStatus === 'pending') &&
+      (status === 'all' || b.status === status) &&
+      (serviceFilter === 'all' || b.serviceId === serviceFilter) &&
+      (assignmentFilter === 'all' ||
+        (assignmentFilter === 'assigned' ? Boolean(b.assignedWorker) : !b.assignedWorker)) &&
+      (!locationOnly || b.locationReviewStatus === 'pending') &&
+      (!dateFilter ||
+        new Date(dateField === 'submitted' ? b.createdAt : b.requestedStart).toLocaleDateString('en-CA', {
+          timeZone: 'Africa/Addis_Ababa',
+        }) === dateFilter) &&
+      (!query ||
+        `${b.reference} ${b.customerName} ${b.customerPhone} ${b.serviceName} ${b.address} ${b.neighborhood}`
+          .toLowerCase()
+          .includes(query.toLowerCase())),
+  );
+  const pages = Math.max(1, Math.ceil(filtered.length / 20)),
+    pageRows = filtered.slice(page * 20, page * 20 + 20);
+  const open = async (b: ManagementBooking) => {
+    setSelected(b);
+    setHistory([]);
+    try {
+      const full = await getManagementBooking(b.id);
+      setSelected(full.booking);
+      setItems(full.items);
+      setWorkerProposals(full.workerProposals);
+      setHistory(full.history);
+      setProposals(full.proposals);
+      setActivity(full.activity);
+    } catch (e) {
+      setError(errorText(e));
+    }
+  };
+  const act = async (run: () => Promise<unknown>, message: string) => {
+    setBusyAction(true);
+    setError('');
+    try {
+      await run();
+      setNotice(message);
+      load();
+      if (selected) await open(selected);
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setBusyAction(false);
+    }
+  };
+  const cancel = async () => {
+    if (!cancelTarget || cancelReason.trim().length < 3) return;
+    await act(
+      () => cancelManagementBooking(cancelTarget.id, cancelReason.trim()),
+      `${cancelTarget.reference} was cancelled and logged.`,
+    );
+    setCancelTarget(null);
+    setCancelReason('');
+  };
+  const note = async () => {
+    if (!selected || noteText.trim().length < 3) return;
+    await act(() => addBookingNote(selected.id, noteText.trim()), 'Internal note saved.');
+    setNoteText('');
+  };
+  const reschedule = async () => {
+    if (!selected) return;
+    const when = prompt('Enter proposed date and time (ISO format, e.g. 2026-11-05T10:00:00+03:00):');
+    if (!when) return;
+    const reason = prompt('Reason for proposing this change:');
+    if (reason)
+      await act(
+        () => proposeBookingReschedule(selected.id, new Date(when).toISOString(), reason),
+        'Schedule proposal recorded pending customer approval.',
+      );
+  };
+  const saveLocation = async () => {
+    if (!selected) return;
+    const reason = prompt('Explain how this address/location was verified:');
+    if (!reason) return;
+    await act(
+      () =>
+        reviewBookingLocation(selected.id, {
+          address: selected.address,
+          neighborhood: selected.neighborhood,
+          nearbyLandmark: selected.nearbyLandmark || '',
+          latitude: selected.latitude,
+          longitude: selected.longitude,
+          reason,
+        }),
+      'Location review recorded.',
+    );
+  };
+  return (
+    <>
+      <PageHead
+        eyebrow="Operations"
+        title="Booking requests"
+        description="Open a request to review the customer, service, payment, and status history in one place."
+        refresh={load}
+        busy={busy}
+      />
+      {error && <ErrorMessage message={error} />}
+      {notice && (
+        <p role="status" className="mb-4 rounded-sm bg-emerald-50 p-3 text-sm text-emerald-900">
+          {notice}
+        </p>
+      )}
+      <div className="mb-4 flex gap-2">
+        <button
+          onClick={() => {
+            setTab('needs-review');
+            setPage(0);
+          }}
+          className={`min-h-10 rounded px-4 text-sm font-semibold ${tab === 'needs-review' ? 'bg-[#102A43] text-white' : 'border bg-white text-slate-700'}`}
+        >
+          Needs review (
+          {rows.filter((b) => b.status === 'pending' || b.locationReviewStatus === 'pending').length})
+        </button>
+        <button
+          onClick={() => {
+            setTab('requests');
+            setPage(0);
+          }}
+          className={`min-h-10 rounded px-4 text-sm font-semibold ${tab === 'requests' ? 'bg-[#102A43] text-white' : 'border bg-white text-slate-700'}`}
+        >
+          All requests ({rows.length})
+        </button>
+      </div>
+      <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+        <input
+          value={query}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setPage(0);
+          }}
+          placeholder="Search ref, name, or phone"
+          className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm lg:col-span-2"
+        />
+        <select
+          value={status}
+          onChange={(e) => {
+            setStatus(e.target.value);
+            setPage(0);
+          }}
+          className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"
+        >
+          <option value="all">All statuses</option>
+          {['pending', 'pending_confirmation', 'confirmed', 'in_progress', 'completed', 'cancelled'].map(
+            (s) => (
+              <option key={s} value={s}>
+                {s.replaceAll('_', ' ')}
+              </option>
+            ),
+          )}
+        </select>
+        <select
+          value={serviceFilter}
+          onChange={(e) => {
+            setServiceFilter(e.target.value);
+            setPage(0);
+          }}
+          className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"
+        >
+          <option value="all">All services</option>
+          {Array.from(new Map(rows.map((b) => [b.serviceId, b.serviceName])).entries()).map(([id, name]) => (
+            <option key={id} value={id}>
+              {name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={assignmentFilter}
+          onChange={(e) => {
+            setAssignmentFilter(e.target.value as 'all' | 'assigned' | 'unassigned');
+            setPage(0);
+          }}
+          className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm"
+        >
+          <option value="all">Any assignment</option>
+          <option value="assigned">Assigned</option>
+          <option value="unassigned">Unassigned</option>
+        </select>
+        <div className="flex gap-2">
+          <select
+            aria-label="Date filter"
+            value={dateField}
+            onChange={(e) => setDateField(e.target.value as 'submitted' | 'preferred')}
+            className="h-11 min-w-0 rounded-md border border-slate-300 bg-white px-2 text-xs"
+          >
+            <option value="preferred">Preferred date</option>
+            <option value="submitted">Submitted date</option>
+          </select>
+          <input
+            aria-label="Filter by date"
+            type="date"
+            value={dateFilter}
+            onChange={(e) => {
+              setDateFilter(e.target.value);
+              setPage(0);
+            }}
+            className="h-11 min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-2 text-xs"
+          />
+        </div>
+        <label className="flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 text-sm lg:col-span-2">
+          <input
+            type="checkbox"
+            checked={locationOnly}
+            onChange={(e) => {
+              setLocationOnly(e.target.checked);
+              setPage(0);
+            }}
+          />
+          Needs location review
+        </label>
+      </div>
+      <div className="overflow-x-auto rounded-md border border-slate-200 bg-white">
+        <table className="w-full min-w-[980px] text-left text-sm">
+          <thead className="border-b border-slate-200 bg-[#F7F8FA] text-xs text-slate-600">
+            <tr>
+              {['Reference / customer', 'Service / date', 'Professional', 'Payment', 'Status', ''].map(
+                (h) => (
+                  <th key={h || 'open'} className="px-4 py-3">
+                    {h}
+                  </th>
+                ),
+              )}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {pageRows.map((b) => (
+              <tr key={b.id} className="align-top">
+                <td className="px-4 py-3">
+                  <p className="font-mono text-xs font-semibold">{b.reference}</p>
+                  <p className="mt-1 font-medium">{b.customerName}</p>
+                  <a href={`tel:${b.customerPhone}`} className="text-xs text-blue-800 underline">
+                    {b.customerPhone}
+                  </a>
+                </td>
+                <td className="px-4 py-3">
+                  {b.serviceName}
+                  {b.packageName && <p className="mt-1 text-xs text-[#8C6A2F]">{b.packageName}</p>}
+                  <p className="mt-1 text-xs text-slate-500">
+                    Requested {new Date(b.requestedStart).toLocaleString()}
+                    <span className="block">Submitted {new Date(b.createdAt).toLocaleDateString()}</span>
+                  </p>
+                </td>
+                <td className="px-4 py-3 text-xs">{b.assignedWorker || 'Unassigned'}</td>
+                <td className="px-4 py-3 text-xs">
+                  {b.startingEstimate === null ? 'Estimate pending' : `${b.startingEstimate} ${b.currency}`}
+                  <p className="text-slate-500">
+                    {Number(b.amountPaid || 0) > 0 ? `Paid ${b.amountPaid}` : 'No verified payment'}
+                  </p>
+                </td>
+                <td className="px-4 py-3">
+                  <StatusPill status={b.status} />
+                </td>
+                <td className="px-4 py-3">
+                  <button onClick={() => void open(b)} className="font-semibold text-[#102A43] underline">
+                    Open
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {!busy && !filtered.length && (
+              <tr>
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
+                  No requests match these filters.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+        <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-xs">
+          <span>
+            {filtered.length
+              ? `${page * 20 + 1}-${Math.min((page + 1) * 20, filtered.length)} of ${filtered.length}`
+              : '0 requests'}
+          </span>
+          <div className="flex gap-2">
+            <button
+              disabled={page === 0}
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              className="min-h-9 rounded border px-3 disabled:opacity-40"
+            >
+              Previous
+            </button>
+            <button
+              disabled={page + 1 >= pages}
+              onClick={() => setPage((p) => Math.min(pages - 1, p + 1))}
+              className="min-h-9 rounded border px-3 disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+      {selected ? (
+        <BookingDetailModal
+          booking={selected}
+          detail={{ booking: selected, items, workerProposals, history, proposals, activity }}
+          loading={busyAction}
+          error={error}
+          onClose={() => setSelected(null)}
+          onRefresh={async () => {
+            load();
+            if (selected) await open(selected);
+          }}
+          onOpenCustomers={() => navigate('/customers')}
+        />
+      ) : null}
+    </>
+  );
+};
+
+const PaymentsPage: React.FC = () => {
+  const [rows, setRows] = useState<ManagementPayment[]>([]),
+    [busy, setBusy] = useState(true),
+    [error, setError] = useState('');
+  const load = () => {
+    setBusy(true);
+    getManagementPayments()
+      .then(setRows)
+      .catch((e) => setError(errorText(e)))
+      .finally(() => setBusy(false));
+  };
+  useEffect(load, []);
+  return (
+    <>
+      <PageHead
+        eyebrow="Finance"
+        title="Payments"
+        description="Payment records from PostgreSQL. Simulated demo transactions are labeled clearly."
+        refresh={load}
+        busy={busy}
+      />
+      {error && <ErrorMessage message={error} />}
+      <div className="overflow-x-auto rounded-md border border-slate-200 bg-white">
+        <table className="w-full min-w-[760px] text-left text-sm">
+          <thead className="bg-[#F7F8FA] text-xs">
+            <tr>
+              {['Date', 'Booking', 'Customer', 'Method', 'Amount', 'Status', 'Balance'].map((x) => (
+                <th key={x} className="px-4 py-3">
+                  {x}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((p) => (
+              <tr key={p.id}>
+                <td className="px-4 py-3">{new Date(p.createdAt).toLocaleString()}</td>
+                <td className="px-4 py-3 font-mono">{p.bookingReference}</td>
+                <td className="px-4 py-3">{p.customerName}</td>
+                <td className="px-4 py-3 uppercase">
+                  {p.method}
+                  {p.simulated ? '  ·  DEMO' : ''}
+                </td>
+                <td className="px-4 py-3">
+                  {p.amount} {p.currency}
+                </td>
+                <td className="px-4 py-3 capitalize">{p.status}</td>
+                <td className="px-4 py-3">
+                  {p.remainingBalance ?? '-'} {p.currency}
+                </td>
+              </tr>
+            ))}
+            {!busy && !rows.length && (
+              <tr>
+                <td colSpan={7} className="p-8 text-center text-slate-500">
+                  No payment records yet. No payments are represented as received.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+};
+const AdminsPage: React.FC<{ staff: Staff }> = ({ staff }) => {
+  const [rows, setRows] = useState<StaffAccount[]>([]),
+    [busy, setBusy] = useState(true),
+    [error, setError] = useState(''),
+    [notice, setNotice] = useState('');
+  const [name, setName] = useState(''),
+    [email, setEmail] = useState(''),
+    [password, setPassword] = useState(''),
+    [roleId, setRoleId] = useState<'admin' | 'operations'>('operations');
+  const load = () => {
+    setBusy(true);
+    getStaffAccounts()
+      .then(setRows)
+      .catch((e) => setError(errorText(e)))
+      .finally(() => setBusy(false));
+  };
+  useEffect(() => {
+    if (staff.role === 'admin') load();
+    else setBusy(false);
+  }, [staff.role]);
+  if (staff.role !== 'admin')
+    return (
+      <>
+        <PageHead
+          eyebrow="Administration"
+          title="Staff access"
+          description="Administrator permission is required to view staff accounts."
+        />
+        <p className="rounded border border-slate-200 bg-white p-5 text-sm">
+          Your role does not have permission to manage staff accounts.
+        </p>
+      </>
+    );
+  return (
+    <>
+      <PageHead
+        eyebrow="Administration"
+        title="Staff access"
+        description="Provision staff accounts. Passwords are used once for creation and are never displayed."
+        refresh={load}
+        busy={busy}
+      />
+      {error && <ErrorMessage message={error} />}
+      {notice && (
+        <p role="status" className="mb-4 text-sm text-emerald-800">
+          {notice}
+        </p>
+      )}
+      <form
+        className="mb-5 grid gap-3 rounded border border-slate-200 bg-white p-4 sm:grid-cols-2 lg:grid-cols-5"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setError('');
+          try {
+            await createStaffAccount({ name, email, password, roleId });
+            setNotice('Staff account created. Share credentials through a secure channel.');
+            setName('');
+            setEmail('');
+            setPassword('');
+            load();
+          } catch (err) {
+            setError(errorText(err));
+          }
+        }}
+      >
+        <input
+          aria-label="Full name"
+          required
+          minLength={2}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Full name"
+          className="h-10 rounded border px-3 text-sm"
+        />
+        <input
+          aria-label="Work email"
+          required
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Work email"
+          className="h-10 rounded border px-3 text-sm"
+        />
+        <input
+          aria-label="Temporary password"
+          required
+          minLength={10}
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Initial password (10+ chars)"
+          className="h-10 rounded border px-3 text-sm"
+        />
+        <select
+          aria-label="Staff role"
+          value={roleId}
+          onChange={(e) => setRoleId(e.target.value as 'admin' | 'operations')}
+          className="h-10 rounded border px-3 text-sm"
+        >
+          <option value="operations">Operations</option>
+          <option value="admin">Administrator</option>
+        </select>
+        <button className="meraki-button min-h-10">Create staff account</button>
+      </form>
+      <div className="divide-y rounded border border-slate-200 bg-white">
+        {rows.map((a) => (
+          <div key={a.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <div>
+              <p className="font-medium">
+                {a.name} <span className="ml-2 text-xs capitalize text-slate-500">{a.role}</span>
+              </p>
+              <p className="text-sm text-slate-600">
+                {a.email} · added {new Date(a.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            <button
+              disabled={a.id === staff.id && !a.isActive}
+              onClick={async () => {
+                try {
+                  await setStaffAccountActive(a.id, !a.isActive);
+                  load();
+                } catch (err) {
+                  setError(errorText(err));
+                }
+              }}
+              className="min-h-10 rounded border px-3 text-sm"
+            >
+              {a.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          </div>
+        ))}
+        {!busy && !rows.length && (
+          <p className="p-6 text-center text-sm text-slate-500">No staff accounts available.</p>
+        )}
+      </div>
+    </>
+  );
+};
+const ActivityPage: React.FC = () => {
+  const [rows, setRows] = useState<AuditRecord[]>([]),
+    [busy, setBusy] = useState(true),
+    [error, setError] = useState(''),
+    [query, setQuery] = useState('');
+  const load = () => {
+    setBusy(true);
+    getAuditRecords(query)
+      .then(setRows)
+      .catch((e) => setError(errorText(e)))
+      .finally(() => setBusy(false));
+  };
+  useEffect(load, []);
+  return (
+    <>
+      <PageHead
+        eyebrow="Governance"
+        title="Activity log"
+        description="Append-only operational and administrative audit events."
+        refresh={load}
+        busy={busy}
+      />
+      {error && <ErrorMessage message={error} />}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          load();
+        }}
+        className="mb-4 flex gap-2"
+      >
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search actor, action, reference or note"
+          className="h-11 min-w-0 flex-1 rounded border px-3 text-sm"
+        />
+        <button className="min-h-11 rounded bg-[#102A43] px-4 text-sm font-semibold text-white">
+          Search
+        </button>
+      </form>
+      <ol className="divide-y rounded border border-slate-200 bg-white">
+        {rows.map((a) => (
+          <li key={a.id} className="p-4">
+            <div className="flex flex-wrap justify-between gap-2">
+              <strong className="text-sm text-[#102A43]">{a.action.replaceAll('.', ' ')}</strong>
+              <time className="text-xs text-slate-500">{new Date(a.createdAt).toLocaleString()}</time>
+            </div>
+            <p className="mt-1 text-xs text-slate-600">
+              {a.actor} · {a.entityType} · {a.entityId}
+            </p>
+            {a.reason && <p className="mt-2 text-sm">{a.reason}</p>}
+          </li>
+        ))}
+        {!busy && !rows.length && (
+          <li className="p-8 text-center text-sm text-slate-500">No audit events found.</li>
+        )}
+      </ol>
+    </>
+  );
+};
+const ContactsPage: React.FC = () => {
+  const [rows, setRows] = useState<ContactSubmission[]>([]),
+    [busy, setBusy] = useState(true),
+    [error, setError] = useState(''),
+    [query, setQuery] = useState(''),
+    [notice, setNotice] = useState('');
+  const load = () => {
+    setBusy(true);
+    getContactSubmissions()
+      .then(setRows)
+      .catch((e) => setError(errorText(e)))
+      .finally(() => setBusy(false));
+  };
+  useEffect(load, []);
+  const save = async (c: ContactSubmission, status: string) => {
+    try {
+      await updateContactSubmission(c.id, {
+        status: status as 'new' | 'in_progress' | 'responded' | 'closed',
+        note: prompt('Internal handling note (optional):') || undefined,
+      });
+      setNotice('Contact status updated and audited.');
+      load();
+    } catch (e) {
+      setError(errorText(e));
+    }
+  };
+  const filtered = rows.filter((c) =>
+    `${c.name} ${c.phone} ${c.email || ''} ${c.message} ${c.status}`
+      .toLowerCase()
+      .includes(query.toLowerCase()),
+  );
+  return (
+    <>
+      <PageHead
+        eyebrow="Customer care"
+        title="Contact inbox"
+        description="Search and manage public website submissions. Status changes are audited."
+        refresh={load}
+        busy={busy}
+      />
+      {error && <ErrorMessage message={error} />}
+      {notice && (
+        <p role="status" className="mb-3 text-sm text-emerald-800">
+          {notice}
+        </p>
+      )}
+      <input
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search messages, names or contact details"
+        className="mb-4 h-11 w-full rounded border px-3 text-sm"
+      />
+      <section className="divide-y divide-slate-200 rounded-md border border-slate-200 bg-white px-5">
+        {filtered.map((c) => (
+          <article key={c.id} className="py-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h2 className="font-semibold text-[#102A43]">
+                  {c.name}
+                  <span className="ml-2 text-sm font-normal text-slate-500">
+                    {c.phone}
+                    {c.email ? `  ·  ${c.email}` : ''}
+                  </span>
+                </h2>
+                <time className="text-xs text-slate-500">{new Date(c.createdAt).toLocaleString()}</time>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs capitalize">{c.status.replace('_', ' ')}</span>
+                <select
+                  aria-label={`Update status for ${c.name}`}
+                  defaultValue={c.status}
+                  onChange={(e) => void save(c, e.target.value)}
+                  className="h-9 rounded border px-2 text-xs"
+                >
+                  {['new', 'in_progress', 'responded', 'closed'].map((s) => (
+                    <option key={s} value={s}>
+                      {s.replace('_', ' ')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <p className="mt-3 whitespace-pre-wrap text-sm leading-6">{c.message}</p>
+          </article>
+        ))}
+        {!busy && !filtered.length && (
+          <p className="py-10 text-center text-sm text-slate-500">No messages match.</p>
+        )}
+      </section>
+    </>
+  );
+};

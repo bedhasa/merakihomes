@@ -28,6 +28,7 @@
     "expo-status-bar": "~58.0.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "react-example": "file:..",
     "react-hook-form": "^7.71.0",
     "react-native": "0.88.1",
     "react-native-maps": "1.29.11",
@@ -39,8 +40,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "babel-preset-expo": "~58.0.23",
     "@types/react": "~19.3.0",
+    "babel-preset-expo": "~58.0.23",
     "typescript": "~6.0.3"
   },
   "overrides": {

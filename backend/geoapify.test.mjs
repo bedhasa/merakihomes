@@ -6,7 +6,13 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import { PGlite } from '@electric-sql/pglite';
-import { geoapifyReverseUrl, geoapifySearchText, geoapifySearchUrl, mapGeoapifyReverseFeature, mapGeoapifySearchFeatures } from './geo.mjs';
+import {
+  geoapifyReverseUrl,
+  geoapifySearchText,
+  geoapifySearchUrl,
+  mapGeoapifyReverseFeature,
+  mapGeoapifySearchFeatures,
+} from './geo.mjs';
 import { createApp, migrate } from './index.mjs';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
@@ -15,7 +21,16 @@ dotenv.config({ path: resolve(root, '.env.dev') });
 
 test('maps Geoapify features and drops invalid or non-Ethiopia coordinates', () => {
   const results = mapGeoapifySearchFeatures([
-    { properties: { formatted: 'Bole, Addis Ababa, Ethiopia', lat: 9.01, lon: 38.76, country_code: 'et', place_id: 'p1', neighbourhood: 'Bole' } },
+    {
+      properties: {
+        formatted: 'Bole, Addis Ababa, Ethiopia',
+        lat: 9.01,
+        lon: 38.76,
+        country_code: 'et',
+        place_id: 'p1',
+        neighbourhood: 'Bole',
+      },
+    },
     { properties: { formatted: 'Null island', lat: 0, lon: 0, country_code: 'et' } },
     { properties: { formatted: 'Nairobi', lat: -1.29, lon: 36.82, country_code: 'ke' } },
     { properties: { formatted: '', lat: 9.02, lon: 38.75, country_code: 'et' } },
@@ -38,24 +53,32 @@ test('search URL keeps the typed query and does not rewrite coordinates', () => 
 });
 
 test('reverse mapping keeps provider formatted address without inventing one', () => {
-  assert.deepEqual(mapGeoapifyReverseFeature({ properties: { formatted: 'Bole, Addis Ababa', place_id: 'x', neighbourhood: 'Bole', name: 'Bole' } }), {
-    formattedAddress: 'Bole, Addis Ababa',
-    placeId: 'x',
-    area: 'Bole',
-    landmark: 'Bole',
-  });
+  assert.deepEqual(
+    mapGeoapifyReverseFeature({
+      properties: { formatted: 'Bole, Addis Ababa', place_id: 'x', neighbourhood: 'Bole', name: 'Bole' },
+    }),
+    {
+      formattedAddress: 'Bole, Addis Ababa',
+      placeId: 'x',
+      area: 'Bole',
+      landmark: 'Bole',
+    },
+  );
   assert.equal(mapGeoapifyReverseFeature({}).formattedAddress, null);
 });
 
-test('location search reports a missing Geoapify key instead of fake results', async t => {
+test('location search reports a missing Geoapify key instead of fake results', async (t) => {
   process.env.SESSION_SECRET = 'test-session-secret-for-geoapify-suite-32b';
   const original = process.env.GEOAPIFY_API_KEY;
   delete process.env.GEOAPIFY_API_KEY;
   const db = new PGlite();
-  const pool = { query: (...args) => db.query(...args), connect: async () => ({ query: (...args) => db.query(...args), release() {} }) };
+  const pool = {
+    query: (...args) => db.query(...args),
+    connect: async () => ({ query: (...args) => db.query(...args), release() {} }),
+  };
   await migrate(pool, { skipBtreeGist: true });
   const server = createServer(createApp({ pool }));
-  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   t.after(async () => {
     server.close();
@@ -78,13 +101,16 @@ test('mobile app config injects Android Maps keys into native config only', () =
   assert.doesNotMatch(source, /GEOAPIFY/);
 });
 
-test('live Geoapify search when GEOAPIFY_API_KEY is configured', async t => {
+test('live Geoapify search when GEOAPIFY_API_KEY is configured', async (t) => {
   const apiKey = process.env.GEOAPIFY_API_KEY?.trim();
   if (!apiKey) {
     t.skip('GEOAPIFY_API_KEY is not configured');
     return;
   }
-  const response = await fetch(geoapifySearchUrl('Bole Addis Ababa', apiKey), { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) });
+  const response = await fetch(geoapifySearchUrl('Bole Addis Ababa', apiKey), {
+    headers: { Accept: 'application/json' },
+    signal: AbortSignal.timeout(8000),
+  });
   if (response.status === 401 || response.status === 403) {
     assert.fail('GEOAPIFY_API_KEY is present but Geoapify rejected it.');
   }

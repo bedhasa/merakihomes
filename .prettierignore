@@ -1,0 +1,17 @@
+# Prettier also skips everything in .gitignore.
+
+# Generated output and dependencies
+package-lock.json
+meraki-homes-mobile/package-lock.json
+dist-i18n-verify/
+frontend/.next/
+frontend/next-env.d.ts
+
+# Binary/static assets and local data
+frontend/public/
+meraki-homes-mobile/assets/
+backend/uploads/
+pgadmin/
+
+# Docs: Markdown tables would be re-padded with no readability gain (ADR-0006 note).
+*.md

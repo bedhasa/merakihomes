@@ -1,4 +1,5 @@
-﻿export type ChatMessageRole = 'assistant' | 'user';
+export type ChatMessageRole = 'assistant' | 'user';
+export type AssistantLanguage = 'auto' | 'en' | 'am' | 'om';
 
 export interface TextMessageContent {
   type: 'text';
@@ -44,9 +45,11 @@ export interface ChatMessage {
   role: ChatMessageRole;
   content: ChatMessageContent;
   timestamp: Date;
+  suggestedService?: { id: string; categoryId: string | null; packageId: string | null } | null;
 }
 
-export const createStarterMessages = (): ChatMessage[] => {
+/** Opening messages; texts come from the `assistant` catalog (welcome, helpTopics). */
+export const createStarterMessages = (texts: { welcome: string; helpTopics: string }): ChatMessage[] => {
   const timestamp = new Date();
   return [
     {
@@ -54,7 +57,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: "\u{1F44B} Hello and welcome to Meraki Homes!\n\nI'm your AI assistant and I'm here to help you find trusted home services quickly and easily.",
+        text: texts.welcome,
       },
       timestamp,
     },
@@ -63,7 +66,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: 'I can help you:\n\u2022 Find the right service\n\u2022 Explain pricing\n\u2022 Answer common questions\n\u2022 Guide you through booking\n\nChoose one of the suggestions below to get started.',
+        text: texts.helpTopics,
       },
       timestamp,
     },

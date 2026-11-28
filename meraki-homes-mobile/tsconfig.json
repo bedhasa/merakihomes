@@ -2,6 +2,7 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"],
       "@shared/*": ["../shared/*"]
@@ -10,14 +11,11 @@
   "include": [
     "app/**/*.ts",
     "app/**/*.tsx",
-    "src/lib/**/*.ts",
-    "src/context/**/*.tsx",
-    "src/components/ui.tsx",
-    "src/components/BrandHeader.tsx",
-    "src/components/DateTimeField.tsx",
-    "src/components/CustomerLocationPicker.tsx",
-    "src/components/CustomerLocationPicker.native.tsx",
-    "src/components/ErrorBoundary.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../shared/locales/config.ts",
+    "../shared/locales/index.ts",
+    "../shared/locales/*.json",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],

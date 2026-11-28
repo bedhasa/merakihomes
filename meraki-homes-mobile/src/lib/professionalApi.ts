@@ -5,7 +5,8 @@ import { API_BASE_URL } from './api';
 const TOKEN_KEY = 'meraki.professional.token.v1';
 
 async function getToken() {
-  if (Platform.OS === 'web') return typeof window === 'undefined' ? null : window.sessionStorage.getItem(TOKEN_KEY);
+  if (Platform.OS === 'web')
+    return typeof window === 'undefined' ? null : window.sessionStorage.getItem(TOKEN_KEY);
   return SecureStore.getItemAsync(TOKEN_KEY);
 }
 
@@ -17,7 +18,11 @@ async function setToken(token: string) {
   await SecureStore.setItemAsync(TOKEN_KEY, token);
 }
 
-export async function professionalApi<T>(path: string, options: RequestInit = {}, authenticated = true): Promise<T> {
+export async function professionalApi<T>(
+  path: string,
+  options: RequestInit = {},
+  authenticated = true,
+): Promise<T> {
   if (!API_BASE_URL) throw new Error('The mobile API URL is not configured.');
   const token = authenticated ? await getToken() : null;
   const response = await fetch(`${API_BASE_URL}${path.startsWith('/') ? path : `/${path}`}`, {
@@ -36,15 +41,18 @@ export async function professionalApi<T>(path: string, options: RequestInit = {}
 }
 
 export async function loginProfessional(phone: string, password: string) {
-  const result = await professionalApi<{ accessToken: string; professional: { id: string; name: string; workerCode: string | null } }>(
-    '/professionals/auth/login', { method: 'POST', body: JSON.stringify({ phone, password }) }, false,
-  );
+  const result = await professionalApi<{
+    accessToken: string;
+    professional: { id: string; name: string; workerCode: string | null };
+  }>('/professionals/auth/login', { method: 'POST', body: JSON.stringify({ phone, password }) }, false);
   await setToken(result.accessToken);
   return result.professional;
 }
 
 export async function logoutProfessional() {
-  try { await professionalApi('/professionals/auth/logout', { method: 'POST' }); } finally {
+  try {
+    await professionalApi('/professionals/auth/logout', { method: 'POST' });
+  } finally {
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined') window.sessionStorage.removeItem(TOKEN_KEY);
     } else await SecureStore.deleteItemAsync(TOKEN_KEY);
