@@ -733,7 +733,14 @@ export async function assignManagementBooking(
     body: JSON.stringify(input),
   });
 }
-export type CustomerAccount = { id: string; name: string; email: string };
+export type CustomerAccount = {
+  id: string;
+  name: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  phone?: string | null;
+};
 export async function loginCustomer(email: string, password: string): Promise<CustomerAccount> {
   return (
     await request<{ customer: CustomerAccount }>('/api/customers/login', {
@@ -758,6 +765,17 @@ export async function registerCustomer(input: {
 export async function getCustomerAccount(): Promise<CustomerAccount> {
   return (await request<{ customer: CustomerAccount }>('/api/customers/me')).customer;
 }
+export async function updateCustomerName(input: {
+  firstName: string;
+  lastName: string;
+}): Promise<CustomerAccount> {
+  return (
+    await request<{ customer: CustomerAccount }>('/api/customers/me/name', {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+    })
+  ).customer;
+}
 export type CustomerBookingItem = {
   id: string;
   serviceName: string;
@@ -768,28 +786,75 @@ export type CustomerBookingItem = {
   currency: string;
   reviewSubmitted: boolean;
 };
+export type CustomerPaymentStatus = 'paid' | 'partial' | 'unpaid';
+export type CustomerBooking = {
+  reference: string;
+  service_name: string;
+  status: string;
+  requested_start: string;
+  created_at: string;
+  startingEstimate: number | string | null;
+  agreedAmount: number | string | null;
+  currency: string;
+  amountPaid: number | string;
+  remainingBalance: number | string;
+  paymentStatus?: CustomerPaymentStatus;
+  items: CustomerBookingItem[];
+};
 export async function getCustomerBookings(): Promise<
-  Array<{
-    reference: string;
-    service_name: string;
-    status: string;
-    requested_start: string;
-    created_at: string;
-    items: CustomerBookingItem[];
-  }>
+  CustomerBooking[]
 > {
   return (
     await request<{
-      bookings: Array<{
-        reference: string;
-        service_name: string;
-        status: string;
-        requested_start: string;
-        created_at: string;
-        items: CustomerBookingItem[];
-      }>;
-    }>('/api/customers/me/bookings')
+      bookings: CustomerBooking[];
+    }>('/api/customers/me/bookings', { cache: 'no-store' })
   ).bookings;
+}
+export type CustomerPriceProposal = {
+  id: string;
+  itemId: string;
+  bookingReference: string;
+  serviceName: string;
+  amount: number | string;
+  currency: string;
+  reason: string;
+  status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'withdrawn' | 'expired';
+  createdAt: string;
+  decidedAt: string | null;
+};
+export async function getCustomerPriceProposals(): Promise<CustomerPriceProposal[]> {
+  return (await request<{ proposals: CustomerPriceProposal[] }>('/api/customers/me/price-proposals')).proposals;
+}
+export type ChapaInitializationInput = {
+  bookingReference: string;
+  callbackUrl: string;
+  returnUrl: string;
+};
+export type ChapaInitializationResult = {
+  checkoutUrl: string;
+  transactionReference: string;
+  message: string;
+  status: string;
+  data: { checkout_url: string };
+};
+export async function initializeChapaPayment(
+  input: ChapaInitializationInput,
+): Promise<ChapaInitializationResult> {
+  return request('/api/payments/chapa/initialize', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+export type ChapaReconciliationResult = {
+  transactionReference: string;
+  bookingReference: string;
+  paymentStatus: 'verified' | 'failed' | 'pending_verification';
+  duplicate: boolean;
+};
+export async function reconcileChapaPayment(
+  transactionReference: string,
+): Promise<ChapaReconciliationResult> {
+  return request(`/api/payments/chapa/callback?tx_ref=${encodeURIComponent(transactionReference)}`);
 }
 export async function submitCustomerReview(input: {
   bookingReference: string;

@@ -8,6 +8,7 @@ import { getServices, postBooking, BookingRequestPayload, setApiLocale } from '@
 import { MarketingView } from './website/MarketingView';
 import { CustomerAuthPage, CustomerAccountPage } from './booking/CustomerAccountPage';
 import { RequestStatusLookup } from './booking/RequestStatusLookup';
+import { ChapaPaymentReturnPage } from './booking/ChapaPaymentReturnPage';
 import { useTheme } from './contexts/ThemeContext';
 import { ChatWidget } from './assistant/ChatWidget';
 import { BrandMark } from './website/home/BrandMark';
@@ -214,6 +215,8 @@ export default function App({
     content = (
       <CustomerAccountPage bookings={path.endsWith('/bookings')} onSignOut={() => navigate('/login')} />
     );
+  } else if (path === '/payment/return') {
+    content = <ChapaPaymentReturnPage />;
   } else {
     content = (
       <main className="mx-auto max-w-2xl px-5 py-16">
