@@ -1,7 +1,10 @@
 import type { HomePromotion } from '@shared/api';
 import { api, resolveMediaUrl } from './api';
 
-export type PromotionSummary = Pick<HomePromotion, 'id' | 'title' | 'body' | 'code' | 'imageUrl' | 'mobileImageUrl'>;
+export type PromotionSummary = Pick<
+  HomePromotion,
+  'id' | 'title' | 'body' | 'code' | 'imageUrl' | 'mobileImageUrl'
+>;
 
 export const HOME_PROMOTIONS_QUERY_KEY = ['home-promotions'] as const;
 
@@ -10,7 +13,11 @@ const NO_PROMOTIONS: PromotionSummary[] = [];
 function isPromotion(value: unknown): value is PromotionSummary {
   if (!value || typeof value !== 'object') return false;
   const candidate = value as Record<string, unknown>;
-  return typeof candidate.id === 'string' && typeof candidate.title === 'string' && typeof candidate.body === 'string';
+  return (
+    typeof candidate.id === 'string' &&
+    typeof candidate.title === 'string' &&
+    typeof candidate.body === 'string'
+  );
 }
 
 /**
@@ -20,7 +27,7 @@ function isPromotion(value: unknown): value is PromotionSummary {
 export function normalizePromotions(payload: unknown): PromotionSummary[] {
   const list = (payload as { promotions?: unknown } | null | undefined)?.promotions;
   if (!Array.isArray(list)) return NO_PROMOTIONS;
-  const usable = list.filter(isPromotion).map(item => ({
+  const usable = list.filter(isPromotion).map((item) => ({
     id: item.id,
     title: item.title,
     body: item.body,

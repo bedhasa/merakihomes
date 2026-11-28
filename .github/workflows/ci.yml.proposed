@@ -1,0 +1,38 @@
+# Proposed CI workflow — review before renaming to ci.yml.
+# Covers typecheck, unit tests (including i18n:check), and shared locale hygiene.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install root dependencies
+        run: npm ci
+
+      - name: Install mobile dependencies
+        run: npm ci --prefix meraki-homes-mobile
+
+      - name: Locale catalog check
+        run: npm run i18n:check
+
+      - name: Typecheck (web / shared / management)
+        run: npm run lint
+
+      - name: Typecheck (mobile)
+        run: npm --prefix meraki-homes-mobile run typecheck
+
+      - name: Unit tests
+        run: npm test

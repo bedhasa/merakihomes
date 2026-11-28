@@ -31,26 +31,54 @@ function EntryGate({ children }: { children: React.ReactNode }) {
 
 function AppStack() {
   const insets = useSafeAreaInsets();
-  return <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: C.white }}><StatusBar barStyle="dark-content" /><Stack screenOptions={{ header: () => <BrandHeader showBack />, headerTintColor: C.navy, headerTitleStyle: { color: C.navy, fontWeight: '800' }, headerStyle: { backgroundColor: C.white }, contentStyle: { backgroundColor: C.canvas } }}>
-    <Stack.Screen name="index" options={{ headerShown: false, animation: 'none' }} />
-    <Stack.Screen name="welcome" options={{ headerShown: false, animation: 'none', gestureEnabled: false }} />
-    <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-    <Stack.Screen name="(auth)/login" options={{ title: 'Sign in', presentation: 'modal' }} />
-    <Stack.Screen name="(auth)/register" options={{ title: 'Create account', presentation: 'modal' }} />
-    <Stack.Screen name="service/[id]" options={{ title: 'Services' }} />
-    <Stack.Screen name="booking" options={{ title: 'Request a service' }} />
-    <Stack.Screen name="booking-details/[reference]" options={{ title: 'Booking details' }} />
-    <Stack.Screen name="professional" options={{ title: 'Professional workspace' }} />
-    <Stack.Screen name="approvals" options={{ title: 'Your approvals' }} />
-    <Stack.Screen name="guest-booking" options={{ title: 'Guest booking lookup' }} />
-    <Stack.Screen name="assistant" options={{ title: 'Merk Assistant' }} />
-    <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
-    <Stack.Screen name="contact" options={{ title: 'Contact & support' }} />
-    <Stack.Screen name="about" options={{ title: 'About Meraki Homes' }} />
-    <Stack.Screen name="workers" options={{ title: 'Specialists' }} />
-  </Stack></View>;
+  return (
+    <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: C.white }}>
+      <StatusBar barStyle="dark-content" />
+      <Stack
+        screenOptions={{
+          header: () => <BrandHeader showBack />,
+          headerTintColor: C.navy,
+          headerTitleStyle: { color: C.navy, fontWeight: '800' },
+          headerStyle: { backgroundColor: C.white },
+          contentStyle: { backgroundColor: C.canvas },
+        }}
+      >
+        <Stack.Screen name="index" options={{ headerShown: false, animation: 'none' }} />
+        <Stack.Screen
+          name="welcome"
+          options={{ headerShown: false, animation: 'none', gestureEnabled: false }}
+        />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)/login" options={{ title: 'Sign in', presentation: 'modal' }} />
+        <Stack.Screen name="(auth)/register" options={{ title: 'Create account', presentation: 'modal' }} />
+        <Stack.Screen name="service/[id]" options={{ title: 'Services' }} />
+        <Stack.Screen name="booking" options={{ title: 'Request a service' }} />
+        <Stack.Screen name="booking-details/[reference]" options={{ title: 'Booking details' }} />
+        <Stack.Screen name="professional" options={{ title: 'Professional workspace' }} />
+        <Stack.Screen name="approvals" options={{ title: 'Your approvals' }} />
+        <Stack.Screen name="guest-booking" options={{ title: 'Guest booking lookup' }} />
+        <Stack.Screen name="assistant" options={{ title: 'Merk Assistant' }} />
+        <Stack.Screen name="notifications" options={{ title: 'Notifications' }} />
+        <Stack.Screen name="contact" options={{ title: 'Contact & support' }} />
+        <Stack.Screen name="about" options={{ title: 'About Meraki Homes' }} />
+        <Stack.Screen name="workers" options={{ title: 'Specialists' }} />
+      </Stack>
+    </View>
+  );
 }
 
 export default function RootLayout() {
-  return <SafeAreaProvider><QueryClientProvider client={queryClient}><AuthProvider><ErrorBoundary><EntryGate><AppStack /></EntryGate></ErrorBoundary></AuthProvider></QueryClientProvider></SafeAreaProvider>;
+  return (
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <ErrorBoundary>
+            <EntryGate>
+              <AppStack />
+            </EntryGate>
+          </ErrorBoundary>
+        </AuthProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
+  );
 }

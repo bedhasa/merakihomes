@@ -20,7 +20,20 @@ interface ChatWindowProps {
   onLanguageChange: (language: AssistantLanguage) => void;
 }
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef, inputRef, messages, draft, onDraftChange, onSend, isTyping, error, onRetry, language, onLanguageChange }) => (
+export const ChatWindow: React.FC<ChatWindowProps> = ({
+  onClose,
+  closeButtonRef,
+  inputRef,
+  messages,
+  draft,
+  onDraftChange,
+  onSend,
+  isTyping,
+  error,
+  onRetry,
+  language,
+  onLanguageChange,
+}) => (
   <motion.section
     id="meraki-assistant-window"
     role="dialog"
@@ -34,6 +47,16 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, closeButtonRef,
   >
     <ChatHeader onClose={onClose} closeButtonRef={closeButtonRef} />
     <ChatBody messages={messages} isTyping={isTyping} />
-    <ChatFooter inputRef={inputRef} draft={draft} onDraftChange={onDraftChange} onSend={onSend} isTyping={isTyping} error={error} onRetry={onRetry} language={language} onLanguageChange={onLanguageChange} />
+    <ChatFooter
+      inputRef={inputRef}
+      draft={draft}
+      onDraftChange={onDraftChange}
+      onSend={onSend}
+      isTyping={isTyping}
+      error={error}
+      onRetry={onRetry}
+      language={language}
+      onLanguageChange={onLanguageChange}
+    />
   </motion.section>
 );

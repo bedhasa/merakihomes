@@ -10,18 +10,25 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   const iosGoogleMapsApiKey = process.env.GOOGLE_MAPS_IOS_API_KEY?.trim();
   const plugins = [...(config.plugins ?? [])];
 
-  if (!plugins.some(plugin => pluginName(plugin) === 'expo-location')) {
-    plugins.push(['expo-location', {
-      locationWhenInUsePermission: 'Allow Meraki Homes to use your location when you choose a service location.',
-    }]);
+  if (!plugins.some((plugin) => pluginName(plugin) === 'expo-location')) {
+    plugins.push([
+      'expo-location',
+      {
+        locationWhenInUsePermission:
+          'Allow Meraki Homes to use your location when you choose a service location.',
+      },
+    ]);
   }
 
-  const hasMapsPlugin = plugins.some(plugin => pluginName(plugin) === 'react-native-maps');
+  const hasMapsPlugin = plugins.some((plugin) => pluginName(plugin) === 'react-native-maps');
   if (!hasMapsPlugin && (androidGoogleMapsApiKey || iosGoogleMapsApiKey)) {
-    plugins.push(['react-native-maps', {
-      ...(androidGoogleMapsApiKey ? { androidGoogleMapsApiKey } : {}),
-      ...(iosGoogleMapsApiKey ? { iosGoogleMapsApiKey } : {}),
-    }]);
+    plugins.push([
+      'react-native-maps',
+      {
+        ...(androidGoogleMapsApiKey ? { androidGoogleMapsApiKey } : {}),
+        ...(iosGoogleMapsApiKey ? { iosGoogleMapsApiKey } : {}),
+      },
+    ]);
   }
 
   return {
@@ -30,12 +37,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     android: {
       ...config.android,
       package: config.android?.package || 'com.merakihomes.mobile',
-      ...(androidGoogleMapsApiKey ? { config: { ...config.android?.config, googleMaps: { apiKey: androidGoogleMapsApiKey } } } : {}),
+      ...(androidGoogleMapsApiKey
+        ? { config: { ...config.android?.config, googleMaps: { apiKey: androidGoogleMapsApiKey } } }
+        : {}),
     },
     ios: {
       ...config.ios,
       bundleIdentifier: config.ios?.bundleIdentifier || 'com.merakihomes.mobile',
-      ...(iosGoogleMapsApiKey ? { config: { ...config.ios?.config, googleMapsApiKey: iosGoogleMapsApiKey } } : {}),
+      ...(iosGoogleMapsApiKey
+        ? { config: { ...config.ios?.config, googleMapsApiKey: iosGoogleMapsApiKey } }
+        : {}),
     },
     extra: {
       ...config.extra,

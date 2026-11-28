@@ -17,10 +17,12 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
     try {
       const cookieTheme = document.cookie
         .split('; ')
-        .find(value => value.startsWith('meraki-theme='))
+        .find((value) => value.startsWith('meraki-theme='))
         ?.split('=')[1];
       const savedTheme = cookieTheme || window.localStorage.getItem('theme');
-      setIsDarkMode(savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+      setIsDarkMode(
+        savedTheme ? savedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches,
+      );
     } catch {
       setIsDarkMode(window.matchMedia('(prefers-color-scheme: dark)').matches);
     } finally {
@@ -47,14 +49,10 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   }, [isDarkMode, preferenceLoaded]);
 
   const toggleTheme = () => {
-    setIsDarkMode(prev => !prev);
+    setIsDarkMode((prev) => !prev);
   };
 
-  return (
-    <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => {

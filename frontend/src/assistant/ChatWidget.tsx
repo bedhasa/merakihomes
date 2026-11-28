@@ -46,7 +46,6 @@ export const ChatWidget: React.FC = () => {
             onDraftChange={chat.setDraft}
             onSend={chat.sendMessage}
             isTyping={chat.isTyping}
-
             error={chat.error}
             onRetry={() => void chat.sendMessage(chat.retryText || '', true)}
             language={chat.language}

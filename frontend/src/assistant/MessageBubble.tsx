@@ -18,6 +18,8 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isAssista
         : 'rounded-br-sm bg-[#102A43] text-white'
     }`}
   >
-    {message.content.type === 'text' && <p className="whitespace-pre-line break-words">{message.content.text}</p>}
+    {message.content.type === 'text' && (
+      <p className="whitespace-pre-line break-words">{message.content.text}</p>
+    )}
   </motion.div>
 );

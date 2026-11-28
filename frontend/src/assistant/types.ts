@@ -48,7 +48,8 @@ export interface ChatMessage {
   suggestedService?: { id: string; categoryId: string | null; packageId: string | null } | null;
 }
 
-export const createStarterMessages = (): ChatMessage[] => {
+/** Opening messages; texts come from the `assistant` catalog (welcome, helpTopics). */
+export const createStarterMessages = (texts: { welcome: string; helpTopics: string }): ChatMessage[] => {
   const timestamp = new Date();
   return [
     {
@@ -56,7 +57,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: "\u{1F44B} Hello and welcome to Meraki Homes! I'm Agaz AI, Meraki Homes' assistant. I can help with services, pricing, and booking requests.",
+        text: texts.welcome,
       },
       timestamp,
     },
@@ -65,7 +66,7 @@ export const createStarterMessages = (): ChatMessage[] => {
       role: 'assistant',
       content: {
         type: 'text',
-        text: 'Choose a service question to start. Operations confirms availability, final scope, and price after reviewing a booking request.',
+        text: texts.helpTopics,
       },
       timestamp,
     },
